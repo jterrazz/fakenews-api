@@ -20,9 +20,7 @@ import { headlineSchema } from '../../../domain/value-objects/article/headline.v
 export class ArticleCompositionAgentAdapter implements ArticleCompositionAgentPort {
     static readonly SCHEMA = z.object({
         body: bodySchema,
-        // Main article (neutral, factual)
         headline: headlineSchema,
-        // Variants (one per perspective provided)
         variants: z
             .array(
                 z.object({

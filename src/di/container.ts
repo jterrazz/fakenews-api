@@ -27,7 +27,7 @@ import { DigestStoriesUseCase } from '../application/use-cases/stories/digest-st
 
 import { NodeConfigAdapter } from '../infrastructure/inbound/configuration/node-config.adapter.js';
 import { NodeCronAdapter } from '../infrastructure/inbound/executor/node-cron.adapter.js';
-import { StoryDigestTask } from '../infrastructure/inbound/executor/stories/story-digest.task.js';
+import { StoryPipelineTask } from '../infrastructure/inbound/executor/stories/story-pipeline.task.js';
 import { GetArticlesController } from '../infrastructure/inbound/server/articles/get-articles.controller.js';
 import { HonoServerAdapter } from '../infrastructure/inbound/server/hono.adapter.js';
 import { ArticleCompositionAgentAdapter } from '../infrastructure/outbound/agents/article-composition.agent.js';
@@ -243,14 +243,14 @@ const tasksFactory = Injectable(
     ): TaskPort[] => {
         const tasks: TaskPort[] = [];
 
-        // Story digest task
-        const storyDigestConfigs = configuration.getInboundConfiguration().tasks.storyDigest;
+        // Story pipeline task
+        const storyPipelineConfigs = configuration.getInboundConfiguration().tasks.storyPipeline;
         tasks.push(
-            new StoryDigestTask(
+            new StoryPipelineTask(
                 digestStories,
                 generateArticlesFromStories,
                 classifyStories,
-                storyDigestConfigs,
+                storyPipelineConfigs,
                 logger,
             ),
         );

@@ -7,7 +7,7 @@ inbound:
     level: info
     prettyPrint: false
   tasks:
-    storyDigest:
+    storyPipeline:
       - country: fr
         language: fr
       - country: us

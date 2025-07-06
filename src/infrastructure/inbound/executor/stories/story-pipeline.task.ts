@@ -1,6 +1,6 @@
 import { type LoggerPort } from '@jterrazz/logger';
 
-import { type StoryDigestTaskConfig } from '../../../../application/ports/inbound/configuration.port.js';
+import { type StoryPipelineTaskConfig } from '../../../../application/ports/inbound/configuration.port.js';
 
 import { type TaskPort } from '../../../../application/ports/inbound/executor.port.js';
 import { type GenerateArticlesFromStoriesUseCase } from '../../../../application/use-cases/articles/generate-articles-from-stories.use-case.js';
@@ -10,16 +10,16 @@ import { type DigestStoriesUseCase } from '../../../../application/use-cases/sto
 import { Country } from '../../../../domain/value-objects/country.vo.js';
 import { Language } from '../../../../domain/value-objects/language.vo.js';
 
-export class StoryDigestTask implements TaskPort {
+export class StoryPipelineTask implements TaskPort {
     public readonly executeOnStartup = true;
-    public readonly name = 'story-digest';
+    public readonly name = 'story-pipeline';
     public readonly schedule = '0 */2 * * *'; // Every 2 hours
 
     constructor(
         private readonly digestStories: DigestStoriesUseCase,
         private readonly generateArticlesFromStories: GenerateArticlesFromStoriesUseCase,
         private readonly classifyStories: ClassifyStoriesUseCase,
-        private readonly taskConfigs: StoryDigestTaskConfig[],
+        private readonly taskConfigs: StoryPipelineTaskConfig[],
         private readonly logger: LoggerPort,
     ) {}
 

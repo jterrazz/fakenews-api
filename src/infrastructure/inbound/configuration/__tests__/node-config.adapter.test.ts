@@ -16,7 +16,7 @@ describe('Node Config Adapter', () => {
                 prettyPrint: false,
             },
             tasks: {
-                storyDigest: [
+                storyPipeline: [
                     {
                         country: 'fr',
                         language: 'fr',
@@ -55,21 +55,21 @@ describe('Node Config Adapter', () => {
         expect(configAdapter.getOutboundConfiguration()).toEqual(validConfig.outbound);
     });
 
-    test('should load configuration with default empty storyDigest when not provided', () => {
-        // Given - a valid configuration without storyDigest tasks
+    test('should load configuration with default empty storyPipeline when not provided', () => {
+        // Given - a valid configuration without storyPipeline tasks
         const configWithoutTasks = {
             ...validConfig,
             inbound: {
                 ...validConfig.inbound,
                 tasks: {
-                    storyDigest: undefined,
+                    storyPipeline: undefined,
                 },
             },
         };
         // When - creating a NodeConfigAdapter instance
         const configAdapter = new NodeConfigAdapter(configWithoutTasks);
-        // Then - it should return configuration with empty storyDigest array
-        expect(configAdapter.getInboundConfiguration().tasks.storyDigest).toEqual([]);
+        // Then - it should return configuration with empty storyPipeline array
+        expect(configAdapter.getInboundConfiguration().tasks.storyPipeline).toEqual([]);
     });
 
     test('should fail with invalid environment', () => {
@@ -158,14 +158,14 @@ describe('Node Config Adapter', () => {
         expect(() => new NodeConfigAdapter(invalidConfig)).toThrow(ZodError);
     });
 
-    test('should fail with invalid story digest task configuration', () => {
+    test('should fail with invalid story pipeline task configuration', () => {
         // Given - a configuration with invalid task configuration
         const invalidConfig = {
             ...validConfig,
             inbound: {
                 ...validConfig.inbound,
                 tasks: {
-                    storyDigest: [
+                    storyPipeline: [
                         {
                             country: '', // Invalid empty country
                             language: 'fr',
@@ -178,14 +178,14 @@ describe('Node Config Adapter', () => {
         expect(() => new NodeConfigAdapter(invalidConfig)).toThrow(ZodError);
     });
 
-    test('should fail with invalid country in story digest task', () => {
+    test('should fail with invalid country in story pipeline task', () => {
         // Given - a configuration with invalid country
         const invalidConfig = {
             ...validConfig,
             inbound: {
                 ...validConfig.inbound,
                 tasks: {
-                    storyDigest: [
+                    storyPipeline: [
                         {
                             country: 'invalid-country',
                             language: 'en',
@@ -198,14 +198,14 @@ describe('Node Config Adapter', () => {
         expect(() => new NodeConfigAdapter(invalidConfig)).toThrow(ZodError);
     });
 
-    test('should fail with invalid language in story digest task', () => {
+    test('should fail with invalid language in story pipeline task', () => {
         // Given - a configuration with invalid language
         const invalidConfig = {
             ...validConfig,
             inbound: {
                 ...validConfig.inbound,
                 tasks: {
-                    storyDigest: [
+                    storyPipeline: [
                         {
                             country: 'us',
                             language: 'invalid-language',

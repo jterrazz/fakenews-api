@@ -32,7 +32,7 @@ export interface InboundConfigurationPort {
         prettyPrint: boolean;
     };
     tasks: {
-        storyDigest: StoryDigestTaskConfig[];
+        storyPipeline: StoryPipelineTaskConfig[];
     };
 }
 
@@ -58,9 +58,9 @@ export interface OutboundConfigurationPort {
 }
 
 /**
- * Story digest task configuration
+ * Story pipeline task configuration
  */
-export interface StoryDigestTaskConfig {
+export interface StoryPipelineTaskConfig {
     country: CountryEnum;
     language: LanguageEnum;
 }
@@ -69,5 +69,5 @@ export interface StoryDigestTaskConfig {
  * Tasks configuration
  */
 export interface TasksConfigurationPort {
-    storyDigest: StoryDigestTaskConfig[];
+    storyPipeline: StoryPipelineTaskConfig[];
 }
