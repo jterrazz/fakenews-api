@@ -164,8 +164,8 @@ describe('HTTP - Get Articles - Integration Tests', () => {
                 ),
                 metadata: {
                     category: 'technology',
+                    classification: 'STANDARD',
                     country: 'us',
-                    interestTier: 'STANDARD',
                     language: 'en',
                 },
                 publishedAt: '2024-03-15T14:30:00.000Z',
@@ -212,8 +212,8 @@ describe('HTTP - Get Articles - Integration Tests', () => {
                 ),
                 metadata: {
                     category: 'technology',
+                    classification: 'STANDARD',
                     country: 'us',
-                    interestTier: 'STANDARD',
                     language: 'en',
                 },
                 publishedAt: '2024-03-15T14:30:00.000Z',

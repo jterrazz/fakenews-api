@@ -79,9 +79,9 @@ export class ArticleFactory {
         const story = await prisma.story.create({
             data: {
                 category: article.category.toString() as PrismaCategory,
+                classification: 'STANDARD',
                 country: article.country.toString() as PrismaCountry,
                 dateline: article.publishedAt,
-                interestTier: 'STANDARD',
                 // Default to STANDARD for tests
                 sourceReferences: [],
                 synopsis: `This is a test synopsis for the story related to article ${article.headline.value}. It is long enough to pass validation.`,

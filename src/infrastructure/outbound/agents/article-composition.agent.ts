@@ -9,15 +9,15 @@ import { type LoggerPort } from '@jterrazz/logger';
 import { z } from 'zod/v4';
 
 import {
-    type ArticleComposerAgentPort,
+    type ArticleCompositionAgentPort,
     type ArticleCompositionInput,
     type ArticleCompositionResult,
-} from '../../../application/ports/outbound/agents/article-composer.agent.js';
+} from '../../../application/ports/outbound/agents/article-composition.agent.js';
 
 import { bodySchema } from '../../../domain/value-objects/article/body.vo.js';
 import { headlineSchema } from '../../../domain/value-objects/article/headline.vo.js';
 
-export class ArticleComposerAgentAdapter implements ArticleComposerAgentPort {
+export class ArticleCompositionAgentAdapter implements ArticleCompositionAgentPort {
     static readonly SCHEMA = z.object({
         body: bodySchema,
         // Main article (neutral, factual)
@@ -42,9 +42,11 @@ export class ArticleComposerAgentAdapter implements ArticleComposerAgentPort {
         PROMPT_LIBRARY.FOUNDATIONS.CONTEXTUAL_ONLY,
     );
 
-    public readonly name = 'ArticleComposerAgent';
+    public readonly name = 'ArticleCompositionAgent';
 
-    private readonly agent: BasicAgentAdapter<z.infer<typeof ArticleComposerAgentAdapter.SCHEMA>>;
+    private readonly agent: BasicAgentAdapter<
+        z.infer<typeof ArticleCompositionAgentAdapter.SCHEMA>
+    >;
 
     constructor(
         private readonly model: ModelPort,
@@ -53,8 +55,8 @@ export class ArticleComposerAgentAdapter implements ArticleComposerAgentPort {
         this.agent = new BasicAgentAdapter(this.name, {
             logger: this.logger,
             model: this.model,
-            schema: ArticleComposerAgentAdapter.SCHEMA,
-            systemPrompt: ArticleComposerAgentAdapter.SYSTEM_PROMPT,
+            schema: ArticleCompositionAgentAdapter.SCHEMA,
+            systemPrompt: ArticleCompositionAgentAdapter.SYSTEM_PROMPT,
         });
     }
 
@@ -119,7 +121,7 @@ export class ArticleComposerAgentAdapter implements ArticleComposerAgentPort {
                 },
             );
 
-            const result = await this.agent.run(ArticleComposerAgentAdapter.USER_PROMPT(input));
+            const result = await this.agent.run(ArticleCompositionAgentAdapter.USER_PROMPT(input));
 
             if (!result) {
                 this.logger.warn(`[${this.name}] No result from AI model`);

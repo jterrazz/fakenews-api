@@ -9,9 +9,9 @@ import { type LoggerPort } from '@jterrazz/logger';
 import { z } from 'zod/v4';
 
 import {
-    type StoryDigestAgentPort,
-    type StoryDigestResult,
-} from '../../../application/ports/outbound/agents/story-digest.agent.js';
+    type StoryIngestionAgentPort,
+    type StoryIngestionResult,
+} from '../../../application/ports/outbound/agents/story-ingestion.agent.js';
 import { type NewsStory } from '../../../application/ports/outbound/providers/news.port.js';
 
 import { synopsisSchema } from '../../../domain/entities/story.entity.js';
@@ -25,7 +25,7 @@ import {
     stanceSchema,
 } from '../../../domain/value-objects/perspective/perspective-tags.vo.js';
 
-export class StoryDigestAgentAdapter implements StoryDigestAgentPort {
+export class StoryIngestionAgentAdapter implements StoryIngestionAgentPort {
     static readonly SCHEMA = z.object({
         category: categorySchema,
         perspectives: z
@@ -56,9 +56,9 @@ export class StoryDigestAgentAdapter implements StoryDigestAgentPort {
         PROMPT_LIBRARY.VERBOSITY.DETAILED,
     );
 
-    public readonly name = 'StoryDigestAgent';
+    public readonly name = 'StoryIngestionAgent';
 
-    private readonly agent: BasicAgentAdapter<z.infer<typeof StoryDigestAgentAdapter.SCHEMA>>;
+    private readonly agent: BasicAgentAdapter<z.infer<typeof StoryIngestionAgentAdapter.SCHEMA>>;
 
     constructor(
         private readonly model: ModelPort,
@@ -67,8 +67,8 @@ export class StoryDigestAgentAdapter implements StoryDigestAgentPort {
         this.agent = new BasicAgentAdapter(this.name, {
             logger: this.logger,
             model: this.model,
-            schema: StoryDigestAgentAdapter.SCHEMA,
-            systemPrompt: StoryDigestAgentAdapter.SYSTEM_PROMPT,
+            schema: StoryIngestionAgentAdapter.SCHEMA,
+            systemPrompt: StoryIngestionAgentAdapter.SYSTEM_PROMPT,
         });
     }
 
@@ -116,14 +116,14 @@ export class StoryDigestAgentAdapter implements StoryDigestAgentPort {
             ),
         );
 
-    async run(params: { newsStory: NewsStory }): Promise<null | StoryDigestResult> {
+    async run(params: { newsStory: NewsStory }): Promise<null | StoryIngestionResult> {
         try {
             this.logger.info(
-                `[${this.name}] Digesting story with ${params.newsStory.articles.length} articles`,
+                `[${this.name}] Ingesting story with ${params.newsStory.articles.length} articles`,
             );
 
             const result = await this.agent.run(
-                StoryDigestAgentAdapter.USER_PROMPT(params.newsStory),
+                StoryIngestionAgentAdapter.USER_PROMPT(params.newsStory),
             );
 
             if (!result) {
@@ -152,19 +152,19 @@ export class StoryDigestAgentAdapter implements StoryDigestAgentPort {
                 }),
             }));
 
-            const digestResult: StoryDigestResult = {
+            const ingestionResult: StoryIngestionResult = {
                 category,
                 perspectives,
                 synopsis: result.synopsis,
             };
 
             this.logger.info(
-                `[${this.name}] Successfully digested story: ${digestResult.synopsis.substring(0, 100)}... with ${digestResult.perspectives.length} perspectives`,
+                `[${this.name}] Successfully ingested story: ${ingestionResult.synopsis.substring(0, 100)}... with ${ingestionResult.perspectives.length} perspectives`,
             );
 
-            return digestResult;
+            return ingestionResult;
         } catch (error) {
-            this.logger.error(`[${this.name}] Failed to digest story`, {
+            this.logger.error(`[${this.name}] Failed to ingest story`, {
                 articleCount: params.newsStory.articles.length,
                 error,
             });

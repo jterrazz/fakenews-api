@@ -60,21 +60,3 @@ function createMockStory(index: number): Story {
 function getMockStoryCategory(index: number): Category {
     return new Category(index % 2 === 0 ? 'politics' : 'technology');
 }
-
-/**
- * Generates mock story synopses based on category
- */
-function getMockStorySynopsis(index: number): string {
-    const synopses = [
-        'A comprehensive political analysis examining stakeholder perspectives on policy implementation across affected regions. Government responses, opposition viewpoints, citizen concerns, and international reactions shape the evolving narrative.',
-        'In-depth technological coverage examining societal impact with industry expert viewpoints, regulatory perspectives, and public advocacy positions. Market disruption concerns and innovation opportunities drive complex discussions.',
-        'Detailed economic examination of trends and movements featuring financial institution analysis, government agency perspectives, and independent research insights. Employment impacts and monetary policy implications remain central.',
-        'Thorough environmental investigation of policy changes incorporating scientific community perspectives, environmental group positions, and industry representative viewpoints. Climate assessments and conservation efforts dominate discourse.',
-        'Complete social policy assessment analyzing community impact through demographic group positions, advocacy organization perspectives, and policy expert analysis. Implementation challenges and community benefits drive evaluation.',
-        'Comprehensive international relations review examining global implications through diplomatic, economic, and security perspectives from multiple nations. Treaty negotiations and trade relationships shape international cooperation.',
-        'Detailed healthcare analysis of system changes examining public health consequences through medical professional insights, patient advocacy perspectives, and healthcare administrator viewpoints on treatment accessibility.',
-        'In-depth educational examination of policy reforms analyzing learning outcome impacts through educator perspectives, parent viewpoints, student positions, and education researcher insights on curriculum changes.',
-    ];
-
-    return synopses[index % synopses.length];
-}

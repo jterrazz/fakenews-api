@@ -2,14 +2,13 @@ import { type LoggerPort } from '@jterrazz/logger';
 import { randomUUID } from 'crypto';
 
 import { Perspective } from '../../../domain/entities/perspective.entity.js';
-import { type Story } from '../../../domain/entities/story.entity.js';
-import { Story as StoryEntity } from '../../../domain/entities/story.entity.js';
+import { Story } from '../../../domain/entities/story.entity.js';
 import { type Country } from '../../../domain/value-objects/country.vo.js';
 import { type Language } from '../../../domain/value-objects/language.vo.js';
 import { Classification } from '../../../domain/value-objects/story/classification.vo.js';
 
 import { type StoryDeduplicationAgentPort } from '../../ports/outbound/agents/story-deduplication.agent.js';
-import { type StoryDigestAgentPort } from '../../ports/outbound/agents/story-digest.agent.js';
+import { type StoryIngestionAgentPort } from '../../ports/outbound/agents/story-ingestion.agent.js';
 import { type StoryRepositoryPort } from '../../ports/outbound/persistence/story-repository.port.js';
 import { type NewsProviderPort } from '../../ports/outbound/providers/news.port.js';
 
@@ -18,7 +17,7 @@ import { type NewsProviderPort } from '../../ports/outbound/providers/news.port.
  */
 export class DigestStoriesUseCase {
     constructor(
-        private readonly storyDigestAgent: StoryDigestAgentPort,
+        private readonly storyIngestionAgent: StoryIngestionAgentPort,
         private readonly storyDeduplicationAgent: StoryDeduplicationAgentPort,
         private readonly logger: LoggerPort,
         private readonly newsProvider: NewsProviderPort,
@@ -109,10 +108,10 @@ export class DigestStoriesUseCase {
                         continue; // Skip to the next story
                     }
 
-                    // Step 5.2: Digest the unique story
-                    const digestResult = await this.storyDigestAgent.run({ newsStory });
-                    if (!digestResult) {
-                        this.logger.warn('AI digest agent returned null.', {
+                    // Step 5.2: Ingest the unique story
+                    const ingestionResult = await this.storyIngestionAgent.run({ newsStory });
+                    if (!ingestionResult) {
+                        this.logger.warn('AI ingestion agent returned null.', {
                             newsStoryArticles: newsStory.articles.length,
                         });
                         continue;
@@ -120,7 +119,7 @@ export class DigestStoriesUseCase {
 
                     const storyId = randomUUID();
                     const now = new Date();
-                    const perspectives = digestResult.perspectives.map(
+                    const perspectives = ingestionResult.perspectives.map(
                         (p) =>
                             new Perspective({
                                 ...p,
@@ -131,8 +130,8 @@ export class DigestStoriesUseCase {
                             }),
                     );
 
-                    const story = new StoryEntity({
-                        category: digestResult.category,
+                    const story = new Story({
+                        category: ingestionResult.category,
                         classification: new Classification('PENDING_CLASSIFICATION'),
                         country,
                         createdAt: now,
@@ -140,7 +139,7 @@ export class DigestStoriesUseCase {
                         id: storyId,
                         perspectives,
                         sourceReferences: newsStory.articles.map((a) => a.id),
-                        synopsis: digestResult.synopsis,
+                        synopsis: ingestionResult.synopsis,
                         updatedAt: now,
                     });
 
@@ -148,7 +147,7 @@ export class DigestStoriesUseCase {
                     digestedStories.push(savedStory);
                     // Add the newly created story to deduplication tracking for subsequent stories
                     allStoriesForDeduplication.push(savedStory);
-                    this.logger.info(`Successfully digested and saved new story ${savedStory.id}.`);
+                    this.logger.info(`Successfully ingested and saved new story ${savedStory.id}.`);
                 } catch (storyError) {
                     this.logger.warn('Failed to process individual news story.', {
                         error: storyError,

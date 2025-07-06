@@ -10,9 +10,9 @@ import { type Country } from '../../../domain/value-objects/country.vo.js';
 import { type Language } from '../../../domain/value-objects/language.vo.js';
 
 import {
-    type ArticleComposerAgentPort,
+    type ArticleCompositionAgentPort,
     type ArticleCompositionInput,
-} from '../../ports/outbound/agents/article-composer.agent.js';
+} from '../../ports/outbound/agents/article-composition.agent.js';
 import { type ArticleRepositoryPort } from '../../ports/outbound/persistence/article-repository.port.js';
 import { type StoryRepositoryPort } from '../../ports/outbound/persistence/story-repository.port.js';
 
@@ -22,7 +22,7 @@ import { type StoryRepositoryPort } from '../../ports/outbound/persistence/story
  */
 export class GenerateArticlesFromStoriesUseCase {
     constructor(
-        private readonly articleComposerAgent: ArticleComposerAgentPort,
+        private readonly articleCompositionAgent: ArticleCompositionAgentPort,
         private readonly logger: LoggerPort,
         private readonly storyRepository: StoryRepositoryPort,
         private readonly articleRepository: ArticleRepositoryPort,
@@ -70,7 +70,8 @@ export class GenerateArticlesFromStoriesUseCase {
                     };
 
                     // Generate article using AI agent
-                    const compositionResult = await this.articleComposerAgent.run(compositionInput);
+                    const compositionResult =
+                        await this.articleCompositionAgent.run(compositionInput);
 
                     if (!compositionResult) {
                         this.logger.warn('AI agent returned null for story', {

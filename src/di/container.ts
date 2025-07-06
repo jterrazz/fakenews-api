@@ -13,10 +13,10 @@ import type { ConfigurationPort } from '../application/ports/inbound/configurati
 import type { ExecutorPort } from '../application/ports/inbound/executor.port.js';
 import { type TaskPort } from '../application/ports/inbound/executor.port.js';
 import type { ServerPort } from '../application/ports/inbound/server.port.js';
-import { type ArticleComposerAgentPort } from '../application/ports/outbound/agents/article-composer.agent.js';
-import { type StoryClassifierAgentPort } from '../application/ports/outbound/agents/story-classifier.agent.js';
+import { type ArticleCompositionAgentPort } from '../application/ports/outbound/agents/article-composition.agent.js';
+import { type StoryClassificationAgentPort } from '../application/ports/outbound/agents/story-classification.agent.js';
 import { type StoryDeduplicationAgentPort } from '../application/ports/outbound/agents/story-deduplication.agent.js';
-import { type StoryDigestAgentPort } from '../application/ports/outbound/agents/story-digest.agent.js';
+import { type StoryIngestionAgentPort } from '../application/ports/outbound/agents/story-ingestion.agent.js';
 import type { ArticleRepositoryPort } from '../application/ports/outbound/persistence/article-repository.port.js';
 import { type StoryRepositoryPort } from '../application/ports/outbound/persistence/story-repository.port.js';
 import type { NewsProviderPort } from '../application/ports/outbound/providers/news.port.js';
@@ -30,10 +30,10 @@ import { NodeCronAdapter } from '../infrastructure/inbound/executor/node-cron.ad
 import { StoryDigestTask } from '../infrastructure/inbound/executor/stories/story-digest.task.js';
 import { GetArticlesController } from '../infrastructure/inbound/server/articles/get-articles.controller.js';
 import { HonoServerAdapter } from '../infrastructure/inbound/server/hono.adapter.js';
-import { ArticleComposerAgentAdapter } from '../infrastructure/outbound/agents/article-composer.agent.js';
-import { StoryClassifierAgentAdapter } from '../infrastructure/outbound/agents/story-classifier.agent.js';
+import { ArticleCompositionAgentAdapter } from '../infrastructure/outbound/agents/article-composition.agent.js';
+import { StoryClassificationAgentAdapter } from '../infrastructure/outbound/agents/story-classification.agent.js';
 import { StoryDeduplicationAgentAdapter } from '../infrastructure/outbound/agents/story-deduplication.agent.js';
-import { StoryDigestAgentAdapter } from '../infrastructure/outbound/agents/story-digest.agent.js';
+import { StoryIngestionAgentAdapter } from '../infrastructure/outbound/agents/story-ingestion.agent.js';
 import { PrismaAdapter } from '../infrastructure/outbound/persistence/prisma.adapter.js';
 import { PrismaArticleRepository } from '../infrastructure/outbound/persistence/prisma-article.adapter.js';
 import { PrismaStoryRepository } from '../infrastructure/outbound/persistence/prisma-story.adapter.js';
@@ -105,22 +105,22 @@ const modelFactory = Injectable(
         }),
 );
 
-const storyDigestAgentFactory = Injectable(
-    'StoryDigestAgent',
+const storyIngestionAgentFactory = Injectable(
+    'StoryIngestionAgent',
     ['Model', 'Logger'] as const,
-    (model: ModelPort, logger: LoggerPort) => new StoryDigestAgentAdapter(model, logger),
+    (model: ModelPort, logger: LoggerPort) => new StoryIngestionAgentAdapter(model, logger),
 );
 
-const articleComposerAgentFactory = Injectable(
-    'ArticleComposerAgent',
+const articleCompositionAgentFactory = Injectable(
+    'ArticleCompositionAgent',
     ['Model', 'Logger'] as const,
-    (model: ModelPort, logger: LoggerPort) => new ArticleComposerAgentAdapter(model, logger),
+    (model: ModelPort, logger: LoggerPort) => new ArticleCompositionAgentAdapter(model, logger),
 );
 
-const storyClassifierAgentFactory = Injectable(
-    'StoryClassifierAgent',
+const storyClassificationAgentFactory = Injectable(
+    'StoryClassificationAgent',
     ['Model', 'Logger'] as const,
-    (model: ModelPort, logger: LoggerPort) => new StoryClassifierAgentAdapter(model, logger),
+    (model: ModelPort, logger: LoggerPort) => new StoryClassificationAgentAdapter(model, logger),
 );
 
 const storyDeduplicationAgentFactory = Injectable(
@@ -163,16 +163,22 @@ const getArticlesUseCaseFactory = Injectable(
 
 const digestStoriesUseCaseFactory = Injectable(
     'DigestStories',
-    ['StoryDigestAgent', 'StoryDeduplicationAgent', 'Logger', 'News', 'StoryRepository'] as const,
+    [
+        'StoryIngestionAgent',
+        'StoryDeduplicationAgent',
+        'Logger',
+        'News',
+        'StoryRepository',
+    ] as const,
     (
-        storyDigestAgent: StoryDigestAgentPort,
+        storyIngestionAgent: StoryIngestionAgentPort,
         storyDeduplicationAgent: StoryDeduplicationAgentPort,
         logger: LoggerPort,
         newsService: NewsProviderPort,
         storyRepository: StoryRepositoryPort,
     ) =>
         new DigestStoriesUseCase(
-            storyDigestAgent,
+            storyIngestionAgent,
             storyDeduplicationAgent,
             logger,
             newsService,
@@ -182,15 +188,15 @@ const digestStoriesUseCaseFactory = Injectable(
 
 const generateArticlesFromStoriesUseCaseFactory = Injectable(
     'GenerateArticlesFromStories',
-    ['ArticleComposerAgent', 'Logger', 'StoryRepository', 'ArticleRepository'] as const,
+    ['ArticleCompositionAgent', 'Logger', 'StoryRepository', 'ArticleRepository'] as const,
     (
-        articleComposerAgent: ArticleComposerAgentPort,
+        articleCompositionAgent: ArticleCompositionAgentPort,
         logger: LoggerPort,
         storyRepository: StoryRepositoryPort,
         articleRepository: ArticleRepositoryPort,
     ) =>
         new GenerateArticlesFromStoriesUseCase(
-            articleComposerAgent,
+            articleCompositionAgent,
             logger,
             storyRepository,
             articleRepository,
@@ -199,12 +205,12 @@ const generateArticlesFromStoriesUseCaseFactory = Injectable(
 
 const classifyStoriesUseCaseFactory = Injectable(
     'ClassifyStories',
-    ['StoryClassifierAgent', 'StoryRepository', 'Logger'] as const,
+    ['StoryClassificationAgent', 'Logger', 'StoryRepository'] as const,
     (
-        storyClassifierAgent: StoryClassifierAgentPort,
-        storyRepository: StoryRepositoryPort,
+        storyClassificationAgent: StoryClassificationAgentPort,
         logger: LoggerPort,
-    ) => new ClassifyStoriesUseCase(storyClassifierAgent, storyRepository, logger),
+        storyRepository: StoryRepositoryPort,
+    ) => new ClassifyStoriesUseCase(storyClassificationAgent, logger, storyRepository),
 );
 
 /**
@@ -317,9 +323,9 @@ export const createContainer = (overrides?: ContainerOverrides) =>
         .provides(databaseFactory)
         .provides(newsFactory)
         .provides(modelFactory)
-        .provides(storyDigestAgentFactory)
-        .provides(articleComposerAgentFactory)
-        .provides(storyClassifierAgentFactory)
+        .provides(storyIngestionAgentFactory)
+        .provides(articleCompositionAgentFactory)
+        .provides(storyClassificationAgentFactory)
         .provides(storyDeduplicationAgentFactory)
         // Repositories
         .provides(articleRepositoryFactory)

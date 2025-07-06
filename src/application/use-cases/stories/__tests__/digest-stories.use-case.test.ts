@@ -1,5 +1,5 @@
 import { type LoggerPort } from '@jterrazz/logger';
-import { beforeEach, describe, expect, mockOf, test } from '@jterrazz/test';
+import { beforeEach, describe, expect, test } from '@jterrazz/test';
 import { type DeepMockProxy, mock } from 'vitest-mock-extended';
 
 import { getMockStories } from '../../../../domain/entities/__mocks__/mock-of-stories.js';
@@ -8,9 +8,9 @@ import { Language } from '../../../../domain/value-objects/language.vo.js';
 
 import { type StoryDeduplicationAgentPort } from '../../../ports/outbound/agents/story-deduplication.agent.js';
 import {
-    type StoryDigestAgentPort,
-    type StoryDigestResult,
-} from '../../../ports/outbound/agents/story-digest.agent.js';
+    type StoryIngestionAgentPort,
+    type StoryIngestionResult,
+} from '../../../ports/outbound/agents/story-ingestion.agent.js';
 import { type StoryRepositoryPort } from '../../../ports/outbound/persistence/story-repository.port.js';
 import {
     type NewsProviderPort,
@@ -41,23 +41,23 @@ describe('DigestStoriesUseCase', () => {
     ];
 
     // Mocks
-    let mockStoryDigestAgent: DeepMockProxy<StoryDigestAgentPort>;
+    let mockStoryIngestionAgent: DeepMockProxy<StoryIngestionAgentPort>;
     let mockStoryDeduplicationAgent: DeepMockProxy<StoryDeduplicationAgentPort>;
     let mockLogger: DeepMockProxy<LoggerPort>;
     let mockNewsProvider: DeepMockProxy<NewsProviderPort>;
     let mockStoryRepository: DeepMockProxy<StoryRepositoryPort>;
     let useCase: DigestStoriesUseCase;
-    let mockDigestResult: StoryDigestResult;
+    let mockIngestionResult: StoryIngestionResult;
 
     beforeEach(() => {
-        mockStoryDigestAgent = mock<StoryDigestAgentPort>();
+        mockStoryIngestionAgent = mock<StoryIngestionAgentPort>();
         mockStoryDeduplicationAgent = mock<StoryDeduplicationAgentPort>();
-        mockLogger = mockOf<LoggerPort>();
+        mockLogger = mock<LoggerPort>();
         mockNewsProvider = mock<NewsProviderPort>();
         mockStoryRepository = mock<StoryRepositoryPort>();
 
         useCase = new DigestStoriesUseCase(
-            mockStoryDigestAgent,
+            mockStoryIngestionAgent,
             mockStoryDeduplicationAgent,
             mockLogger,
             mockNewsProvider,
@@ -65,7 +65,7 @@ describe('DigestStoriesUseCase', () => {
         );
 
         const mockStory = getMockStories(1)[0];
-        mockDigestResult = {
+        mockIngestionResult = {
             category: mockStory.category,
             perspectives: mockStory.perspectives.map((p) => ({
                 holisticDigest: p.holisticDigest,
@@ -81,7 +81,7 @@ describe('DigestStoriesUseCase', () => {
         mockStoryDeduplicationAgent.run.mockResolvedValue({
             duplicateOfStoryId: null,
         });
-        mockStoryDigestAgent.run.mockResolvedValue(mockDigestResult);
+        mockStoryIngestionAgent.run.mockResolvedValue(mockIngestionResult);
         mockStoryRepository.create.mockImplementation(async (story) => story);
     });
 
@@ -92,7 +92,7 @@ describe('DigestStoriesUseCase', () => {
         await useCase.execute(DEFAULT_LANGUAGE, DEFAULT_COUNTRY);
 
         // Then: It should create a new story for each of them.
-        expect(mockStoryDigestAgent.run).toHaveBeenCalledTimes(2);
+        expect(mockStoryIngestionAgent.run).toHaveBeenCalledTimes(2);
         expect(mockStoryRepository.create).toHaveBeenCalledTimes(2);
         expect(mockStoryRepository.addSourceReferences).not.toHaveBeenCalled();
     });
@@ -110,7 +110,7 @@ describe('DigestStoriesUseCase', () => {
         await useCase.execute(DEFAULT_LANGUAGE, DEFAULT_COUNTRY);
 
         // Then: It should create one new story and merge the sources for the duplicate.
-        expect(mockStoryDigestAgent.run).toHaveBeenCalledTimes(1); // Only called for the first, unique story
+        expect(mockStoryIngestionAgent.run).toHaveBeenCalledTimes(1); // Only called for the first, unique story
         expect(mockStoryRepository.create).toHaveBeenCalledTimes(1);
         expect(mockStoryRepository.addSourceReferences).toHaveBeenCalledTimes(1);
         expect(mockStoryRepository.addSourceReferences).toHaveBeenCalledWith(existingStoryId, [
@@ -128,7 +128,7 @@ describe('DigestStoriesUseCase', () => {
 
         // Then: It should only process the one truly new story.
         expect(mockStoryDeduplicationAgent.run).toHaveBeenCalledTimes(1);
-        expect(mockStoryDigestAgent.run).toHaveBeenCalledTimes(1);
+        expect(mockStoryIngestionAgent.run).toHaveBeenCalledTimes(1);
         expect(mockStoryRepository.create).toHaveBeenCalledTimes(1);
     });
 
@@ -144,15 +144,15 @@ describe('DigestStoriesUseCase', () => {
 
         // Then: It should only process the one valid story.
         expect(mockStoryDeduplicationAgent.run).toHaveBeenCalledTimes(1);
-        expect(mockStoryDigestAgent.run).toHaveBeenCalledTimes(1);
+        expect(mockStoryIngestionAgent.run).toHaveBeenCalledTimes(1);
         expect(mockStoryRepository.create).toHaveBeenCalledTimes(1);
     });
 
-    test('it should gracefully handle a failure from the digest agent', async () => {
-        // Given: The digest agent fails for one of the stories.
-        mockStoryDigestAgent.run
-            .mockResolvedValueOnce(mockDigestResult)
-            .mockResolvedValueOnce(null); // Second story fails to digest
+    test('it should gracefully handle a failure from the ingestion agent', async () => {
+        // Given: The ingestion agent fails for one of the stories.
+        mockStoryIngestionAgent.run
+            .mockResolvedValueOnce(mockIngestionResult)
+            .mockResolvedValueOnce(null); // Second story fails to ingest
 
         // When
         await useCase.execute(DEFAULT_LANGUAGE, DEFAULT_COUNTRY);

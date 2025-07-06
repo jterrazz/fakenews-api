@@ -1,0 +1,43 @@
+import { type Story } from '../../../../domain/entities/story.entity.js';
+import { type Country } from '../../../../domain/value-objects/country.vo.js';
+import { type Language } from '../../../../domain/value-objects/language.vo.js';
+
+/**
+ * @description
+ * Port for the Article Composition Agent that generates articles from structured story data
+ */
+export interface ArticleCompositionAgentPort {
+    run(input: ArticleCompositionInput): Promise<ArticleCompositionResult | null>;
+}
+
+/**
+ * @description
+ * Input data required for article composition
+ */
+export interface ArticleCompositionInput {
+    story: Story;
+    targetCountry: Country;
+    targetLanguage: Language;
+}
+
+/**
+ * @description
+ * Result of article composition containing the main article and perspective variants
+ */
+export interface ArticleCompositionResult {
+    body: string;
+    headline: string;
+    variants: Array<{
+        body: string;
+        discourse: 'alternative' | 'dubious' | 'mainstream' | 'underreported';
+        headline: string;
+        stance:
+            | 'concerned'
+            | 'critical'
+            | 'mixed'
+            | 'neutral'
+            | 'optimistic'
+            | 'skeptical'
+            | 'supportive';
+    }>;
+}

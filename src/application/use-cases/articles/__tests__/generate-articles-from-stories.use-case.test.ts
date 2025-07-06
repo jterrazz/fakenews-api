@@ -1,5 +1,5 @@
 import { type LoggerPort } from '@jterrazz/logger';
-import { beforeEach, describe, expect, mockOf, test } from '@jterrazz/test';
+import { beforeEach, describe, expect, test } from '@jterrazz/test';
 import { type DeepMockProxy, mock } from 'vitest-mock-extended';
 
 import { getMockStories } from '../../../../domain/entities/__mocks__/mock-of-stories.js';
@@ -9,9 +9,9 @@ import { Country } from '../../../../domain/value-objects/country.vo.js';
 import { Language } from '../../../../domain/value-objects/language.vo.js';
 
 import {
-    type ArticleComposerAgentPort,
+    type ArticleCompositionAgentPort,
     type ArticleCompositionResult,
-} from '../../../ports/outbound/agents/article-composer.agent.js';
+} from '../../../ports/outbound/agents/article-composition.agent.js';
 import { type ArticleRepositoryPort } from '../../../ports/outbound/persistence/article-repository.port.js';
 import { type StoryRepositoryPort } from '../../../ports/outbound/persistence/story-repository.port.js';
 
@@ -24,7 +24,7 @@ describe('GenerateArticlesFromStoriesUseCase', () => {
     const TEST_STORIES_COUNT = 3;
 
     // Test fixtures
-    let mockArticleComposerAgent: DeepMockProxy<ArticleComposerAgentPort>;
+    let mockArticleCompositionAgent: DeepMockProxy<ArticleCompositionAgentPort>;
     let mockLogger: DeepMockProxy<LoggerPort>;
     let mockStoryRepository: DeepMockProxy<StoryRepositoryPort>;
     let mockArticleRepository: DeepMockProxy<ArticleRepositoryPort>;
@@ -33,13 +33,13 @@ describe('GenerateArticlesFromStoriesUseCase', () => {
     let mockCompositionResults: ArticleCompositionResult[];
 
     beforeEach(() => {
-        mockArticleComposerAgent = mock<ArticleComposerAgentPort>();
-        mockLogger = mockOf<LoggerPort>();
+        mockArticleCompositionAgent = mock<ArticleCompositionAgentPort>();
+        mockLogger = mock<LoggerPort>();
         mockStoryRepository = mock<StoryRepositoryPort>();
         mockArticleRepository = mock<ArticleRepositoryPort>();
 
         useCase = new GenerateArticlesFromStoriesUseCase(
-            mockArticleComposerAgent,
+            mockArticleCompositionAgent,
             mockLogger,
             mockStoryRepository,
             mockArticleRepository,
@@ -64,7 +64,7 @@ describe('GenerateArticlesFromStoriesUseCase', () => {
 
         // Default mock responses
         mockStoryRepository.findStoriesWithoutArticles.mockResolvedValue(testStories);
-        mockArticleComposerAgent.run.mockImplementation(async () => mockCompositionResults[0]);
+        mockArticleCompositionAgent.run.mockImplementation(async () => mockCompositionResults[0]);
         mockArticleRepository.createMany.mockResolvedValue();
     });
 
@@ -79,15 +79,15 @@ describe('GenerateArticlesFromStoriesUseCase', () => {
 
             // Then - it should find stories without articles
             expect(mockStoryRepository.findStoriesWithoutArticles).toHaveBeenCalledWith({
+                classification: ['STANDARD', 'NICHE'],
                 country: country.toString(),
-                interestTier: ['STANDARD', 'NICHE'],
                 limit: 20,
             });
 
             // And compose articles for each story through the agent
-            expect(mockArticleComposerAgent.run).toHaveBeenCalledTimes(TEST_STORIES_COUNT);
+            expect(mockArticleCompositionAgent.run).toHaveBeenCalledTimes(TEST_STORIES_COUNT);
             testStories.forEach((story) => {
-                expect(mockArticleComposerAgent.run).toHaveBeenCalledWith({
+                expect(mockArticleCompositionAgent.run).toHaveBeenCalledWith({
                     story,
                     targetCountry: country,
                     targetLanguage: language,
@@ -123,14 +123,14 @@ describe('GenerateArticlesFromStoriesUseCase', () => {
             const result = await useCase.execute(DEFAULT_LANGUAGE, DEFAULT_COUNTRY);
 
             // Then - it should return empty array without calling agent or repository
-            expect(mockArticleComposerAgent.run).not.toHaveBeenCalled();
+            expect(mockArticleCompositionAgent.run).not.toHaveBeenCalled();
             expect(mockArticleRepository.createMany).not.toHaveBeenCalled();
             expect(result).toEqual([]);
         });
 
         test('should handle null response from article composer agent', async () => {
             // Given - agent returns null for some stories
-            mockArticleComposerAgent.run.mockImplementation(async (params) => {
+            mockArticleCompositionAgent.run.mockImplementation(async (params) => {
                 // Return null for first story, valid result for others
                 return params?.story === testStories[0] ? null : mockCompositionResults[0];
             });
@@ -139,14 +139,14 @@ describe('GenerateArticlesFromStoriesUseCase', () => {
             const result = await useCase.execute(DEFAULT_LANGUAGE, DEFAULT_COUNTRY);
 
             // Then - it should skip null results and process valid ones
-            expect(mockArticleComposerAgent.run).toHaveBeenCalledTimes(TEST_STORIES_COUNT);
+            expect(mockArticleCompositionAgent.run).toHaveBeenCalledTimes(TEST_STORIES_COUNT);
             expect(mockArticleRepository.createMany).toHaveBeenCalledTimes(TEST_STORIES_COUNT - 1);
             expect(result).toHaveLength(TEST_STORIES_COUNT - 1);
         });
 
         test('should continue processing if individual article composition fails', async () => {
             // Given - agent throws error for one story
-            mockArticleComposerAgent.run.mockImplementation(async (params) => {
+            mockArticleCompositionAgent.run.mockImplementation(async (params) => {
                 if (params?.story === testStories[1]) {
                     throw new Error('Agent composition failed');
                 }
@@ -157,7 +157,7 @@ describe('GenerateArticlesFromStoriesUseCase', () => {
             const result = await useCase.execute(DEFAULT_LANGUAGE, DEFAULT_COUNTRY);
 
             // Then - it should continue processing other stories
-            expect(mockArticleComposerAgent.run).toHaveBeenCalledTimes(TEST_STORIES_COUNT);
+            expect(mockArticleCompositionAgent.run).toHaveBeenCalledTimes(TEST_STORIES_COUNT);
             expect(mockArticleRepository.createMany).toHaveBeenCalledTimes(TEST_STORIES_COUNT - 1);
             expect(result).toHaveLength(TEST_STORIES_COUNT - 1);
         });
@@ -172,13 +172,13 @@ describe('GenerateArticlesFromStoriesUseCase', () => {
 
             // Then - it should pass correct parameters to story repository
             expect(mockStoryRepository.findStoriesWithoutArticles).toHaveBeenCalledWith({
+                classification: ['STANDARD', 'NICHE'],
                 country: country.toString(),
-                interestTier: ['STANDARD', 'NICHE'],
                 limit: 20,
             });
 
             // And pass correct parameters to article composer
-            expect(mockArticleComposerAgent.run).toHaveBeenCalledWith(
+            expect(mockArticleCompositionAgent.run).toHaveBeenCalledWith(
                 expect.objectContaining({
                     targetCountry: country,
                     targetLanguage: language,
@@ -197,7 +197,7 @@ describe('GenerateArticlesFromStoriesUseCase', () => {
                 'Story repository failed',
             );
 
-            expect(mockArticleComposerAgent.run).not.toHaveBeenCalled();
+            expect(mockArticleCompositionAgent.run).not.toHaveBeenCalled();
             expect(mockArticleRepository.createMany).not.toHaveBeenCalled();
         });
 
@@ -211,7 +211,7 @@ describe('GenerateArticlesFromStoriesUseCase', () => {
             const result = await useCase.execute(DEFAULT_LANGUAGE, DEFAULT_COUNTRY);
 
             // Then - it should continue processing and return empty array
-            expect(mockArticleComposerAgent.run).toHaveBeenCalledTimes(TEST_STORIES_COUNT);
+            expect(mockArticleCompositionAgent.run).toHaveBeenCalledTimes(TEST_STORIES_COUNT);
             expect(mockArticleRepository.createMany).toHaveBeenCalledTimes(TEST_STORIES_COUNT);
             expect(result).toEqual([]);
         });
@@ -220,7 +220,7 @@ describe('GenerateArticlesFromStoriesUseCase', () => {
             // Given - valid stories and composition results
             const testStory = testStories[0];
             mockStoryRepository.findStoriesWithoutArticles.mockResolvedValue([testStory]);
-            mockArticleComposerAgent.run.mockResolvedValue(mockCompositionResults[0]);
+            mockArticleCompositionAgent.run.mockResolvedValue(mockCompositionResults[0]);
 
             // When - executing the use case
             const result = await useCase.execute(DEFAULT_LANGUAGE, DEFAULT_COUNTRY);

@@ -9,14 +9,15 @@ import { type LoggerPort } from '@jterrazz/logger';
 import { z } from 'zod/v4';
 
 import {
-    type Classification,
     classificationSchema,
-    type StoryClassifierAgentPort,
-    type StoryClassifierInput,
-    type StoryClassifierResult,
-} from '../../../application/ports/outbound/agents/story-classifier.agent.js';
+    type StoryClassificationAgentPort,
+    type StoryClassificationInput,
+    type StoryClassificationResult,
+} from '../../../application/ports/outbound/agents/story-classification.agent.js';
 
-export class StoryClassifierAgentAdapter implements StoryClassifierAgentPort {
+import { Classification as ClassificationVO } from '../../../domain/value-objects/story/classification.vo.js';
+
+export class StoryClassificationAgentAdapter implements StoryClassificationAgentPort {
     static readonly SCHEMA = z.object({
         classification: classificationSchema,
         reason: z
@@ -31,9 +32,11 @@ export class StoryClassifierAgentAdapter implements StoryClassifierAgentPort {
         PROMPT_LIBRARY.TONES.NEUTRAL,
     );
 
-    public readonly name = 'StoryClassifierAgent';
+    public readonly name = 'StoryClassificationAgent';
 
-    private readonly agent: BasicAgentAdapter<z.infer<typeof StoryClassifierAgentAdapter.SCHEMA>>;
+    private readonly agent: BasicAgentAdapter<
+        z.infer<typeof StoryClassificationAgentAdapter.SCHEMA>
+    >;
 
     constructor(
         private readonly model: ModelPort,
@@ -42,12 +45,12 @@ export class StoryClassifierAgentAdapter implements StoryClassifierAgentPort {
         this.agent = new BasicAgentAdapter(this.name, {
             logger: this.logger,
             model: this.model,
-            schema: StoryClassifierAgentAdapter.SCHEMA,
-            systemPrompt: StoryClassifierAgentAdapter.SYSTEM_PROMPT,
+            schema: StoryClassificationAgentAdapter.SCHEMA,
+            systemPrompt: StoryClassificationAgentAdapter.SYSTEM_PROMPT,
         });
     }
 
-    static readonly USER_PROMPT = (input: StoryClassifierInput) => {
+    static readonly USER_PROMPT = (input: StoryClassificationInput) => {
         const { story } = input;
         const storyData = {
             category: story.category.toString(),
@@ -87,13 +90,13 @@ export class StoryClassifierAgentAdapter implements StoryClassifierAgentPort {
         );
     };
 
-    async run(input: StoryClassifierInput): Promise<null | StoryClassifierResult> {
+    async run(input: StoryClassificationInput): Promise<null | StoryClassificationResult> {
         try {
             this.logger.info(`[${this.name}] Classifying story...`, {
                 storyId: input.story.id,
             });
 
-            const result = await this.agent.run(StoryClassifierAgentAdapter.USER_PROMPT(input));
+            const result = await this.agent.run(StoryClassificationAgentAdapter.USER_PROMPT(input));
 
             if (!result) {
                 this.logger.warn(`[${this.name}] Classification failed. No result from AI model.`, {
@@ -109,7 +112,7 @@ export class StoryClassifierAgentAdapter implements StoryClassifierAgentPort {
             });
 
             return {
-                classification: result.classification as Classification,
+                classification: new ClassificationVO(result.classification),
                 reason: result.reason,
             };
         } catch (error) {

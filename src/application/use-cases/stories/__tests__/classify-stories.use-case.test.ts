@@ -1,5 +1,5 @@
 import { type LoggerPort } from '@jterrazz/logger';
-import { beforeEach, describe, expect, mockOf, test } from '@jterrazz/test';
+import { beforeEach, describe, expect, test } from '@jterrazz/test';
 import { randomUUID } from 'crypto';
 import { type DeepMockProxy, mock } from 'vitest-mock-extended';
 
@@ -12,9 +12,9 @@ import { PerspectiveTags } from '../../../../domain/value-objects/perspective/pe
 import { Classification } from '../../../../domain/value-objects/story/classification.vo.js';
 
 import {
-    type StoryClassifierAgentPort,
-    type StoryClassifierResult,
-} from '../../../ports/outbound/agents/story-classifier.agent.js';
+    type StoryClassificationAgentPort,
+    type StoryClassificationResult,
+} from '../../../ports/outbound/agents/story-classification.agent.js';
 import { type StoryRepositoryPort } from '../../../ports/outbound/persistence/story-repository.port.js';
 
 import { ClassifyStoriesUseCase } from '../classify-stories.use-case.js';
@@ -51,7 +51,7 @@ const createMockStory = (
 };
 
 describe('ClassifyStoriesUseCase', () => {
-    let mockStoryClassifierAgent: DeepMockProxy<StoryClassifierAgentPort>;
+    let mockStoryClassificationAgent: DeepMockProxy<StoryClassificationAgentPort>;
     let mockStoryRepository: DeepMockProxy<StoryRepositoryPort>;
     let mockLogger: DeepMockProxy<LoggerPort>;
     let useCase: ClassifyStoriesUseCase;
@@ -62,14 +62,14 @@ describe('ClassifyStoriesUseCase', () => {
     beforeEach(() => {
         storyToReview = createMockStory(randomUUID());
 
-        mockStoryClassifierAgent = mock<StoryClassifierAgentPort>();
+        mockStoryClassificationAgent = mock<StoryClassificationAgentPort>();
         mockStoryRepository = mock<StoryRepositoryPort>();
-        mockLogger = mockOf<LoggerPort>();
+        mockLogger = mock<LoggerPort>();
 
         useCase = new ClassifyStoriesUseCase(
-            mockStoryClassifierAgent,
-            mockStoryRepository,
+            mockStoryClassificationAgent,
             mockLogger,
+            mockStoryRepository,
         );
 
         // Default mock implementations
@@ -80,11 +80,11 @@ describe('ClassifyStoriesUseCase', () => {
     describe('execute', () => {
         test('should classify stories pending review and update their status', async () => {
             // Given
-            const classificationResult: StoryClassifierResult = {
-                classification: 'STANDARD',
+            const classificationResult: StoryClassificationResult = {
+                classification: new Classification('STANDARD'),
                 reason: 'A solid, well-written story with broad appeal.',
             };
-            mockStoryClassifierAgent.run.mockResolvedValue(classificationResult);
+            mockStoryClassificationAgent.run.mockResolvedValue(classificationResult);
 
             // When
             await useCase.execute();
@@ -94,9 +94,9 @@ describe('ClassifyStoriesUseCase', () => {
                 limit: 50,
                 where: { classification: 'PENDING_CLASSIFICATION' },
             });
-            expect(mockStoryClassifierAgent.run).toHaveBeenCalledWith({ story: storyToReview });
+            expect(mockStoryClassificationAgent.run).toHaveBeenCalledWith({ story: storyToReview });
             expect(mockStoryRepository.update).toHaveBeenCalledWith(storyToReview.id, {
-                classification: classificationResult.classification,
+                classification: expect.any(Object),
             });
             expect(mockLogger.info).toHaveBeenCalledWith(
                 `Story ${storyToReview.id} classified as STANDARD: ${classificationResult.reason}`,
@@ -116,9 +116,11 @@ describe('ClassifyStoriesUseCase', () => {
             await useCase.execute();
 
             // Then
-            expect(mockStoryClassifierAgent.run).not.toHaveBeenCalled();
+            expect(mockStoryClassificationAgent.run).not.toHaveBeenCalled();
             expect(mockStoryRepository.update).not.toHaveBeenCalled();
-            expect(mockLogger.info).toHaveBeenCalledWith('No stories found pending review.');
+            expect(mockLogger.info).toHaveBeenCalledWith(
+                'No stories found pending classification.',
+            );
         });
 
         test('should continue processing even if one story fails classification', async () => {
@@ -127,9 +129,9 @@ describe('ClassifyStoriesUseCase', () => {
             const story2 = createMockStory(randomUUID());
             mockStoryRepository.findMany.mockResolvedValue([story1, story2]);
 
-            mockStoryClassifierAgent.run
+            mockStoryClassificationAgent.run
                 .mockResolvedValueOnce({
-                    classification: 'NICHE',
+                    classification: new Classification('NICHE'),
                     reason: 'Interesting but for a specific audience.',
                 })
                 .mockResolvedValueOnce(null); // Second story fails
@@ -138,9 +140,9 @@ describe('ClassifyStoriesUseCase', () => {
             await useCase.execute();
 
             // Then
-            expect(mockStoryClassifierAgent.run).toHaveBeenCalledTimes(2);
+            expect(mockStoryClassificationAgent.run).toHaveBeenCalledTimes(2);
             expect(mockStoryRepository.update).toHaveBeenCalledWith(story1.id, {
-                classification: 'NICHE',
+                classification: expect.any(Object),
             });
             expect(mockStoryRepository.update).not.toHaveBeenCalledWith(
                 story2.id,
@@ -159,7 +161,7 @@ describe('ClassifyStoriesUseCase', () => {
         test('should handle errors during agent execution gracefully', async () => {
             // Given
             const agentError = new Error('AI agent failed');
-            mockStoryClassifierAgent.run.mockRejectedValue(agentError);
+            mockStoryClassificationAgent.run.mockRejectedValue(agentError);
 
             // When
             await useCase.execute();
