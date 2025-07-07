@@ -136,18 +136,18 @@ export class PrismaStoryRepository implements StoryRepositoryPort {
         return stories.map((story) => this.mapper.toDomain(story));
     }
 
-    async findRecentSynopses(options: {
+    async findRecentFacts(options: {
         country: Country;
         language: Language;
         since: Date;
-    }): Promise<Array<{ id: string; synopsis: string }>> {
+    }): Promise<Array<{ facts: string; id: string }>> {
         const stories = await this.prisma.getPrismaClient().story.findMany({
             orderBy: {
                 createdAt: 'desc',
             },
             select: {
+                facts: true,
                 id: true,
-                synopsis: true,
             },
             take: 100, // Limit to a reasonable number for performance
             where: {

@@ -3,7 +3,7 @@ import { type NewsStory } from '../providers/news.port.js';
 export interface StoryDeduplicationAgentPort {
     readonly name: string;
     run(params: {
-        existingStories: Array<{ id: string; synopsis: string }>;
+        existingStories: Array<{ facts: string; id: string }>;
         newStory: NewsStory;
     }): Promise<null | StoryDeduplicationResult>;
 }

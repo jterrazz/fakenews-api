@@ -82,9 +82,9 @@ export class ArticleFactory {
                 classification: 'STANDARD',
                 country: article.country.toString() as PrismaCountry,
                 dateline: article.publishedAt,
+                facts: `These are test facts for the story related to article ${article.headline.value}. They are long enough to pass validation and cover all key data points required.`,
                 // Default to STANDARD for tests
                 sourceReferences: [],
-                synopsis: `This is a test synopsis for the story related to article ${article.headline.value}. It is long enough to pass validation.`,
             },
         });
 

@@ -7,7 +7,7 @@ import { type NewsStory } from '../providers/news.port.js';
 /**
  * @description
  * Port for the Story Ingestion Agent that processes raw news articles
- * into structured story data with perspectives and synopsis
+ * into structured story data with perspectives and facts
  */
 export interface StoryIngestionAgentPort {
     run(params: { newsStory: NewsStory }): Promise<null | StoryIngestionResult>;
@@ -15,14 +15,14 @@ export interface StoryIngestionAgentPort {
 
 /**
  * @description
- * Result of story ingestion containing structured perspectives and synopsis
+ * Result of story ingestion containing structured perspectives and facts
  */
 export interface StoryIngestionResult {
     category: Category;
+    facts: string;
     perspectives: Array<{
         discourse: DiscourseValue;
         perspectiveCorpus: string;
         stance: StanceValue;
     }>;
-    synopsis: string;
 }

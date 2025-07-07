@@ -57,7 +57,7 @@ enum Discourse {
 
 model Story {
   id             String         @id @default(uuid())
-  synopsis       String
+  facts          String
   category       Category
   classification Classification @default(PENDING_CLASSIFICATION)
 

@@ -54,12 +54,12 @@ export class StoryClassificationAgentAdapter implements StoryClassificationAgent
         const { story } = input;
         const storyData = {
             category: story.category.toString(),
+            facts: story.facts,
             perspectives: story.perspectives?.map((p) => ({
                 digest: p.perspectiveCorpus.value,
                 discourse: p.discourse.value,
                 stance: p.stance.value,
             })),
-            synopsis: story.synopsis,
         };
 
         return new UserPromptAdapter(

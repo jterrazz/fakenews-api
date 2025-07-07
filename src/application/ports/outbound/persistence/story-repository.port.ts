@@ -39,14 +39,14 @@ export interface StoryRepositoryPort {
     }): Promise<Story[]>;
 
     /**
-     * Finds the synopses of recent stories for deduplication purposes.
+     * Finds the facts of recent stories for deduplication purposes.
      * @param options - Criteria to filter the stories.
      */
-    findRecentSynopses(options: {
+    findRecentFacts(options: {
         country: Country;
         language: Language;
         since: Date;
-    }): Promise<Array<{ id: string; synopsis: string }>>;
+    }): Promise<Array<{ facts: string; id: string }>>;
 
     /**
      * Find stories that don't have any articles linked to them

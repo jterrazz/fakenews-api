@@ -5,7 +5,7 @@ import { type StoryPipelineTaskConfig } from '../../../../application/ports/inbo
 import { type TaskPort } from '../../../../application/ports/inbound/worker.port.js';
 import { type GenerateArticlesFromStoriesUseCase } from '../../../../application/use-cases/articles/generate-articles-from-stories.use-case.js';
 import { type ClassifyStoriesUseCase } from '../../../../application/use-cases/stories/classify-stories.use-case.js';
-import { type DigestStoriesUseCase } from '../../../../application/use-cases/stories/digest-stories.use-case.js';
+import { type IngestStoriesUseCase } from '../../../../application/use-cases/stories/ingest-stories.use-case.js';
 
 import { Country } from '../../../../domain/value-objects/country.vo.js';
 import { Language } from '../../../../domain/value-objects/language.vo.js';
@@ -16,7 +16,7 @@ export class StoryPipelineTask implements TaskPort {
     public readonly schedule = '0 */2 * * *'; // Every 2 hours
 
     constructor(
-        private readonly digestStories: DigestStoriesUseCase,
+        private readonly ingestStories: IngestStoriesUseCase,
         private readonly generateArticlesFromStories: GenerateArticlesFromStoriesUseCase,
         private readonly classifyStories: ClassifyStoriesUseCase,
         private readonly taskConfigs: StoryPipelineTaskConfig[],
@@ -44,7 +44,7 @@ export class StoryPipelineTask implements TaskPort {
                         country: country.toString(),
                         language: language.toString(),
                     });
-                    return this.digestStories.execute(language, country);
+                    return this.ingestStories.execute(language, country);
                 }),
             );
 

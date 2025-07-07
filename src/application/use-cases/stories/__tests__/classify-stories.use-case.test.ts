@@ -31,6 +31,7 @@ const createMockStory = (
         country: new Country('us'),
         createdAt: new Date(),
         dateline: new Date(),
+        facts: 'These are valid story facts that are definitely long enough for testing purposes. They detail the event and provide context that should be sufficient for any validation checks that might be in place, ensuring that this mock object is robust.',
         id: storyId,
         perspectives: [
             new StoryPerspective({
@@ -42,8 +43,6 @@ const createMockStory = (
             }),
         ],
         sourceReferences: ['source-1'],
-        synopsis:
-            'This is a valid story synopsis that is definitely long enough for testing purposes. It details the event and provides context that should be sufficient for any validation checks that might be in place, ensuring that this mock object is robust.',
         updatedAt: new Date(),
     });
 };

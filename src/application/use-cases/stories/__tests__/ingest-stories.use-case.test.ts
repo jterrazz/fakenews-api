@@ -17,9 +17,9 @@ import {
     type NewsStory,
 } from '../../../ports/outbound/providers/news.port.js';
 
-import { DigestStoriesUseCase } from '../digest-stories.use-case.js';
+import { IngestStoriesUseCase } from '../ingest-stories.use-case.js';
 
-describe('DigestStoriesUseCase', () => {
+describe('IngestStoriesUseCase', () => {
     // Test Constants
     const DEFAULT_COUNTRY = new Country('us');
     const DEFAULT_LANGUAGE = new Language('en');
@@ -46,7 +46,7 @@ describe('DigestStoriesUseCase', () => {
     let mockLogger: DeepMockProxy<LoggerPort>;
     let mockNewsProvider: DeepMockProxy<NewsProviderPort>;
     let mockStoryRepository: DeepMockProxy<StoryRepositoryPort>;
-    let useCase: DigestStoriesUseCase;
+    let useCase: IngestStoriesUseCase;
     let mockIngestionResult: StoryIngestionResult;
 
     beforeEach(() => {
@@ -56,7 +56,7 @@ describe('DigestStoriesUseCase', () => {
         mockNewsProvider = mock<NewsProviderPort>();
         mockStoryRepository = mock<StoryRepositoryPort>();
 
-        useCase = new DigestStoriesUseCase(
+        useCase = new IngestStoriesUseCase(
             mockStoryIngestionAgent,
             mockStoryDeduplicationAgent,
             mockLogger,
@@ -67,17 +67,17 @@ describe('DigestStoriesUseCase', () => {
         const mockStory = getMockStories(1)[0];
         mockIngestionResult = {
             category: mockStory.category,
+            facts: mockStory.facts,
             perspectives: mockStory.perspectives.map((p) => ({
                 discourse: p.discourse.value,
                 perspectiveCorpus: p.perspectiveCorpus.toString(),
                 stance: p.stance.value,
             })),
-            synopsis: mockStory.synopsis,
         };
 
         // Default happy path mocks
         mockNewsProvider.fetchNews.mockResolvedValue(MOCK_NEWS_STORIES);
-        mockStoryRepository.findRecentSynopses.mockResolvedValue([]);
+        mockStoryRepository.findRecentFacts.mockResolvedValue([]);
         mockStoryRepository.getAllSourceReferences.mockResolvedValue([]);
         mockStoryDeduplicationAgent.run.mockResolvedValue({
             duplicateOfStoryId: null,

@@ -23,7 +23,7 @@ import type { NewsProviderPort } from '../application/ports/outbound/providers/n
 import { GenerateArticlesFromStoriesUseCase } from '../application/use-cases/articles/generate-articles-from-stories.use-case.js';
 import { GetArticlesUseCase } from '../application/use-cases/articles/get-articles.use-case.js';
 import { ClassifyStoriesUseCase } from '../application/use-cases/stories/classify-stories.use-case.js';
-import { DigestStoriesUseCase } from '../application/use-cases/stories/digest-stories.use-case.js';
+import { IngestStoriesUseCase } from '../application/use-cases/stories/ingest-stories.use-case.js';
 
 import { NodeConfigAdapter } from '../infrastructure/inbound/configuration/node-config.adapter.js';
 import { GetArticlesController } from '../infrastructure/inbound/server/articles/get-articles.controller.js';
@@ -161,8 +161,8 @@ const getArticlesUseCaseFactory = Injectable(
     (articleRepository: ArticleRepositoryPort) => new GetArticlesUseCase(articleRepository),
 );
 
-const digestStoriesUseCaseFactory = Injectable(
-    'DigestStories',
+const ingestStoriesUseCaseFactory = Injectable(
+    'IngestStories',
     [
         'StoryIngestionAgent',
         'StoryDeduplicationAgent',
@@ -177,7 +177,7 @@ const digestStoriesUseCaseFactory = Injectable(
         newsService: NewsProviderPort,
         storyRepository: StoryRepositoryPort,
     ) =>
-        new DigestStoriesUseCase(
+        new IngestStoriesUseCase(
             storyIngestionAgent,
             storyDeduplicationAgent,
             logger,
@@ -228,14 +228,14 @@ const getArticlesControllerFactory = Injectable(
 const tasksFactory = Injectable(
     'Tasks',
     [
-        'DigestStories',
+        'IngestStories',
         'GenerateArticlesFromStories',
         'ClassifyStories',
         'Configuration',
         'Logger',
     ] as const,
     (
-        digestStories: DigestStoriesUseCase,
+        ingestStories: IngestStoriesUseCase,
         generateArticlesFromStories: GenerateArticlesFromStoriesUseCase,
         classifyStories: ClassifyStoriesUseCase,
         configuration: ConfigurationPort,
@@ -247,7 +247,7 @@ const tasksFactory = Injectable(
         const storyPipelineConfigs = configuration.getInboundConfiguration().tasks.storyPipeline;
         tasks.push(
             new StoryPipelineTask(
-                digestStories,
+                ingestStories,
                 generateArticlesFromStories,
                 classifyStories,
                 storyPipelineConfigs,
@@ -332,7 +332,7 @@ export const createContainer = (overrides?: ContainerOverrides) =>
         .provides(storyRepositoryFactory)
         // Use cases
         .provides(getArticlesUseCaseFactory)
-        .provides(digestStoriesUseCaseFactory)
+        .provides(ingestStoriesUseCaseFactory)
         .provides(generateArticlesFromStoriesUseCaseFactory)
         .provides(classifyStoriesUseCaseFactory)
         // Controllers and tasks

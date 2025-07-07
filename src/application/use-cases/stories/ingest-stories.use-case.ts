@@ -18,7 +18,7 @@ import { type NewsProviderPort } from '../../ports/outbound/providers/news.port.
 /**
  * Use case for digesting stories from news sources
  */
-export class DigestStoriesUseCase {
+export class IngestStoriesUseCase {
     constructor(
         private readonly storyIngestionAgent: StoryIngestionAgentPort,
         private readonly storyDeduplicationAgent: StoryDeduplicationAgentPort,
@@ -40,7 +40,7 @@ export class DigestStoriesUseCase {
             // Step 1: Get recent stories and existing source IDs for deduplication
             const since = new Date(Date.now() - 1000 * 60 * 60 * 24 * 3); // 3 days ago
             const [recentStories, existingSourceReferences] = await Promise.all([
-                this.storyRepository.findRecentSynopses({ country, language, since }),
+                this.storyRepository.findRecentFacts({ country, language, since }),
                 this.storyRepository.getAllSourceReferences(country),
             ]);
 
@@ -137,10 +137,10 @@ export class DigestStoriesUseCase {
                         country,
                         createdAt: now,
                         dateline: newsStory.publishedAt,
+                        facts: ingestionResult.facts,
                         id: storyId,
                         perspectives,
                         sourceReferences: newsStory.articles.map((a) => a.id),
-                        synopsis: ingestionResult.synopsis,
                         updatedAt: now,
                     });
 

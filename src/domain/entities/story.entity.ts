@@ -5,10 +5,10 @@ import { Country } from '../value-objects/country.vo.js';
 import { Classification } from '../value-objects/story/classification.vo.js';
 import { StoryPerspective } from '../value-objects/story-perspective/story-perspective.vo.js';
 
-export const synopsisSchema = z
+export const factsSchema = z
     .string()
     .describe(
-        'Synopsis is a concise, information-dense summary capturing essential facts, key actors, and core narrative in ~50 words. In this template: "Tesla CEO Musk acquires Twitter ($44B, Oct 2022), fires executives, adds $8 verification fee, restores suspended accounts, triggers advertiser exodus (GM, Pfizer), 75% staff cuts, sparks free speech vs. safety debate."',
+        'Facts are a concise, information-dense collection of essential data points, key actors, and the core narrative in ~50 words. Example: "Tesla CEO Musk acquires Twitter ($44B, Oct 2022), fires executives, adds $8 verification fee, restores suspended accounts, triggers advertiser exodus (GM, Pfizer), 75 % staff cuts, sparks free-speech vs. safety debate."',
     );
 
 export const storySchema = z.object({
@@ -19,6 +19,7 @@ export const storySchema = z.object({
     dateline: z
         .date()
         .describe('The publication date of the story, typically based on the source articles.'),
+    facts: factsSchema,
     id: z.uuid().describe('The unique identifier for the story.'),
     perspectives: z
         .array(z.instanceof(StoryPerspective))
@@ -28,7 +29,6 @@ export const storySchema = z.object({
         .array(z.string())
         .min(1, 'At least one external source reference is required')
         .describe('A list of IDs from the original source articles used to create the story.'),
-    synopsis: synopsisSchema,
     updatedAt: z.date().describe('The timestamp when the story was last updated.'),
 });
 
@@ -43,10 +43,10 @@ export class Story {
     public readonly country: Country;
     public readonly createdAt: Date;
     public readonly dateline: Date;
+    public readonly facts: string;
     public readonly id: string;
     public readonly perspectives: StoryPerspective[];
     public readonly sourceReferences: string[];
-    public readonly synopsis: string;
     public readonly updatedAt: Date;
 
     public constructor(data: StoryProps) {
@@ -58,7 +58,7 @@ export class Story {
 
         const validatedData = result.data;
         this.id = validatedData.id;
-        this.synopsis = validatedData.synopsis;
+        this.facts = validatedData.facts;
         this.category = validatedData.category;
         this.perspectives = validatedData.perspectives;
         this.dateline = validatedData.dateline;

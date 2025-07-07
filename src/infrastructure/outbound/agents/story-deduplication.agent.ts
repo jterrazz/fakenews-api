@@ -55,7 +55,7 @@ export class StoryDeduplicationAgentAdapter implements StoryDeduplicationAgentPo
     }
 
     static readonly USER_PROMPT = (input: {
-        existingStories: Array<{ id: string; synopsis: string }>;
+        existingStories: Array<{ facts: string; id: string }>;
         newStory: NewsStory;
     }) => {
         const { existingStories, newStory } = input;
@@ -67,12 +67,12 @@ export class StoryDeduplicationAgentAdapter implements StoryDeduplicationAgentPo
 
             // The Logic
             '1.  First, understand the essence of the new story. Ask: "What is the single, fundamental event being reported here? Who did what, where, and when?"',
-            '2.  Then, compare this core event to the synopses of the existing stories provided.',
+            '2.  Then, compare this core event to the facts of the existing stories provided.',
             '3.  A story is a duplicate if it reports on the same fundamental event, even if the wording, headline, or source is different.',
             '',
 
             // Examples
-            '•   **DUPLICATE:** A new story about "Team A defeating Team B in the championship final" is a duplicate of an existing story with the synopsis "The championship final concluded with Team A winning."',
+            '•   **DUPLICATE:** A new story about "Team A defeating Team B in the championship final" is a duplicate of an existing story with the facts "The championship final concluded with Team A winning."',
             '•   **UNIQUE:** A new story about "a key player from Team A getting injured" is NOT a duplicate of the story about the final, even though it involves the same team. It is a different, separate event.',
             '',
 
@@ -92,7 +92,7 @@ export class StoryDeduplicationAgentAdapter implements StoryDeduplicationAgentPo
             '',
 
             // Data to Analyze
-            'EXISTING STORIES (ID and Synopsis):',
+            'EXISTING STORIES (ID and Facts):',
             JSON.stringify(existingStories, null, 2),
             '',
             'NEW STORY (Full Content):',
@@ -101,7 +101,7 @@ export class StoryDeduplicationAgentAdapter implements StoryDeduplicationAgentPo
     };
 
     async run(params: {
-        existingStories: Array<{ id: string; synopsis: string }>;
+        existingStories: Array<{ facts: string; id: string }>;
         newStory: NewsStory;
     }): Promise<null | StoryDeduplicationResult> {
         try {

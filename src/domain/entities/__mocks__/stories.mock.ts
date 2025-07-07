@@ -38,11 +38,10 @@ export function getMockStory(options?: {
             options?.countryIndex !== undefined ? getCountry(options.countryIndex) : getCountry(0),
         createdAt: new Date(),
         dateline: new Date(),
+        facts: 'Mock Story Facts: A comprehensive list of key political developments across multiple regions, outlining actors, timelines, and data points that shape the public discourse on this evolving situation.',
         id: storyId,
         perspectives: options?.perspectives || mockPerspectives(1),
         sourceReferences: ['worldnewsapi:mock-article-1', 'worldnewsapi:mock-article-2'],
-        synopsis:
-            'Mock Story Synopsis: A comprehensive analysis of current political developments across multiple regions, examining the various perspectives and stakeholder positions that shape public discourse on this evolving situation.',
         updatedAt: new Date(),
     });
 }
@@ -57,10 +56,10 @@ function createMockStory(index: number): Story {
         country: getCountry(index + 1),
         createdAt: new Date(),
         dateline: new Date(),
+        facts: `These are key facts for story ${index}. Topic: ${category.toString()}. It lists all major events, actors, and evidence in a concise factual format long enough to satisfy validation requirements.`,
         id: storyId,
         perspectives: mockPerspectives(2),
         sourceReferences: [`source-ref-${index}`],
-        synopsis: `This is a mock synopsis for story ${index}. It is about ${category.toString()} and provides a comprehensive overview of the key facts and events. This text is intentionally long enough to pass validation.`,
         updatedAt: new Date(),
     });
 }

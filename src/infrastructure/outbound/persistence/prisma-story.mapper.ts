@@ -76,12 +76,12 @@ export class StoryMapper {
             country: new Country(prisma.country),
             createdAt: prisma.createdAt,
             dateline: prisma.dateline,
+            facts: prisma.facts,
             id: prisma.id,
             perspectives,
             sourceReferences: Array.isArray(prisma.sourceReferences)
                 ? (prisma.sourceReferences as string[])
                 : [],
-            synopsis: prisma.synopsis,
             updatedAt: prisma.updatedAt,
         });
     }
@@ -96,9 +96,9 @@ export class StoryMapper {
                 | 'STANDARD',
             country: this.mapCountryToPrisma(story.country),
             dateline: story.dateline,
+            facts: story.facts,
             id: story.id,
             sourceReferences: story.sourceReferences,
-            synopsis: story.synopsis,
         };
     }
 }

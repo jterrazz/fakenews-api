@@ -14,7 +14,7 @@ import {
 } from '../../../application/ports/outbound/agents/story-ingestion.agent.js';
 import { type NewsStory } from '../../../application/ports/outbound/providers/news.port.js';
 
-import { synopsisSchema } from '../../../domain/entities/story.entity.js';
+import { factsSchema } from '../../../domain/entities/story.entity.js';
 import { Category } from '../../../domain/value-objects/category.vo.js';
 import { categorySchema } from '../../../domain/value-objects/category.vo.js';
 import { discourseSchema } from '../../../domain/value-objects/discourse.vo.js';
@@ -24,6 +24,7 @@ import { perspectiveCorpusSchema } from '../../../domain/value-objects/story-per
 export class StoryIngestionAgentAdapter implements StoryIngestionAgentPort {
     static readonly SCHEMA = z.object({
         category: categorySchema,
+        facts: factsSchema,
         perspectives: z
             .array(
                 z.object({
@@ -36,7 +37,6 @@ export class StoryIngestionAgentAdapter implements StoryIngestionAgentPort {
             )
             .min(1, 'At least one perspective is required.')
             .max(2, 'No more than two perspectives should be created.'),
-        synopsis: synopsisSchema,
     });
 
     static readonly SYSTEM_PROMPT = new SystemPromptAdapter(
@@ -74,7 +74,7 @@ export class StoryIngestionAgentAdapter implements StoryIngestionAgentPort {
 
             // The "What" - Required Output
             'Your output MUST contain two parts:',
-            '1.  **Synopsis:** A comprehensive, neutral summary of the core facts. What happened, who was involved, where, and when. Prioritize factual completeness.',
+            '1.  **Facts:** A comprehensive, neutral summary of the core facts. What happened, who was involved, where, and when. Prioritize factual completeness.',
             '2.  **Perspectives:** Identify the 1 or 2 most dominant perspectives presented in the articles. For each perspective, provide:',
             '    a.  **perspectiveCorpus:** This is NOT a summary. It must be a **complete compilation of all information** for that specific viewpoint, focused *only on the news event*. Gather every argument, fact, and piece of evidence presented *for that side*. It MUST NOT contain information about the news source itself.',
             "    b.  **tags:** Classify the perspective's `stance` and `discourse_type`.",
@@ -146,12 +146,12 @@ export class StoryIngestionAgentAdapter implements StoryIngestionAgentPort {
 
             const ingestionResult: StoryIngestionResult = {
                 category,
+                facts: result.facts,
                 perspectives,
-                synopsis: result.synopsis,
             };
 
             this.logger.info(
-                `[${this.name}] Successfully ingested story: ${ingestionResult.synopsis.substring(0, 100)}... with ${ingestionResult.perspectives.length} perspectives`,
+                `[${this.name}] Successfully ingested story: ${ingestionResult.facts.substring(0, 100)}... with ${ingestionResult.perspectives.length} perspectives`,
             );
 
             return ingestionResult;
