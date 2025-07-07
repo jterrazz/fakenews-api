@@ -1,16 +1,16 @@
 import { Category } from '../category.vo.js';
 
 const CATEGORY_VALUES: Category['value'][] = [
-    'politics',
-    'business',
-    'technology',
-    'science',
-    'health',
-    'environment',
-    'society',
-    'entertainment',
-    'sports',
-    'other',
+    'POLITICS',
+    'BUSINESS',
+    'TECHNOLOGY',
+    'SCIENCE',
+    'HEALTH',
+    'ENVIRONMENT',
+    'SOCIETY',
+    'ENTERTAINMENT',
+    'SPORTS',
+    'OTHER',
 ];
 
 export const CATEGORY_FIXTURES: Category[] = CATEGORY_VALUES.map((c) => new Category(c));

@@ -19,7 +19,27 @@ CREATE TABLE "new_Story" (
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );
-INSERT INTO "new_Story" ("category", "classification", "country", "createdAt", "dateline", "id", "sourceReferences", "updatedAt") SELECT "category", "classification", "country", "createdAt", "dateline", "id", "sourceReferences", "updatedAt" FROM "Story";
+INSERT INTO "new_Story" (
+    "category",
+    "classification",
+    "country",
+    "createdAt",
+    "dateline",
+    "facts",
+    "id",
+    "sourceReferences",
+    "updatedAt"
+) SELECT
+    "category",
+    "classification",
+    "country",
+    "createdAt",
+    "dateline",
+    COALESCE("synopsis", '') AS "facts",
+    "id",
+    "sourceReferences",
+    "updatedAt"
+FROM "Story";
 DROP TABLE "Story";
 ALTER TABLE "new_Story" RENAME TO "Story";
 CREATE INDEX "Story_category_idx" ON "Story"("category");

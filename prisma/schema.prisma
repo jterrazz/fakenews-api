@@ -8,37 +8,37 @@ datasource db {
 }
 
 enum Country {
-  global
-  us
-  fr
+  GLOBAL
+  US
+  FR
 }
 
 enum Language {
-  en
-  fr
+  EN
+  FR
 }
 
 enum Category {
-  politics
-  business
-  technology
-  science
-  health
-  environment
-  society
-  entertainment
-  sports
-  other
+  POLITICS
+  BUSINESS
+  TECHNOLOGY
+  SCIENCE
+  HEALTH
+  ENVIRONMENT
+  SOCIETY
+  ENTERTAINMENT
+  SPORTS
+  OTHER
 }
 
 enum Stance {
-  supportive
-  critical
-  neutral
-  mixed
-  concerned
-  optimistic
-  skeptical
+  SUPPORTIVE
+  CRITICAL
+  NEUTRAL
+  MIXED
+  CONCERNED
+  OPTIMISTIC
+  SKEPTICAL
 }
 
 enum Classification {
@@ -49,10 +49,10 @@ enum Classification {
 }
 
 enum Discourse {
-  mainstream
-  alternative
-  underreported
-  dubious
+  MAINSTREAM
+  ALTERNATIVE
+  UNDERREPORTED
+  DUBIOUS
 }
 
 model Story {

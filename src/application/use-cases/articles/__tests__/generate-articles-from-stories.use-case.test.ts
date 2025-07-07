@@ -55,9 +55,9 @@ describe('GenerateArticlesFromStoriesUseCase', () => {
             variants: [
                 {
                     body: `Variant article body for story ${index + 1} presenting a specific viewpoint on the matter.`,
-                    discourse: 'mainstream',
+                    discourse: 'MAINSTREAM',
                     headline: `${story.category.toString()} Perspective: ${index + 1}`,
-                    stance: 'neutral',
+                    stance: 'NEUTRAL',
                 },
             ],
         }));
@@ -164,8 +164,8 @@ describe('GenerateArticlesFromStoriesUseCase', () => {
 
         test('should handle different countries and languages', async () => {
             // Given - different country and language
-            const country = new Country('fr');
-            const language = new Language('fr');
+            const country = new Country('FR');
+            const language = new Language('FR');
 
             // When - executing the use case
             await useCase.execute(language, country);

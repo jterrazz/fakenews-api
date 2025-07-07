@@ -1,10 +1,10 @@
 import { Discourse } from '../discourse.vo.js';
 
 const DISCOURSE_VALUES: Discourse['value'][] = [
-    'mainstream',
-    'alternative',
-    'underreported',
-    'dubious',
+    'MAINSTREAM',
+    'ALTERNATIVE',
+    'UNDERREPORTED',
+    'DUBIOUS',
 ];
 
 export const DISCOURSE_FIXTURES: Discourse[] = DISCOURSE_VALUES.map((d) => new Discourse(d));

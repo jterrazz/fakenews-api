@@ -35,11 +35,11 @@ export class ArticleFactory {
         this.data = {
             authenticity: new Authenticity(false),
             body: new Body('Default test article body with detailed information about the topic.'),
-            category: new Category('technology'),
-            country: new Country('us'),
+            category: new Category('TECHNOLOGY'),
+            country: new Country('US'),
             headline: new Headline('Default Test Article'),
             id: crypto.randomUUID(),
-            language: new Language('en'),
+            language: new Language('EN'),
             publishedAt: new Date('2024-03-01T12:00:00.000Z'),
             storyIds: [],
         };
@@ -176,7 +176,7 @@ export class ArticleFactory {
  */
 export class ArticleTestScenarios {
     static async createEmptyResultScenario(prisma: PrismaClient): Promise<void> {
-        await new ArticleFactory().withCategory('technology').createInDatabase(prisma);
+        await new ArticleFactory().withCategory('TECHNOLOGY').createInDatabase(prisma);
     }
 
     /**
@@ -187,36 +187,36 @@ export class ArticleTestScenarios {
 
         return await Promise.all([
             new ArticleFactory()
-                .withCountry('fr')
-                .withLanguage('fr')
-                .withCategory('technology')
+                .withCountry('FR')
+                .withLanguage('FR')
+                .withCategory('TECHNOLOGY')
                 .withHeadline('Nouvelles Tech FR 1')
                 .withPublishedAt(testDate)
                 .asReal()
                 .createInDatabase(prisma),
 
             new ArticleFactory()
-                .withCountry('fr')
-                .withLanguage('fr')
-                .withCategory('politics')
+                .withCountry('FR')
+                .withLanguage('FR')
+                .withCategory('POLITICS')
                 .withHeadline('Nouvelles Politiques FR 1')
                 .withPublishedAt(testDate)
                 .asFake('Contenu politique généré par IA')
                 .createInDatabase(prisma),
 
             new ArticleFactory()
-                .withCountry('fr')
-                .withLanguage('fr')
-                .withCategory('technology')
+                .withCountry('FR')
+                .withLanguage('FR')
+                .withCategory('TECHNOLOGY')
                 .withHeadline('Nouvelles Tech FR 2')
                 .withPublishedAt(testDate)
                 .asReal()
                 .createInDatabase(prisma),
 
             new ArticleFactory()
-                .withCountry('fr')
-                .withLanguage('fr')
-                .withCategory('business')
+                .withCountry('FR')
+                .withLanguage('FR')
+                .withCategory('BUSINESS')
                 .withHeadline('Nouvelles Affaires FR 1')
                 .withPublishedAt(testDate)
                 .asFake('Informations commerciales trompeuses')
@@ -233,27 +233,27 @@ export class ArticleTestScenarios {
     }> {
         const usArticles = await Promise.all([
             new ArticleFactory()
-                .withCategory('technology')
-                .withCountry('us')
-                .withLanguage('en')
+                .withCategory('TECHNOLOGY')
+                .withCountry('US')
+                .withLanguage('EN')
                 .withHeadline('US Tech Innovation')
                 .withPublishedAt(new Date('2024-03-01T12:00:00.000Z'))
                 .asFake('AI-generated content')
                 .createInDatabase(prisma),
 
             new ArticleFactory()
-                .withCategory('politics')
-                .withCountry('us')
-                .withLanguage('en')
+                .withCategory('POLITICS')
+                .withCountry('US')
+                .withLanguage('EN')
                 .withHeadline('US Political Development')
                 .withPublishedAt(new Date('2024-03-01T11:00:00.000Z'))
                 .asReal()
                 .createInDatabase(prisma),
 
             new ArticleFactory()
-                .withCategory('technology')
-                .withCountry('us')
-                .withLanguage('en')
+                .withCategory('TECHNOLOGY')
+                .withCountry('US')
+                .withLanguage('EN')
                 .withHeadline('US Tech Update')
                 .withPublishedAt(new Date('2024-03-01T10:00:00.000Z'))
                 .asFake('Misleading information')
@@ -262,18 +262,18 @@ export class ArticleTestScenarios {
 
         const frenchArticles = await Promise.all([
             new ArticleFactory()
-                .withCategory('politics')
-                .withCountry('fr')
-                .withLanguage('fr')
+                .withCategory('POLITICS')
+                .withCountry('FR')
+                .withLanguage('FR')
                 .withHeadline('Politique Française')
                 .withPublishedAt(new Date('2024-03-01T12:00:00.000Z'))
                 .asFake('Contenu généré par IA')
                 .createInDatabase(prisma),
 
             new ArticleFactory()
-                .withCategory('technology')
-                .withCountry('fr')
-                .withLanguage('fr')
+                .withCategory('TECHNOLOGY')
+                .withCountry('FR')
+                .withLanguage('FR')
                 .withHeadline('Innovation Technologique')
                 .withPublishedAt(new Date('2024-03-01T11:00:00.000Z'))
                 .asReal()
@@ -295,9 +295,9 @@ export class ArticleTestScenarios {
 
     static async createPaginationTestData(prisma: PrismaClient): Promise<Article[]> {
         return await new ArticleFactory()
-            .withCategory('technology')
-            .withCountry('us')
-            .withLanguage('en')
+            .withCategory('TECHNOLOGY')
+            .withCountry('US')
+            .withLanguage('EN')
             .withPublishedAt(new Date('2024-03-01T12:00:00.000Z'))
             .createManyInDatabase(prisma, 25);
     }

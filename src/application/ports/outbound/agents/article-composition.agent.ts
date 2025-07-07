@@ -29,15 +29,15 @@ export interface ArticleCompositionResult {
     headline: string;
     variants: Array<{
         body: string;
-        discourse: 'alternative' | 'dubious' | 'mainstream' | 'underreported';
+        discourse: 'ALTERNATIVE' | 'DUBIOUS' | 'MAINSTREAM' | 'UNDERREPORTED';
         headline: string;
         stance:
-            | 'concerned'
-            | 'critical'
-            | 'mixed'
-            | 'neutral'
-            | 'optimistic'
-            | 'skeptical'
-            | 'supportive';
+            | 'CONCERNED'
+            | 'CRITICAL'
+            | 'MIXED'
+            | 'NEUTRAL'
+            | 'OPTIMISTIC'
+            | 'SKEPTICAL'
+            | 'SUPPORTIVE';
     }>;
 }

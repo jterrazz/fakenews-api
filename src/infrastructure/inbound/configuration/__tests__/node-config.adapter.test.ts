@@ -18,12 +18,12 @@ describe('Node Config Adapter', () => {
             tasks: {
                 storyPipeline: [
                     {
-                        country: 'fr',
-                        language: 'fr',
+                        country: 'FR',
+                        language: 'FR',
                     },
                     {
-                        country: 'us',
-                        language: 'en',
+                        country: 'US',
+                        language: 'EN',
                     },
                 ],
             },
@@ -168,7 +168,7 @@ describe('Node Config Adapter', () => {
                     storyPipeline: [
                         {
                             country: '', // Invalid empty country
-                            language: 'fr',
+                            language: 'FR',
                         },
                     ],
                 },
@@ -188,7 +188,7 @@ describe('Node Config Adapter', () => {
                     storyPipeline: [
                         {
                             country: 'invalid-country',
-                            language: 'en',
+                            language: 'EN',
                         },
                     ],
                 },
@@ -207,8 +207,8 @@ describe('Node Config Adapter', () => {
                 tasks: {
                     storyPipeline: [
                         {
-                            country: 'us',
-                            language: 'invalid-language',
+                            country: 'US',
+                            language: 'INVALID',
                         },
                     ],
                 },

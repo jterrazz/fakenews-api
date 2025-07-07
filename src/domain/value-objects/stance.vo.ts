@@ -1,13 +1,13 @@
 import { z } from 'zod/v4';
 
 export const stanceSchema = z.enum([
-    'supportive',
-    'critical',
-    'neutral',
-    'mixed',
-    'concerned',
-    'optimistic',
-    'skeptical',
+    'SUPPORTIVE',
+    'CRITICAL',
+    'NEUTRAL',
+    'MIXED',
+    'CONCERNED',
+    'OPTIMISTIC',
+    'SKEPTICAL',
 ]);
 
 export type StanceValue = z.infer<typeof stanceSchema>;
@@ -18,8 +18,8 @@ export type StanceValue = z.infer<typeof stanceSchema>;
 export class Stance {
     public readonly value: StanceValue;
 
-    constructor(value: StanceValue) {
-        const res = stanceSchema.safeParse(value);
+    constructor(value: string) {
+        const res = stanceSchema.safeParse(value.toUpperCase() as unknown as StanceValue);
         if (!res.success) throw new Error(`Invalid stance: ${res.error.message}`);
         this.value = res.data;
     }

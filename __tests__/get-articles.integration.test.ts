@@ -42,8 +42,8 @@ describe('HTTP - Get Articles - Integration Tests', () => {
 
             // Verify default filtering (US articles in English)
             data.items.forEach((item) => {
-                expect(item.metadata.country).toBe('us');
-                expect(item.metadata.language).toBe('en');
+                expect(item.metadata.country).toBe('US');
+                expect(item.metadata.language).toBe('EN');
             });
 
             // Verify ordering (newest first)
@@ -59,7 +59,7 @@ describe('HTTP - Get Articles - Integration Tests', () => {
 
             // When
             const response = await testContext.gateways.httpServer.request(
-                '/articles?category=technology&country=fr&language=fr',
+                '/articles?category=TECHNOLOGY&country=FR&language=FR',
             );
             const data = await response.json();
 
@@ -67,9 +67,9 @@ describe('HTTP - Get Articles - Integration Tests', () => {
             expect(response.status).toBe(200);
             expect(data.items).toHaveLength(1);
             expect(data.items[0].metadata).toMatchObject({
-                category: 'technology',
-                country: 'fr',
-                language: 'fr',
+                category: 'TECHNOLOGY',
+                country: 'FR',
+                language: 'FR',
             });
             expect(data.total).toBe(1);
         });
@@ -77,7 +77,7 @@ describe('HTTP - Get Articles - Integration Tests', () => {
         it('should handle pagination correctly', async () => {
             // Given
             await new ArticleFactory()
-                .withCountry('us')
+                .withCountry('US')
                 .createManyInDatabase(testContext.prisma, 5);
 
             // When - first page
@@ -132,9 +132,9 @@ describe('HTTP - Get Articles - Integration Tests', () => {
                 'Scientists at leading universities have announced a %%[(REVOLUTIONARY)]( groundbreaking advancement in artificial intelligence.) The research shows significant progress in machine learning capabilities.';
 
             await new ArticleFactory()
-                .withCategory('technology')
-                .withCountry('us')
-                .withLanguage('en')
+                .withCategory('TECHNOLOGY')
+                .withCountry('US')
+                .withLanguage('EN')
                 .withHeadline('Revolutionary AI Breakthrough Announced')
                 .withBody(testBody)
                 .withPublishedAt(new Date('2024-03-15T14:30:00.000Z'))
@@ -163,10 +163,10 @@ describe('HTTP - Get Articles - Integration Tests', () => {
                     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
                 ),
                 metadata: {
-                    category: 'technology',
+                    category: 'TECHNOLOGY',
                     classification: 'STANDARD',
-                    country: 'us',
-                    language: 'en',
+                    country: 'US',
+                    language: 'EN',
                 },
                 publishedAt: '2024-03-15T14:30:00.000Z',
                 variants: [],
@@ -181,9 +181,9 @@ describe('HTTP - Get Articles - Integration Tests', () => {
                 'This is a legitimate news article with proper sourcing and verified information.';
 
             await new ArticleFactory()
-                .withCategory('technology')
-                .withCountry('us')
-                .withLanguage('en')
+                .withCategory('TECHNOLOGY')
+                .withCountry('US')
+                .withLanguage('EN')
                 .withHeadline('Legitimate Tech News')
                 .withBody(testBody)
                 .withPublishedAt(new Date('2024-03-15T14:30:00.000Z'))
@@ -211,10 +211,10 @@ describe('HTTP - Get Articles - Integration Tests', () => {
                     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
                 ),
                 metadata: {
-                    category: 'technology',
+                    category: 'TECHNOLOGY',
                     classification: 'STANDARD',
-                    country: 'us',
-                    language: 'en',
+                    country: 'US',
+                    language: 'EN',
                 },
                 publishedAt: '2024-03-15T14:30:00.000Z',
                 variants: [],
@@ -225,12 +225,12 @@ describe('HTTP - Get Articles - Integration Tests', () => {
             // Given
             await Promise.all([
                 new ArticleFactory()
-                    .withCategory('technology')
+                    .withCategory('TECHNOLOGY')
                     .withHeadline('Real Tech News')
                     .asReal()
                     .createInDatabase(testContext.prisma),
                 new ArticleFactory()
-                    .withCategory('technology')
+                    .withCategory('TECHNOLOGY')
                     .withHeadline('Fake Tech News')
                     .asFake('Fabricated information')
                     .createInDatabase(testContext.prisma),
@@ -238,7 +238,7 @@ describe('HTTP - Get Articles - Integration Tests', () => {
 
             // When
             const response = await testContext.gateways.httpServer.request(
-                '/articles?category=technology',
+                '/articles?category=TECHNOLOGY',
             );
             const data = await response.json();
 
@@ -295,9 +295,9 @@ describe('HTTP - Get Articles - Integration Tests', () => {
         it('should handle case-insensitive parameters', async () => {
             // Given
             await new ArticleFactory()
-                .withCategory('technology')
-                .withCountry('us')
-                .withLanguage('en')
+                .withCategory('TECHNOLOGY')
+                .withCountry('US')
+                .withLanguage('EN')
                 .createInDatabase(testContext.prisma);
 
             // When
@@ -309,16 +309,16 @@ describe('HTTP - Get Articles - Integration Tests', () => {
             // Then
             expect(response.status).toBe(200);
             expect(data.items[0].metadata).toMatchObject({
-                category: 'technology',
-                country: 'us',
-                language: 'en',
+                category: 'TECHNOLOGY',
+                country: 'US',
+                language: 'EN',
             });
         });
 
         it('should handle cursor at end of data', async () => {
             // Given
             await new ArticleFactory()
-                .withCountry('us')
+                .withCountry('US')
                 .createManyInDatabase(testContext.prisma, 3);
 
             // When

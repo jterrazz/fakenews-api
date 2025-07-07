@@ -1,13 +1,13 @@
 import { Stance } from '../stance.vo.js';
 
 const STANCE_VALUES: Stance['value'][] = [
-    'supportive',
-    'critical',
-    'neutral',
-    'mixed',
-    'concerned',
-    'optimistic',
-    'skeptical',
+    'SUPPORTIVE',
+    'CRITICAL',
+    'NEUTRAL',
+    'MIXED',
+    'CONCERNED',
+    'OPTIMISTIC',
+    'SKEPTICAL',
 ];
 
 export const STANCE_FIXTURES: Stance[] = STANCE_VALUES.map((s) => new Stance(s));

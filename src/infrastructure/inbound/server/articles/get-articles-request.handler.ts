@@ -25,7 +25,7 @@ export interface GetArticlesHttpQuery {
 const categoryParamSchema = z
     .string()
     .optional()
-    .transform((val) => val?.toLowerCase())
+    .transform((val) => val?.toUpperCase())
     .pipe(categorySchema.optional())
     .transform((val) => (val ? new Category(val) : undefined));
 
@@ -36,7 +36,7 @@ const categoryParamSchema = z
 const countryParamSchema = z
     .string()
     .optional()
-    .transform((val) => val?.toLowerCase() || 'us') // Default to 'us' if not provided
+    .transform((val) => val?.toUpperCase() || 'US') // Default to 'US' if not provided
     .pipe(countrySchema)
     .transform((val) => new Country(val));
 
@@ -46,7 +46,7 @@ const countryParamSchema = z
 const languageParamSchema = z
     .string()
     .optional()
-    .transform((val) => val?.toLowerCase())
+    .transform((val) => val?.toUpperCase())
     .pipe(languageSchema.optional())
     .transform((val) => (val ? new Language(val) : undefined));
 

@@ -148,9 +148,9 @@ export class ArticleCompositionAgentAdapter implements ArticleCompositionAgentPo
                     const perspective = input.story.perspectives[index];
                     return {
                         body: variant.body,
-                        discourse: perspective.discourse.value || 'mainstream',
+                        discourse: perspective.discourse.value || 'MAINSTREAM',
                         headline: variant.headline,
-                        stance: perspective.stance.value || 'neutral',
+                        stance: perspective.stance.value || 'NEUTRAL',
                     };
                 }),
             };

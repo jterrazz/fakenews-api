@@ -147,13 +147,13 @@ describe('WorldNewsAdapter', () => {
         await first;
 
         vitest.advanceTimersByTime(1500);
-        const second = adapter.fetchNews({ country: new Country('fr') });
+        const second = adapter.fetchNews({ country: new Country('FR') });
         vitest.runAllTimers();
         await second;
 
         // Then - it should use the correct date for each country
-        expect(requestedDates['us']).toBe('2024-01-14');
-        expect(requestedDates['fr']).toBe('2024-01-15');
+        expect(requestedDates['US']).toBe('2024-01-14');
+        expect(requestedDates['FR']).toBe('2024-01-15');
 
         mockOfDate.reset();
     });
@@ -211,10 +211,10 @@ describe('WorldNewsAdapter', () => {
 
         // Then - it should return an empty array and log the error
         expect(result).toEqual([]);
-        expect(mockLogger.error).toHaveBeenCalledWith('Failed to fetch en news:', {
-            country: 'us',
+        expect(mockLogger.error).toHaveBeenCalledWith('Failed to fetch EN news:', {
+            country: 'US',
             error: expect.any(ZodError),
-            language: 'en',
+            language: 'EN',
         });
     });
 

@@ -21,8 +21,8 @@ import {
 const RATE_LIMIT_DELAY = 1200; // 1.2 seconds between requests for safety margin
 const API_BASE_URL = 'https://api.worldnewsapi.com';
 const TOP_NEWS_ENDPOINT = '/top-news';
-const DEFAULT_COUNTRY = 'us';
-const DEFAULT_LANGUAGE = 'en';
+const DEFAULT_COUNTRY = 'US';
+const DEFAULT_LANGUAGE = 'EN';
 const DATE_FORMAT = 'yyyy-MM-dd';
 
 // Types

@@ -6,8 +6,8 @@ inbound:
     prettyPrint: true
   tasks:
     storyPipeline:
-      - country: fr
-        language: fr
+      - country: FR
+        language: FR
 
 outbound:
   openRouter:

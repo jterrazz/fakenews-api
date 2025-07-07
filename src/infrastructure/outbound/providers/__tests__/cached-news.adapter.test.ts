@@ -24,8 +24,8 @@ describe('CachedNewsAdapter', () => {
     const cacheDirectory = 'test';
 
     const options = {
-        country: new Country('us'),
-        language: new Language('en'),
+        country: new Country('US'),
+        language: new Language('EN'),
     };
 
     const mockStory: NewsStory = {
@@ -64,7 +64,7 @@ describe('CachedNewsAdapter', () => {
             expect(mockNewsSource.fetchNews).not.toHaveBeenCalled();
             expect(mockLogger.info).toHaveBeenCalledWith('Cache hit - using cached news data', {
                 cacheAge: expect.any(Number),
-                language: 'en',
+                language: 'EN',
                 storyCount: 1,
             });
         });
@@ -86,10 +86,10 @@ describe('CachedNewsAdapter', () => {
             expect(result).toEqual([mockStory]);
             expect(mockNewsSource.fetchNews).toHaveBeenCalledWith(options);
             expect(mockLogger.info).toHaveBeenCalledWith('Cache miss - fetching fresh news data', {
-                language: 'en',
+                language: 'EN',
             });
             expect(writeFileSync).toHaveBeenCalledWith(
-                expect.stringContaining(`${cacheDirectory}/stories/en.json`),
+                expect.stringContaining(`${cacheDirectory}/stories/EN.json`),
                 expect.any(String),
             );
         });
@@ -106,7 +106,7 @@ describe('CachedNewsAdapter', () => {
             expect(result).toEqual([mockStory]);
             expect(mockNewsSource.fetchNews).toHaveBeenCalledWith(options);
             expect(mockLogger.info).toHaveBeenCalledWith('Cache miss - fetching fresh news data', {
-                language: 'en',
+                language: 'EN',
             });
         });
 
@@ -127,9 +127,9 @@ describe('CachedNewsAdapter', () => {
                 expect(mockLogger.error).toHaveBeenCalledWith(
                     'Failed to read news cache, removing corrupted cache',
                     {
-                        cachePath: expect.stringContaining(`${cacheDirectory}/stories/en.json`),
+                        cachePath: expect.stringContaining(`${cacheDirectory}/stories/EN.json`),
                         error: expect.any(Error),
-                        language: 'en',
+                        language: 'EN',
                     },
                 );
                 expect(mockNewsSource.fetchNews).toHaveBeenCalledWith(options);
@@ -150,7 +150,7 @@ describe('CachedNewsAdapter', () => {
                 expect(result).toEqual([mockStory]);
                 expect(mockLogger.error).toHaveBeenCalledWith('Failed to write news cache', {
                     error: expect.any(Error),
-                    language: 'en',
+                    language: 'EN',
                 });
             });
         });
