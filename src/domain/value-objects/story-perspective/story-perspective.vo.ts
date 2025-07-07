@@ -1,7 +1,7 @@
 import { z } from 'zod/v4';
 
-import { Discourse } from '../../discourse.vo.js';
-import { Stance } from '../../stance.vo.js';
+import { Discourse } from '../discourse.vo.js';
+import { Stance } from '../stance.vo.js';
 
 import { Corpus } from './corpus.vo.js';
 

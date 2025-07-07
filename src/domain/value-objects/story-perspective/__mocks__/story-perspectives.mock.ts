@@ -1,5 +1,5 @@
-import { getDiscourse } from '../../../__mocks__/discourses.mock.js';
-import { getStance } from '../../../__mocks__/stances.mock.js';
+import { getDiscourse } from '../../__mocks__/discourses.mock.js';
+import { getStance } from '../../__mocks__/stances.mock.js';
 import { Corpus } from '../corpus.vo.js';
 import { StoryPerspective } from '../story-perspective.vo.js';
 

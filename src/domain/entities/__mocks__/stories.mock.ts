@@ -3,8 +3,8 @@ import { randomUUID } from 'crypto';
 import { getCategory } from '../../value-objects/__mocks__/categories.mock.js';
 import { getCountry } from '../../value-objects/__mocks__/countries.mock.js';
 import { getClassification } from '../../value-objects/story/__mocks__/classifications.mock.js';
-import { mockStoryPerspectives as mockPerspectives } from '../../value-objects/story/perspective/__mocks__/story-perspectives.mock.js';
-import { type StoryPerspective } from '../../value-objects/story/perspective/story-perspective.vo.js';
+import { mockStoryPerspectives as mockPerspectives } from '../../value-objects/story-perspective/__mocks__/story-perspectives.mock.js';
+import { type StoryPerspective } from '../../value-objects/story-perspective/story-perspective.vo.js';
 import { Story } from '../story.entity.js';
 
 /**

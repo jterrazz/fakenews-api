@@ -6,7 +6,7 @@ import { getLanguage } from '../../value-objects/__mocks__/languages.mock.js';
 import { getBody } from '../../value-objects/article/__mocks__/bodies.mock.js';
 import { getHeadline } from '../../value-objects/article/__mocks__/headlines.mock.js';
 import { Authenticity } from '../../value-objects/article/authenticity.vo.js';
-import { mockArticleVariants } from '../../value-objects/article/variant/__mocks__/article-variants.mock.js';
+import { mockArticleVariants } from '../../value-objects/article-variant/__mocks__/article-variants.mock.js';
 import { Article } from '../article.entity.js';
 
 /**

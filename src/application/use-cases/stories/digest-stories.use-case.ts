@@ -7,8 +7,8 @@ import { Discourse } from '../../../domain/value-objects/discourse.vo.js';
 import { type Language } from '../../../domain/value-objects/language.vo.js';
 import { Stance } from '../../../domain/value-objects/stance.vo.js';
 import { Classification } from '../../../domain/value-objects/story/classification.vo.js';
-import { Corpus } from '../../../domain/value-objects/story/perspective/corpus.vo.js';
-import { StoryPerspective } from '../../../domain/value-objects/story/perspective/story-perspective.vo.js';
+import { Corpus } from '../../../domain/value-objects/story-perspective/corpus.vo.js';
+import { StoryPerspective } from '../../../domain/value-objects/story-perspective/story-perspective.vo.js';
 
 import { type StoryDeduplicationAgentPort } from '../../ports/outbound/agents/story-deduplication.agent.js';
 import { type StoryIngestionAgentPort } from '../../ports/outbound/agents/story-ingestion.agent.js';

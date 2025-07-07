@@ -1,9 +1,9 @@
 import { z } from 'zod/v4';
 
-import { Discourse } from '../../discourse.vo.js';
-import { Stance } from '../../stance.vo.js';
-import { Body } from '../body.vo.js';
-import { Headline } from '../headline.vo.js';
+import { Body } from '../article/body.vo.js';
+import { Headline } from '../article/headline.vo.js';
+import { Discourse } from '../discourse.vo.js';
+import { Stance } from '../stance.vo.js';
 
 export const articleVariantSchema = z.object({
     body: z.instanceof(Body),

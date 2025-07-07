@@ -3,7 +3,7 @@ import { z } from 'zod/v4';
 import { Category } from '../value-objects/category.vo.js';
 import { Country } from '../value-objects/country.vo.js';
 import { Classification } from '../value-objects/story/classification.vo.js';
-import { StoryPerspective } from '../value-objects/story/perspective/story-perspective.vo.js';
+import { StoryPerspective } from '../value-objects/story-perspective/story-perspective.vo.js';
 
 export const synopsisSchema = z
     .string()

@@ -13,7 +13,7 @@ import { Article } from '../../../domain/entities/article.entity.js';
 import { Authenticity } from '../../../domain/value-objects/article/authenticity.vo.js';
 import { Body } from '../../../domain/value-objects/article/body.vo.js';
 import { Headline } from '../../../domain/value-objects/article/headline.vo.js';
-import { ArticleVariant } from '../../../domain/value-objects/article/variant/article-variant.vo.js';
+import { ArticleVariant } from '../../../domain/value-objects/article-variant/article-variant.vo.js';
 import { Category } from '../../../domain/value-objects/category.vo.js';
 import { Country } from '../../../domain/value-objects/country.vo.js';
 import { Discourse } from '../../../domain/value-objects/discourse.vo.js';

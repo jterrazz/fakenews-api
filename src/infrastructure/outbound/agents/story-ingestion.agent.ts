@@ -19,7 +19,7 @@ import { Category } from '../../../domain/value-objects/category.vo.js';
 import { categorySchema } from '../../../domain/value-objects/category.vo.js';
 import { discourseSchema } from '../../../domain/value-objects/discourse.vo.js';
 import { stanceSchema } from '../../../domain/value-objects/stance.vo.js';
-import { perspectiveCorpusSchema } from '../../../domain/value-objects/story/perspective/corpus.vo.js';
+import { perspectiveCorpusSchema } from '../../../domain/value-objects/story-perspective/corpus.vo.js';
 
 export class StoryIngestionAgentAdapter implements StoryIngestionAgentPort {
     static readonly SCHEMA = z.object({

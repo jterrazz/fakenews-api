@@ -14,8 +14,8 @@ import { Country } from '../../../domain/value-objects/country.vo.js';
 import { Discourse } from '../../../domain/value-objects/discourse.vo.js';
 import { Stance } from '../../../domain/value-objects/stance.vo.js';
 import { Classification } from '../../../domain/value-objects/story/classification.vo.js';
-import { Corpus } from '../../../domain/value-objects/story/perspective/corpus.vo.js';
-import { StoryPerspective } from '../../../domain/value-objects/story/perspective/story-perspective.vo.js';
+import { Corpus } from '../../../domain/value-objects/story-perspective/corpus.vo.js';
+import { StoryPerspective } from '../../../domain/value-objects/story-perspective/story-perspective.vo.js';
 
 export class StoryMapper {
     mapCategoryToPrisma(category: Category): PrismaCategory {
