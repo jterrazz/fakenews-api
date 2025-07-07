@@ -11,25 +11,49 @@ export const factsSchema = z
         'Facts are a concise, information-dense collection of essential data points, key actors, and the core narrative in ~50 words. Example: "Tesla CEO Musk acquires Twitter ($44B, Oct 2022), fires executives, adds $8 verification fee, restores suspended accounts, triggers advertiser exodus (GM, Pfizer), 75 % staff cuts, sparks free-speech vs. safety debate."',
     );
 
+export const categorySchema = z
+    .instanceof(Category)
+    .describe('The primary category classification of the story.');
+
+export const classificationSchema = z
+    .instanceof(Classification)
+    .describe('The editorial classification assigned to the story.');
+
+export const countrySchema = z
+    .instanceof(Country)
+    .describe('The country where the story is relevant.');
+
+export const createdAtSchema = z
+    .date()
+    .describe('The timestamp when the story was first created in the system.');
+
+export const datelineSchema = z
+    .date()
+    .describe('The publication date of the story, typically based on the source articles.');
+
+export const idSchema = z.uuid().describe('The unique identifier for the story.');
+
+export const perspectivesSchema = z
+    .array(z.instanceof(StoryPerspective))
+    .describe('A list of different viewpoints or angles on the story.');
+
+export const sourceReferencesSchema = z
+    .array(z.string())
+    .describe('A list of IDs from the original source articles used to create the story.');
+
+export const updatedAtSchema = z.date().describe('The timestamp when the story was last updated.');
+
 export const storySchema = z.object({
-    category: z.instanceof(Category).describe('The primary category classification of the story.'),
-    classification: z.instanceof(Classification),
-    country: z.instanceof(Country).describe('The country where the story is relevant.'),
-    createdAt: z.date().describe('The timestamp when the story was first created in the system.'),
-    dateline: z
-        .date()
-        .describe('The publication date of the story, typically based on the source articles.'),
+    category: categorySchema,
+    classification: classificationSchema,
+    country: countrySchema,
+    createdAt: createdAtSchema,
+    dateline: datelineSchema,
     facts: factsSchema,
-    id: z.uuid().describe('The unique identifier for the story.'),
-    perspectives: z
-        .array(z.instanceof(StoryPerspective))
-        .min(1, 'At least one perspective is required')
-        .describe('A list of different viewpoints or angles on the story.'),
-    sourceReferences: z
-        .array(z.string())
-        .min(1, 'At least one external source reference is required')
-        .describe('A list of IDs from the original source articles used to create the story.'),
-    updatedAt: z.date().describe('The timestamp when the story was last updated.'),
+    id: idSchema,
+    perspectives: perspectivesSchema,
+    sourceReferences: sourceReferencesSchema,
+    updatedAt: updatedAtSchema,
 });
 
 export type StoryProps = z.input<typeof storySchema>;
@@ -67,13 +91,5 @@ export class Story {
         this.updatedAt = validatedData.updatedAt;
         this.country = validatedData.country;
         this.classification = validatedData.classification;
-    }
-
-    public getCountryCodes(): string[] {
-        return [this.country.toString()];
-    }
-
-    public getPerspectiveCount(): number {
-        return this.perspectives.length;
     }
 }
