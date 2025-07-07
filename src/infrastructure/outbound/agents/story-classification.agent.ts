@@ -56,8 +56,8 @@ export class StoryClassificationAgentAdapter implements StoryClassificationAgent
             category: story.category.toString(),
             perspectives: story.perspectives?.map((p) => ({
                 digest: p.perspectiveCorpus.value,
-                discourse: p.discourse,
-                stance: p.stance,
+                discourse: p.discourse.value,
+                stance: p.stance.value,
             })),
             synopsis: story.synopsis,
         };

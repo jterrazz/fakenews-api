@@ -10,7 +10,10 @@ export const perspectiveCorpusSchema = z
             'CRITICAL: DO NOT FORGET ANYTHING. WRITE EVERYTHING.',
     );
 
-export class PerspectiveCorpus {
+/**
+ * @description Raw, exhaustive information for a specific perspective.
+ */
+export class Corpus {
     public readonly value: string;
 
     constructor(corpus: string) {

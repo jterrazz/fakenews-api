@@ -6,8 +6,10 @@ import { type DeepMockProxy, mock } from 'vitest-mock-extended';
 import { Story } from '../../../../domain/entities/story.entity.js';
 import { Category } from '../../../../domain/value-objects/category.vo.js';
 import { Country } from '../../../../domain/value-objects/country.vo.js';
+import { Discourse } from '../../../../domain/value-objects/discourse.vo.js';
+import { Stance } from '../../../../domain/value-objects/stance.vo.js';
 import { Classification } from '../../../../domain/value-objects/story/classification.vo.js';
-import { PerspectiveCorpus } from '../../../../domain/value-objects/story/perspective/perspective-corpus.vo.js';
+import { Corpus } from '../../../../domain/value-objects/story/perspective/corpus.vo.js';
 import { StoryPerspective } from '../../../../domain/value-objects/story/perspective/story-perspective.vo.js';
 
 import {
@@ -32,11 +34,11 @@ const createMockStory = (
         id: storyId,
         perspectives: [
             new StoryPerspective({
-                discourse: 'mainstream',
-                perspectiveCorpus: new PerspectiveCorpus(
+                discourse: new Discourse('mainstream'),
+                perspectiveCorpus: new Corpus(
                     'This is a very long and detailed holistic digest for the mock perspective, created specifically for testing. It needs to be over 200 characters long to pass the validation rules of the value object. This ensures that when our use case tests run, they do not fail due to simple validation errors in the mock data construction process, allowing us to focus on the actual logic of the use case itself.',
                 ),
-                stance: 'neutral',
+                stance: new Stance('neutral'),
             }),
         ],
         sourceReferences: ['source-1'],

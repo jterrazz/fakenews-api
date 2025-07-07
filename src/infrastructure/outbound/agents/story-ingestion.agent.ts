@@ -17,12 +17,9 @@ import { type NewsStory } from '../../../application/ports/outbound/providers/ne
 import { synopsisSchema } from '../../../domain/entities/story.entity.js';
 import { Category } from '../../../domain/value-objects/category.vo.js';
 import { categorySchema } from '../../../domain/value-objects/category.vo.js';
-import { PerspectiveCorpus } from '../../../domain/value-objects/story/perspective/perspective-corpus.vo.js';
-import { perspectiveCorpusSchema } from '../../../domain/value-objects/story/perspective/perspective-corpus.vo.js';
-import {
-    discourseTypeSchema,
-    stanceSchema,
-} from '../../../domain/value-objects/story/perspective/perspective-tags.vo.js';
+import { discourseSchema } from '../../../domain/value-objects/discourse.vo.js';
+import { stanceSchema } from '../../../domain/value-objects/stance.vo.js';
+import { perspectiveCorpusSchema } from '../../../domain/value-objects/story/perspective/corpus.vo.js';
 
 export class StoryIngestionAgentAdapter implements StoryIngestionAgentPort {
     static readonly SCHEMA = z.object({
@@ -30,13 +27,11 @@ export class StoryIngestionAgentAdapter implements StoryIngestionAgentPort {
         perspectives: z
             .array(
                 z.object({
+                    discourse: discourseSchema,
                     perspectiveCorpus: perspectiveCorpusSchema.describe(
                         'A complete compilation of all information for this viewpoint, NOT a summary. It must be focused on the news event itself and include every argument, fact, and piece of evidence presented for this side. It MUST NOT contain information about the news source.',
                     ),
-                    tags: z.object({
-                        discourse_type: discourseTypeSchema,
-                        stance: stanceSchema,
-                    }),
+                    stance: stanceSchema,
                 }),
             )
             .min(1, 'At least one perspective is required.')
@@ -135,7 +130,7 @@ export class StoryIngestionAgentAdapter implements StoryIngestionAgentPort {
                 `[${this.name}] Successfully parsed AI response with ${result.perspectives.length} perspectives`,
                 {
                     category: result.category,
-                    perspectiveTypes: result.perspectives.map((p) => p.tags.discourse_type),
+                    perspectiveTypes: result.perspectives.map((p) => p.discourse),
                 },
             );
 
@@ -144,9 +139,9 @@ export class StoryIngestionAgentAdapter implements StoryIngestionAgentPort {
 
             // Create perspective data from AI response (without creating full Perspective entities)
             const perspectives = result.perspectives.map((perspectiveData) => ({
-                discourse: perspectiveData.tags.discourse_type,
-                perspectiveCorpus: new PerspectiveCorpus(perspectiveData.perspectiveCorpus),
-                stance: perspectiveData.tags.stance,
+                discourse: perspectiveData.discourse,
+                perspectiveCorpus: perspectiveData.perspectiveCorpus,
+                stance: perspectiveData.stance,
             }));
 
             const ingestionResult: StoryIngestionResult = {

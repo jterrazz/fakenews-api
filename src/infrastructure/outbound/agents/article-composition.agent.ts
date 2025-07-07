@@ -98,8 +98,8 @@ export class ArticleCompositionAgentAdapter implements ArticleCompositionAgentPo
                     dateline: input.story.dateline.toISOString(),
                     perspectives: input.story.perspectives.map((perspective) => ({
                         digest: perspective.perspectiveCorpus.value,
-                        discourse: perspective.discourse,
-                        stance: perspective.stance,
+                        discourse: perspective.discourse.value,
+                        stance: perspective.stance.value,
                     })),
                 },
                 null,
@@ -148,9 +148,9 @@ export class ArticleCompositionAgentAdapter implements ArticleCompositionAgentPo
                     const perspective = input.story.perspectives[index];
                     return {
                         body: variant.body,
-                        discourse: perspective.discourse || 'mainstream',
+                        discourse: perspective.discourse.value || 'mainstream',
                         headline: variant.headline,
-                        stance: perspective.stance || 'neutral',
+                        stance: perspective.stance.value || 'neutral',
                     };
                 }),
             };

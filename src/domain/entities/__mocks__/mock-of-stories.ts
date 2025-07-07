@@ -3,10 +3,9 @@ import { randomUUID } from 'crypto';
 import { Category } from '../../value-objects/category.vo.js';
 import { Country } from '../../value-objects/country.vo.js';
 import { Classification } from '../../value-objects/story/classification.vo.js';
+import { mockPerspectives } from '../../value-objects/story/perspective/__mocks__/mock-perspectives.js';
 import { type StoryPerspective } from '../../value-objects/story/perspective/story-perspective.vo.js';
 import { Story } from '../story.entity.js';
-
-import { mockPerspectives } from './mock-of-perspectives.js';
 
 /**
  * Creates an array of mock stories for testing purposes

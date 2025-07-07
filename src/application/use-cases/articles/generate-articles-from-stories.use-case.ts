@@ -2,12 +2,14 @@ import { type LoggerPort } from '@jterrazz/logger';
 import { randomUUID } from 'crypto';
 
 import { Article } from '../../../domain/entities/article.entity.js';
-import { ArticleVariant } from '../../../domain/value-objects/article/article-variant.vo.js';
 import { Authenticity } from '../../../domain/value-objects/article/authenticity.vo.js';
 import { Body } from '../../../domain/value-objects/article/body.vo.js';
 import { Headline } from '../../../domain/value-objects/article/headline.vo.js';
+import { ArticleVariant } from '../../../domain/value-objects/article/variant/article-variant.vo.js';
 import { type Country } from '../../../domain/value-objects/country.vo.js';
+import { Discourse } from '../../../domain/value-objects/discourse.vo.js';
 import { type Language } from '../../../domain/value-objects/language.vo.js';
+import { Stance } from '../../../domain/value-objects/stance.vo.js';
 
 import {
     type ArticleCompositionAgentPort,
@@ -87,20 +89,9 @@ export class GenerateArticlesFromStoriesUseCase {
                         (variantData) =>
                             new ArticleVariant({
                                 body: new Body(variantData.body),
-                                discourse: variantData.discourse as
-                                    | 'alternative'
-                                    | 'dubious'
-                                    | 'mainstream'
-                                    | 'underreported',
+                                discourse: new Discourse(variantData.discourse),
                                 headline: new Headline(variantData.headline),
-                                stance: variantData.stance as
-                                    | 'concerned'
-                                    | 'critical'
-                                    | 'mixed'
-                                    | 'neutral'
-                                    | 'optimistic'
-                                    | 'skeptical'
-                                    | 'supportive',
+                                stance: new Stance(variantData.stance),
                             }),
                     );
 

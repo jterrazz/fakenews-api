@@ -3,8 +3,11 @@ import { randomUUID } from 'crypto';
 
 import { Story } from '../../../domain/entities/story.entity.js';
 import { type Country } from '../../../domain/value-objects/country.vo.js';
+import { Discourse } from '../../../domain/value-objects/discourse.vo.js';
 import { type Language } from '../../../domain/value-objects/language.vo.js';
+import { Stance } from '../../../domain/value-objects/stance.vo.js';
 import { Classification } from '../../../domain/value-objects/story/classification.vo.js';
+import { Corpus } from '../../../domain/value-objects/story/perspective/corpus.vo.js';
 import { StoryPerspective } from '../../../domain/value-objects/story/perspective/story-perspective.vo.js';
 
 import { type StoryDeduplicationAgentPort } from '../../ports/outbound/agents/story-deduplication.agent.js';
@@ -122,20 +125,9 @@ export class DigestStoriesUseCase {
                     const perspectives = ingestionResult.perspectives.map(
                         (p) =>
                             new StoryPerspective({
-                                discourse: p.discourse as
-                                    | 'alternative'
-                                    | 'dubious'
-                                    | 'mainstream'
-                                    | 'underreported',
-                                perspectiveCorpus: p.perspectiveCorpus,
-                                stance: p.stance as
-                                    | 'concerned'
-                                    | 'critical'
-                                    | 'mixed'
-                                    | 'neutral'
-                                    | 'optimistic'
-                                    | 'skeptical'
-                                    | 'supportive',
+                                discourse: new Discourse(p.discourse),
+                                perspectiveCorpus: new Corpus(p.perspectiveCorpus),
+                                stance: new Stance(p.stance),
                             }),
                     );
 

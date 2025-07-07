@@ -1,10 +1,12 @@
-import { ArticleVariant } from '../../value-objects/article/article-variant.vo.js';
 import { Authenticity } from '../../value-objects/article/authenticity.vo.js';
 import { Body } from '../../value-objects/article/body.vo.js';
 import { Headline } from '../../value-objects/article/headline.vo.js';
+import { ArticleVariant } from '../../value-objects/article/variant/article-variant.vo.js';
 import { Category } from '../../value-objects/category.vo.js';
 import { type Country } from '../../value-objects/country.vo.js';
+import { Discourse } from '../../value-objects/discourse.vo.js';
 import { type Language } from '../../value-objects/language.vo.js';
+import { Stance } from '../../value-objects/stance.vo.js';
 import { Article } from '../article.entity.js';
 
 /**
@@ -61,9 +63,9 @@ function createMockVariants(index: number): ArticleVariant[] {
                 body: new Body(
                     `This critical perspective examines the implications of the developments discussed in article ${index + 1}. We analyze the potential concerns and challenges that arise from these changes.`,
                 ),
-                discourse: 'alternative',
+                discourse: new Discourse('alternative'),
                 headline: new Headline(`Critical Analysis: Mock Article ${index + 1}`),
-                stance: 'critical',
+                stance: new Stance('critical'),
             }),
         );
     }
@@ -74,9 +76,9 @@ function createMockVariants(index: number): ArticleVariant[] {
                 body: new Body(
                     `This supportive analysis highlights the positive aspects and opportunities presented in article ${index + 1}. We explore the benefits and potential for progress.`,
                 ),
-                discourse: 'mainstream',
+                discourse: new Discourse('mainstream'),
                 headline: new Headline(`Supportive View: Mock Article ${index + 1}`),
-                stance: 'supportive',
+                stance: new Stance('supportive'),
             }),
         );
     }

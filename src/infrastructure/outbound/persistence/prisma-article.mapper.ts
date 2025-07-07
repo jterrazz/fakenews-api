@@ -3,20 +3,22 @@ import {
     type ArticleVariant as PrismaArticleVariant,
     type Category as PrismaCategory,
     type Country as PrismaCountry,
-    type Discourse,
+    type Discourse as PrismaDiscourse,
     type Language as PrismaLanguage,
     type Prisma,
-    type Stance,
+    type Stance as PrismaStance,
 } from '@prisma/client';
 
 import { Article } from '../../../domain/entities/article.entity.js';
-import { ArticleVariant } from '../../../domain/value-objects/article/article-variant.vo.js';
 import { Authenticity } from '../../../domain/value-objects/article/authenticity.vo.js';
 import { Body } from '../../../domain/value-objects/article/body.vo.js';
 import { Headline } from '../../../domain/value-objects/article/headline.vo.js';
+import { ArticleVariant } from '../../../domain/value-objects/article/variant/article-variant.vo.js';
 import { Category } from '../../../domain/value-objects/category.vo.js';
 import { Country } from '../../../domain/value-objects/country.vo.js';
+import { Discourse } from '../../../domain/value-objects/discourse.vo.js';
 import { Language } from '../../../domain/value-objects/language.vo.js';
+import { Stance } from '../../../domain/value-objects/stance.vo.js';
 import { Classification } from '../../../domain/value-objects/story/classification.vo.js';
 
 export class ArticleMapper {
@@ -42,9 +44,9 @@ export class ArticleMapper {
             (variant) =>
                 new ArticleVariant({
                     body: new Body(variant.body),
-                    discourse: variant.discourse,
+                    discourse: new Discourse(variant.discourse as PrismaDiscourse),
                     headline: new Headline(variant.headline),
-                    stance: variant.stance,
+                    stance: new Stance(variant.stance as PrismaStance),
                 }),
         );
 
@@ -87,9 +89,9 @@ export class ArticleMapper {
                 ? {
                       create: domain.variants.map((variant) => ({
                           body: variant.body.value,
-                          discourse: variant.discourse as Discourse,
+                          discourse: variant.discourse.value,
                           headline: variant.headline.value,
-                          stance: variant.stance as Stance,
+                          stance: variant.stance.value,
                       })),
                   }
                 : undefined,

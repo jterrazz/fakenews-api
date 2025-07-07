@@ -1,9 +1,9 @@
 import { z } from 'zod/v4';
 
-import { ArticleVariant } from '../value-objects/article/article-variant.vo.js';
 import { Authenticity } from '../value-objects/article/authenticity.vo.js';
 import { Body } from '../value-objects/article/body.vo.js';
 import { Headline } from '../value-objects/article/headline.vo.js';
+import { ArticleVariant } from '../value-objects/article/variant/article-variant.vo.js';
 import { Category } from '../value-objects/category.vo.js';
 import { Country } from '../value-objects/country.vo.js';
 import { Language } from '../value-objects/language.vo.js';

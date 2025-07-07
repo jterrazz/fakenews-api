@@ -69,9 +69,9 @@ export class GetArticlesResponsePresenter {
         const variants: ArticleVariantResponse[] =
             article.variants?.map((variant) => ({
                 body: variant.body.toString(),
-                discourse: variant.discourse,
+                discourse: variant.discourse.value,
                 headline: variant.headline.toString(),
-                stance: variant.stance,
+                stance: variant.stance.value,
             })) ?? [];
 
         return {
