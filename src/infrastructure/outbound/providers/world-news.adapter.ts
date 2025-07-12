@@ -81,7 +81,7 @@ export class WorldNewsAdapter implements NewsProviderPort {
                 this.logger.info('news:fetch:success', {
                     country: country.toString(),
                     language: language.toString(),
-                    storyCount: stories.length,
+                    reportCount: stories.length,
                 });
                 return stories;
             } catch (error) {

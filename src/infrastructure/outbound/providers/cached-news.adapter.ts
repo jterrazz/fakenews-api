@@ -18,7 +18,7 @@ const JSON_INDENT = 2;
 
 // Helper functions
 const getCacheDir = (env: string) => `${tmpdir()}/fake-news/${env}`;
-const getCachePath = (env: string, lang: string) => `${getCacheDir(env)}/stories/${lang}.json`;
+const getCachePath = (env: string, lang: string) => `${getCacheDir(env)}/reports/${lang}.json`;
 
 // Types
 type CacheData = z.infer<typeof cacheDataSchema>;
@@ -30,13 +30,13 @@ const newsArticleSchema = z.object({
     id: z.string(),
 });
 
-const newsStorySchema = z.object({
+const newsReportSchema = z.object({
     articles: z.array(newsArticleSchema),
     publishedAt: z.iso.datetime().transform((date) => new Date(date)),
 });
 
 const cacheDataSchema = z.object({
-    data: z.array(newsStorySchema),
+    data: z.array(newsReportSchema),
     timestamp: z.number(),
 });
 
@@ -83,7 +83,7 @@ export class CachedNewsAdapter implements NewsProviderPort {
             this.logger.info('cache:hit', {
                 cacheAge: Date.now() - cachedData.timestamp,
                 language,
-                storyCount: cachedData.data.length,
+                reportCount: cachedData.data.length,
             });
             return cachedData.data;
         }
@@ -93,7 +93,7 @@ export class CachedNewsAdapter implements NewsProviderPort {
 
         this.logger.debug('cache:write', {
             language,
-            storyCount: stories.length,
+            reportCount: stories.length,
         });
         this.writeCache(stories, language);
 
@@ -176,7 +176,7 @@ export class CachedNewsAdapter implements NewsProviderPort {
                 cachePath,
                 cacheSize: JSON.stringify(cacheData).length,
                 language,
-                storyCount: data.length,
+                reportCount: data.length,
             });
         } catch (error) {
             this.logger.error('cache:write:error', { error, language });

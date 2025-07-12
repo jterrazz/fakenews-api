@@ -6,7 +6,7 @@ import { type Mock } from 'vitest';
 
 import {
     type NewsProviderPort,
-    type NewsStory,
+    type NewsReport,
 } from '../../../../application/ports/outbound/providers/news.port.js';
 
 import { Country } from '../../../../domain/value-objects/country.vo.js';
@@ -28,7 +28,7 @@ describe('CachedNewsAdapter', () => {
         language: new Language('EN'),
     };
 
-    const mockStory: NewsStory = {
+    const mockReport: NewsReport = {
         articles: [
             {
                 body: 'Test summary',
@@ -50,7 +50,7 @@ describe('CachedNewsAdapter', () => {
         test('should return cached data when valid cache exists', async () => {
             // Given - a valid cache exists for the requested data
             const validCache = {
-                data: [mockStory],
+                data: [mockReport],
                 timestamp: Date.now(),
             };
             (existsSync as Mock).mockReturnValue(true);
@@ -60,37 +60,37 @@ describe('CachedNewsAdapter', () => {
             const result = await adapter.fetchNews(options);
 
             // Then - it should return the cached data
-            expect(result).toEqual([mockStory]);
+            expect(result).toEqual([mockReport]);
             expect(mockNewsSource.fetchNews).not.toHaveBeenCalled();
             expect(mockLogger.info).toHaveBeenCalledWith('cache:hit', {
                 cacheAge: expect.any(Number),
                 language: 'EN',
-                storyCount: 1,
+                reportCount: 1,
             });
         });
 
         test('should fetch fresh data when cache is expired', async () => {
             // Given - a cache that is expired (older than allowed)
             const expiredCache = {
-                data: [mockStory],
+                data: [mockReport],
                 timestamp: Date.now() - 2 * 60 * 60 * 1000, // 2 hours old
             };
             (existsSync as Mock).mockReturnValue(true);
             (readFileSync as Mock).mockReturnValue(JSON.stringify(expiredCache));
-            mockNewsSource.fetchNews.mockResolvedValue([mockStory]);
+            mockNewsSource.fetchNews.mockResolvedValue([mockReport]);
 
             // When - fetching data from the adapter
             const result = await adapter.fetchNews(options);
 
             // Then - it should fetch fresh data and update the cache
-            expect(result).toEqual([mockStory]);
+            expect(result).toEqual([mockReport]);
             expect(mockNewsSource.fetchNews).toHaveBeenCalledWith(options);
             expect(mockLogger.info).toHaveBeenCalledWith('cache:expired', {
-                cachePath: expect.stringContaining(`${cacheDirectory}/stories/EN.json`),
+                cachePath: expect.stringContaining(`${cacheDirectory}/reports/EN.json`),
                 language: 'EN',
             });
             expect(writeFileSync).toHaveBeenCalledWith(
-                expect.stringContaining(`${cacheDirectory}/stories/EN.json`),
+                expect.stringContaining(`${cacheDirectory}/reports/EN.json`),
                 expect.any(String),
             );
         });
@@ -98,13 +98,13 @@ describe('CachedNewsAdapter', () => {
         test('should fetch fresh data when cache does not exist', async () => {
             // Given - no cache exists for the requested data
             (existsSync as Mock).mockReturnValue(false);
-            mockNewsSource.fetchNews.mockResolvedValue([mockStory]);
+            mockNewsSource.fetchNews.mockResolvedValue([mockReport]);
 
             // When - fetching data from the adapter
             const result = await adapter.fetchNews(options);
 
             // Then - it should fetch fresh data and return it
-            expect(result).toEqual([mockStory]);
+            expect(result).toEqual([mockReport]);
             expect(mockNewsSource.fetchNews).toHaveBeenCalledWith(options);
             expect(mockLogger.info).toHaveBeenCalledWith('cache:miss', {
                 language: 'EN',
@@ -118,15 +118,15 @@ describe('CachedNewsAdapter', () => {
                 (readFileSync as Mock).mockImplementation(() => {
                     throw new Error('Read error');
                 });
-                mockNewsSource.fetchNews.mockResolvedValue([mockStory]);
+                mockNewsSource.fetchNews.mockResolvedValue([mockReport]);
 
                 // When - fetching data from the adapter
                 const result = await adapter.fetchNews(options);
 
                 // Then - it should fetch fresh data and log the cache read error
-                expect(result).toEqual([mockStory]);
+                expect(result).toEqual([mockReport]);
                 expect(mockLogger.error).toHaveBeenCalledWith('cache:read:error', {
-                    cachePath: expect.stringContaining(`${cacheDirectory}/stories/EN.json`),
+                    cachePath: expect.stringContaining(`${cacheDirectory}/reports/EN.json`),
                     error: expect.any(Error),
                     language: 'EN',
                 });
@@ -139,13 +139,13 @@ describe('CachedNewsAdapter', () => {
                 (writeFileSync as Mock).mockImplementation(() => {
                     throw new Error('Write error');
                 });
-                mockNewsSource.fetchNews.mockResolvedValue([mockStory]);
+                mockNewsSource.fetchNews.mockResolvedValue([mockReport]);
 
                 // When - fetching data from the adapter
                 const result = await adapter.fetchNews(options);
 
                 // Then - it should return the data and log the cache write error
-                expect(result).toEqual([mockStory]);
+                expect(result).toEqual([mockReport]);
                 expect(mockLogger.error).toHaveBeenCalledWith('cache:write:error', {
                     error: expect.any(Error),
                     language: 'EN',

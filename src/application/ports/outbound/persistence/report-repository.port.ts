@@ -52,7 +52,7 @@ export interface ReportRepositoryPort {
      * Find reports that don't have any articles linked to them
      * Useful for identifying reports that need article implementation
      */
-    findStoriesWithoutArticles(criteria?: {
+    findReportsWithoutArticles(criteria?: {
         category?: string;
         classification?: Array<'NICHE' | 'PENDING_CLASSIFICATION' | 'STANDARD'>;
         country?: string;

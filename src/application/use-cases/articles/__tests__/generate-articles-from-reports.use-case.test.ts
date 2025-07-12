@@ -63,7 +63,7 @@ describe('GenerateArticlesFromReportsUseCase', () => {
         }));
 
         // Default mock responses
-        mockReportRepository.findStoriesWithoutArticles.mockResolvedValue(testReports);
+        mockReportRepository.findReportsWithoutArticles.mockResolvedValue(testReports);
         mockArticleCompositionAgent.run.mockImplementation(async () => mockCompositionResults[0]);
         mockArticleRepository.createMany.mockResolvedValue();
     });
@@ -78,7 +78,7 @@ describe('GenerateArticlesFromReportsUseCase', () => {
             const result = await useCase.execute(language, country);
 
             // Then - it should find reports without articles
-            expect(mockReportRepository.findStoriesWithoutArticles).toHaveBeenCalledWith({
+            expect(mockReportRepository.findReportsWithoutArticles).toHaveBeenCalledWith({
                 classification: ['STANDARD', 'NICHE'],
                 country: country.toString(),
                 limit: 20,
@@ -117,7 +117,7 @@ describe('GenerateArticlesFromReportsUseCase', () => {
 
         test('should handle empty reports result gracefully', async () => {
             // Given - no reports without articles
-            mockReportRepository.findStoriesWithoutArticles.mockResolvedValue([]);
+            mockReportRepository.findReportsWithoutArticles.mockResolvedValue([]);
 
             // When - executing the use case
             const result = await useCase.execute(DEFAULT_LANGUAGE, DEFAULT_COUNTRY);
@@ -171,7 +171,7 @@ describe('GenerateArticlesFromReportsUseCase', () => {
             await useCase.execute(language, country);
 
             // Then - it should pass correct parameters to report repository
-            expect(mockReportRepository.findStoriesWithoutArticles).toHaveBeenCalledWith({
+            expect(mockReportRepository.findReportsWithoutArticles).toHaveBeenCalledWith({
                 classification: ['STANDARD', 'NICHE'],
                 country: country.toString(),
                 limit: 20,
@@ -189,7 +189,7 @@ describe('GenerateArticlesFromReportsUseCase', () => {
         test('should throw error when report repository fails', async () => {
             // Given - report repository throws error
             const repositoryError = new Error('Report repository failed');
-            mockReportRepository.findStoriesWithoutArticles.mockRejectedValue(repositoryError);
+            mockReportRepository.findReportsWithoutArticles.mockRejectedValue(repositoryError);
 
             // When - executing the use case
             // Then - it should throw the error
@@ -219,7 +219,7 @@ describe('GenerateArticlesFromReportsUseCase', () => {
         test('should create articles with correct report relationships', async () => {
             // Given - valid reports and composition results
             const testReport = testReports[0];
-            mockReportRepository.findStoriesWithoutArticles.mockResolvedValue([testReport]);
+            mockReportRepository.findReportsWithoutArticles.mockResolvedValue([testReport]);
             mockArticleCompositionAgent.run.mockResolvedValue(mockCompositionResults[0]);
 
             // When - executing the use case

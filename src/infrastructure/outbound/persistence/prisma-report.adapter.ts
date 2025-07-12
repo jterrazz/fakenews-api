@@ -160,7 +160,7 @@ export class PrismaReportRepository implements ReportRepositoryPort {
         return reports;
     }
 
-    async findStoriesWithoutArticles(criteria?: {
+    async findReportsWithoutArticles(criteria?: {
         category?: string;
         classification?: Array<'NICHE' | 'PENDING_CLASSIFICATION' | 'STANDARD'>;
         country?: string;

@@ -2,7 +2,7 @@ import { type Report } from '../../../../domain/entities/report.entity.js';
 import {
     Classification,
     classificationSchema,
-} from '../../../../domain/value-objects/report/classification.vo.js';
+} from '../../../../domain/value-objects/story/classification.vo.js';
 
 export { Classification, classificationSchema };
 
