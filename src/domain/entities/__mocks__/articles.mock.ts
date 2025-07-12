@@ -6,7 +6,7 @@ import { getLanguage } from '../../value-objects/__mocks__/languages.mock.js';
 import { getBody } from '../../value-objects/article/__mocks__/bodies.mock.js';
 import { getHeadline } from '../../value-objects/article/__mocks__/headlines.mock.js';
 import { Authenticity } from '../../value-objects/article/authenticity.vo.js';
-import { mockArticleVariants } from '../../value-objects/article-variant/__mocks__/article-variants.mock.js';
+import { mockArticleFrames } from '../../value-objects/article-frame/__mocks__/article-frames.mock.js';
 import { Article } from '../article.entity.js';
 
 /**
@@ -18,12 +18,12 @@ export function createMockArticle(index: number): Article {
         body: getBody(index),
         category: getCategory(index),
         country: getCountry(index),
+        frames: mockArticleFrames(2),
         headline: getHeadline(index),
         id: randomUUID(),
         language: getLanguage(index),
         publishedAt: new Date(),
-        storyIds: [],
-        variants: mockArticleVariants(2),
+        reportIds: [],
     });
 }
 

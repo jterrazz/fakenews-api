@@ -28,7 +28,7 @@ export class ArticleFactory {
         id: string;
         language: Language;
         publishedAt: Date;
-        storyIds: string[];
+        reportIds: string[];
     };
 
     constructor() {
@@ -41,48 +41,45 @@ export class ArticleFactory {
             id: crypto.randomUUID(),
             language: new Language('EN'),
             publishedAt: new Date('2024-03-01T12:00:00.000Z'),
-            storyIds: [],
+            reportIds: [],
         };
     }
 
-    asFake(reason: string = 'AI-generated test content'): ArticleFactory {
+    public asFake(reason?: string): ArticleFactory {
         this.data.authenticity = new Authenticity(true, reason);
         return this;
     }
 
-    asReal(): ArticleFactory {
+    public asReal(): ArticleFactory {
         this.data.authenticity = new Authenticity(false);
         return this;
     }
 
-    build(): Article {
-        return new Article({ ...this.data });
-    }
-
-    buildMany(count: number): Article[] {
-        return Array.from({ length: count }, (_, index) => {
-            const factory = new ArticleFactory();
-            factory.data = { ...this.data };
-            factory.data.id = crypto.randomUUID();
-            factory.data.headline = new Headline(`${this.data.headline.value} ${index + 1}`);
-            factory.data.publishedAt = new Date(
-                this.data.publishedAt.getTime() - index * 1000 * 60,
-            );
-            return factory.build();
+    public build(): Article {
+        return new Article({
+            authenticity: this.data.authenticity,
+            body: this.data.body,
+            category: this.data.category,
+            country: this.data.country,
+            headline: this.data.headline,
+            id: this.data.id,
+            language: this.data.language,
+            publishedAt: this.data.publishedAt,
+            reportIds: this.data.reportIds,
         });
     }
 
     async createInDatabase(prisma: PrismaClient): Promise<Article> {
         const article = this.build();
 
-        // Ensure a story exists for the article to be queryable
-        const story = await prisma.story.create({
+        // Ensure a report exists for the article to be queryable
+        const report = await prisma.report.create({
             data: {
                 category: article.category.toString() as PrismaCategory,
                 classification: 'STANDARD',
                 country: article.country.toString() as PrismaCountry,
                 dateline: article.publishedAt,
-                facts: `These are test facts for the story related to article ${article.headline.value}. They are long enough to pass validation and cover all key data points required.`,
+                facts: `These are test facts for the report related to article ${article.headline.value}. They are long enough to pass validation and cover all key data points required.`,
                 // Default to STANDARD for tests
                 sourceReferences: [],
             },
@@ -100,205 +97,118 @@ export class ArticleFactory {
                 id: article.id,
                 language: article.language.toString() as PrismaLanguage,
                 publishedAt: article.publishedAt,
-                stories: {
-                    connect: { id: story.id },
+                reports: {
+                    connect: { id: report.id },
                 },
             },
         });
         return article;
     }
 
-    async createManyInDatabase(prisma: PrismaClient, count: number): Promise<Article[]> {
-        const articles = this.buildMany(count);
-        await Promise.all(
-            articles.map((article) =>
-                new ArticleFactory()
-                    .withCategory(article.category.toString())
-                    .withCountry(article.country.toString())
-                    .withLanguage(article.language.toString())
-                    .withHeadline(article.headline.value)
-                    .withBody(article.body.value)
-                    .withPublishedAt(article.publishedAt)
-                    .createInDatabase(prisma),
-            ),
-        );
+    public async createManyInDatabase(prisma: PrismaClient, count: number): Promise<Article[]> {
+        const articles: Article[] = [];
+        for (let i = 0; i < count; i++) {
+            // Create articles with incremental timestamps to ensure proper pagination
+            const publishedAt = new Date(this.data.publishedAt.getTime() + i * 1000); // Add 1 second per article
+            
+            // Create a new factory instance for each article to ensure unique IDs
+            const factory = new ArticleFactory()
+                .withCategory(this.data.category)
+                .withCountry(this.data.country)
+                .withLanguage(this.data.language)
+                .withPublishedAt(publishedAt)
+                .withAuthenticity(this.data.authenticity);
+            
+            const article = await factory.createInDatabase(prisma);
+            articles.push(article);
+        }
         return articles;
     }
 
-    publishedDaysAgo(days: number): ArticleFactory {
-        this.data.publishedAt = subDays(new Date(), days);
+    public withAuthenticity(authenticity: Authenticity): ArticleFactory {
+        this.data.authenticity = authenticity;
         return this;
     }
 
-    publishedDaysFromNow(days: number): ArticleFactory {
-        this.data.publishedAt = addDays(new Date(), days);
-        return this;
-    }
-
-    withBody(body: string): ArticleFactory {
+    public withBody(body: string): ArticleFactory {
         this.data.body = new Body(body);
         return this;
     }
 
-    withCategory(category: string): ArticleFactory {
-        this.data.category = new Category(category);
+    public withCategory(category: Category | string): ArticleFactory {
+        this.data.category = typeof category === 'string' ? new Category(category) : category;
         return this;
     }
 
-    withCountry(country: string): ArticleFactory {
-        this.data.country = new Country(country);
+    public withCountry(country: Country | string): ArticleFactory {
+        this.data.country = typeof country === 'string' ? new Country(country) : country;
         return this;
     }
 
-    withHeadline(headline: string): ArticleFactory {
+    public withHeadline(headline: string): ArticleFactory {
         this.data.headline = new Headline(headline);
         return this;
     }
 
-    withLanguage(language: string): ArticleFactory {
-        this.data.language = new Language(language);
+    public withLanguage(language: Language | string): ArticleFactory {
+        this.data.language = typeof language === 'string' ? new Language(language) : language;
         return this;
     }
 
-    withPublishedAt(date: Date): ArticleFactory {
+    public withPublishedAt(date: Date): ArticleFactory {
         this.data.publishedAt = date;
-        return this;
-    }
-
-    withStories(storyIds: string[]): ArticleFactory {
-        this.data.storyIds = storyIds;
         return this;
     }
 }
 
 /**
- * Static factory methods for common scenarios
+ * Common test scenarios for articles with predefined configurations
+ * Provides ready-to-use article combinations for testing
  */
 export class ArticleTestScenarios {
+    /**
+     * Creates a scenario with no articles for testing empty result handling
+     */
     static async createEmptyResultScenario(prisma: PrismaClient): Promise<void> {
-        await new ArticleFactory().withCategory('TECHNOLOGY').createInDatabase(prisma);
+        // This method creates an empty scenario by not creating any articles
+        // The empty scenario is achieved by simply not creating any data
+        await prisma.article.deleteMany();
     }
 
     /**
-     * Creates 4 French articles to meet morning target quota
+     * Creates articles with mixed configurations for comprehensive testing
      */
-    static async createFrenchMorningTarget(prisma: PrismaClient): Promise<Article[]> {
-        const testDate = new Date();
+    static async createMixedArticles(prisma: PrismaClient) {
+        const today = new Date('2024-03-01T12:00:00.000Z');
+        const yesterday = subDays(today, 1);
+        const tomorrow = addDays(today, 1);
 
-        return await Promise.all([
-            new ArticleFactory()
-                .withCountry('FR')
-                .withLanguage('FR')
-                .withCategory('TECHNOLOGY')
-                .withHeadline('Nouvelles Tech FR 1')
-                .withPublishedAt(testDate)
-                .asReal()
-                .createInDatabase(prisma),
-
-            new ArticleFactory()
-                .withCountry('FR')
-                .withLanguage('FR')
-                .withCategory('POLITICS')
-                .withHeadline('Nouvelles Politiques FR 1')
-                .withPublishedAt(testDate)
-                .asFake('Contenu politique généré par IA')
-                .createInDatabase(prisma),
-
-            new ArticleFactory()
-                .withCountry('FR')
-                .withLanguage('FR')
-                .withCategory('TECHNOLOGY')
-                .withHeadline('Nouvelles Tech FR 2')
-                .withPublishedAt(testDate)
-                .asReal()
-                .createInDatabase(prisma),
-
-            new ArticleFactory()
-                .withCountry('FR')
-                .withLanguage('FR')
-                .withCategory('BUSINESS')
-                .withHeadline('Nouvelles Affaires FR 1')
-                .withPublishedAt(testDate)
-                .asFake('Informations commerciales trompeuses')
-                .createInDatabase(prisma),
-        ]);
-    }
-
-    static async createMixedArticles(prisma: PrismaClient): Promise<{
-        allArticles: Article[];
-        fakeArticles: Article[];
-        frenchArticles: Article[];
-        realArticles: Article[];
-        usArticles: Article[];
-    }> {
+        // Create US articles
         const usArticles = await Promise.all([
             new ArticleFactory()
-                .withCategory('TECHNOLOGY')
-                .withCountry('US')
-                .withLanguage('EN')
-                .withHeadline('US Tech Innovation')
-                .withPublishedAt(new Date('2024-03-01T12:00:00.000Z'))
-                .asFake('AI-generated content')
+                .withCountry(new Country('US'))
+                .withLanguage(new Language('EN'))
+                .withPublishedAt(today)
                 .createInDatabase(prisma),
-
             new ArticleFactory()
-                .withCategory('POLITICS')
-                .withCountry('US')
-                .withLanguage('EN')
-                .withHeadline('US Political Development')
-                .withPublishedAt(new Date('2024-03-01T11:00:00.000Z'))
-                .asReal()
-                .createInDatabase(prisma),
-
-            new ArticleFactory()
-                .withCategory('TECHNOLOGY')
-                .withCountry('US')
-                .withLanguage('EN')
-                .withHeadline('US Tech Update')
-                .withPublishedAt(new Date('2024-03-01T10:00:00.000Z'))
-                .asFake('Misleading information')
+                .withCountry(new Country('US'))
+                .withLanguage(new Language('EN'))
+                .withPublishedAt(yesterday)
                 .createInDatabase(prisma),
         ]);
 
+        // Create French articles
         const frenchArticles = await Promise.all([
             new ArticleFactory()
-                .withCategory('POLITICS')
-                .withCountry('FR')
-                .withLanguage('FR')
-                .withHeadline('Politique Française')
-                .withPublishedAt(new Date('2024-03-01T12:00:00.000Z'))
-                .asFake('Contenu généré par IA')
-                .createInDatabase(prisma),
-
-            new ArticleFactory()
-                .withCategory('TECHNOLOGY')
-                .withCountry('FR')
-                .withLanguage('FR')
-                .withHeadline('Innovation Technologique')
-                .withPublishedAt(new Date('2024-03-01T11:00:00.000Z'))
-                .asReal()
+                .withCountry(new Country('FR'))
+                .withLanguage(new Language('FR'))
+                .withPublishedAt(tomorrow)
                 .createInDatabase(prisma),
         ]);
 
-        const allArticles = [...usArticles, ...frenchArticles];
-        const fakeArticles = allArticles.filter((article) => article.isFake());
-        const realArticles = allArticles.filter((article) => !article.isFake());
-
         return {
-            allArticles,
-            fakeArticles,
             frenchArticles,
-            realArticles,
             usArticles,
         };
-    }
-
-    static async createPaginationTestData(prisma: PrismaClient): Promise<Article[]> {
-        return await new ArticleFactory()
-            .withCategory('TECHNOLOGY')
-            .withCountry('US')
-            .withLanguage('EN')
-            .withPublishedAt(new Date('2024-03-01T12:00:00.000Z'))
-            .createManyInDatabase(prisma, 25);
     }
 }

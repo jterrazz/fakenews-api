@@ -55,7 +55,7 @@ enum Discourse {
   DUBIOUS
 }
 
-model Story {
+model Report {
   id             String         @id @default(uuid())
   facts          String
   category       Category
@@ -69,8 +69,8 @@ model Story {
   sourceReferences Json
 
   // Relations
-  perspectives StoryPerspective[]
-  articles     Article[]          @relation("StoryArticles")
+  angles   ReportAngle[]
+  articles Article[]     @relation("ReportArticles")
 
   // Metadata
   createdAt DateTime @default(now())
@@ -82,21 +82,21 @@ model Story {
   @@index([createdAt])
 }
 
-model StoryPerspective {
+model ReportAngle {
   id             String     @id @default(uuid())
   holisticDigest String
   stance         Stance?
   discourse      Discourse?
 
   // Relations
-  story   Story  @relation(fields: [storyId], references: [id], onDelete: Cascade)
-  storyId String
+  report   Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  reportId String
 
   // Metadata
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([storyId])
+  @@index([reportId])
   @@index([stance])
   @@index([discourse])
 }
@@ -114,20 +114,20 @@ model Article {
   createdAt   DateTime @default(now())
 
   // Relations
-  variants ArticleVariant[]
-  stories  Story[]          @relation("StoryArticles")
+  frames  ArticleFrame[]
+  reports Report[]       @relation("ReportArticles")
 
   @@index([language, country])
   @@index([createdAt])
   @@index([publishedAt])
 }
 
-model ArticleVariant {
+model ArticleFrame {
   id        String    @id @default(uuid())
-  headline  String // Variant headline from this viewpoint
+  headline  String // Frame headline from this viewpoint
   body      String // Viewpoint-specific content explaining this side of the story
-  stance    Stance // The viewpoint/stance this variant represents
-  discourse Discourse // The type of discourse this variant represents
+  stance    Stance // The viewpoint/stance this frame represents
+  discourse Discourse // The type of discourse this frame represents
 
   // Relations
   article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)

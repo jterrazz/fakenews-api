@@ -22,7 +22,7 @@ const configurationSchema = z.object({
             prettyPrint: z.boolean(),
         }),
         tasks: z.object({
-            storyPipeline: z
+            reportPipeline: z
                 .array(
                     z.object({
                         country: countrySchema,

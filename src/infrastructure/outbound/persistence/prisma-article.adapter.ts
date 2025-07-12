@@ -91,7 +91,7 @@ export class PrismaArticleRepository implements ArticleRepositoryPort {
                 },
             }),
             ...(options.classification && {
-                stories: {
+                reports: {
                     some: {
                         classification: {
                             in: options.classification,
@@ -103,14 +103,14 @@ export class PrismaArticleRepository implements ArticleRepositoryPort {
 
         const items = await this.prisma.getPrismaClient().article.findMany({
             include: {
-                stories: {
+                frames: true,
+                reports: {
                     select: {
                         classification: true,
                         id: true,
                     },
-                    take: 1, // We only need the classification from one story
+                    take: 1, // We only need the classification from one report
                 },
-                variants: true,
             },
             orderBy: {
                 createdAt: 'desc',

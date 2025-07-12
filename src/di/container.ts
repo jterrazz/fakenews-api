@@ -14,29 +14,29 @@ import type { ServerPort } from '../application/ports/inbound/server.port.js';
 import type { TaskPort } from '../application/ports/inbound/worker.port.js';
 import type { WorkerPort } from '../application/ports/inbound/worker.port.js';
 import { type ArticleCompositionAgentPort } from '../application/ports/outbound/agents/article-composition.agent.js';
-import { type StoryClassificationAgentPort } from '../application/ports/outbound/agents/story-classification.agent.js';
-import { type StoryDeduplicationAgentPort } from '../application/ports/outbound/agents/story-deduplication.agent.js';
-import { type StoryIngestionAgentPort } from '../application/ports/outbound/agents/story-ingestion.agent.js';
+import { type ReportClassificationAgentPort } from '../application/ports/outbound/agents/report-classification.agent.js';
+import { type ReportDeduplicationAgentPort } from '../application/ports/outbound/agents/report-deduplication.agent.js';
+import { type ReportIngestionAgentPort } from '../application/ports/outbound/agents/report-ingestion.agent.js';
 import type { ArticleRepositoryPort } from '../application/ports/outbound/persistence/article-repository.port.js';
-import { type StoryRepositoryPort } from '../application/ports/outbound/persistence/story-repository.port.js';
+import { type ReportRepositoryPort } from '../application/ports/outbound/persistence/report-repository.port.js';
 import type { NewsProviderPort } from '../application/ports/outbound/providers/news.port.js';
-import { GenerateArticlesFromStoriesUseCase } from '../application/use-cases/articles/generate-articles-from-stories.use-case.js';
+import { GenerateArticlesFromReportsUseCase } from '../application/use-cases/articles/generate-articles-from-reports.use-case.js';
 import { GetArticlesUseCase } from '../application/use-cases/articles/get-articles.use-case.js';
-import { ClassifyStoriesUseCase } from '../application/use-cases/stories/classify-stories.use-case.js';
-import { IngestStoriesUseCase } from '../application/use-cases/stories/ingest-stories.use-case.js';
+import { ClassifyReportsUseCase } from '../application/use-cases/reports/classify-reports.use-case.js';
+import { IngestReportsUseCase } from '../application/use-cases/reports/ingest-reports.use-case.js';
 
 import { NodeConfigAdapter } from '../infrastructure/inbound/configuration/node-config.adapter.js';
 import { GetArticlesController } from '../infrastructure/inbound/server/articles/get-articles.controller.js';
 import { HonoServerAdapter } from '../infrastructure/inbound/server/hono.adapter.js';
 import { NodeCronAdapter } from '../infrastructure/inbound/worker/node-cron.adapter.js';
-import { StoryPipelineTask } from '../infrastructure/inbound/worker/stories/story-pipeline.task.js';
+import { ReportPipelineTask } from '../infrastructure/inbound/worker/reports/report-pipeline.task.js';
 import { ArticleCompositionAgentAdapter } from '../infrastructure/outbound/agents/article-composition.agent.js';
-import { StoryClassificationAgentAdapter } from '../infrastructure/outbound/agents/story-classification.agent.js';
-import { StoryDeduplicationAgentAdapter } from '../infrastructure/outbound/agents/story-deduplication.agent.js';
-import { StoryIngestionAgentAdapter } from '../infrastructure/outbound/agents/story-ingestion.agent.js';
+import { ReportClassificationAgentAdapter } from '../infrastructure/outbound/agents/report-classification.agent.js';
+import { ReportDeduplicationAgentAdapter } from '../infrastructure/outbound/agents/report-deduplication.agent.js';
+import { ReportIngestionAgentAdapter } from '../infrastructure/outbound/agents/report-ingestion.agent.js';
 import { PrismaAdapter } from '../infrastructure/outbound/persistence/prisma.adapter.js';
 import { PrismaArticleRepository } from '../infrastructure/outbound/persistence/prisma-article.adapter.js';
-import { PrismaStoryRepository } from '../infrastructure/outbound/persistence/prisma-story.adapter.js';
+import { PrismaReportRepository } from '../infrastructure/outbound/persistence/prisma-report.adapter.js';
 import { CachedNewsAdapter } from '../infrastructure/outbound/providers/cached-news.adapter.js';
 import { WorldNewsAdapter } from '../infrastructure/outbound/providers/world-news.adapter.js';
 
@@ -104,10 +104,10 @@ const modelFactory = Injectable(
         }),
 );
 
-const storyIngestionAgentFactory = Injectable(
-    'StoryIngestionAgent',
+const reportIngestionAgentFactory = Injectable(
+    'ReportIngestionAgent',
     ['Model', 'Logger'] as const,
-    (model: ModelPort, logger: LoggerPort) => new StoryIngestionAgentAdapter(model, logger),
+    (model: ModelPort, logger: LoggerPort) => new ReportIngestionAgentAdapter(model, logger),
 );
 
 const articleCompositionAgentFactory = Injectable(
@@ -116,16 +116,16 @@ const articleCompositionAgentFactory = Injectable(
     (model: ModelPort, logger: LoggerPort) => new ArticleCompositionAgentAdapter(model, logger),
 );
 
-const storyClassificationAgentFactory = Injectable(
-    'StoryClassificationAgent',
+const reportClassificationAgentFactory = Injectable(
+    'ReportClassificationAgent',
     ['Model', 'Logger'] as const,
-    (model: ModelPort, logger: LoggerPort) => new StoryClassificationAgentAdapter(model, logger),
+    (model: ModelPort, logger: LoggerPort) => new ReportClassificationAgentAdapter(model, logger),
 );
 
-const storyDeduplicationAgentFactory = Injectable(
-    'StoryDeduplicationAgent',
+const reportDeduplicationAgentFactory = Injectable(
+    'ReportDeduplicationAgent',
     ['Model', 'Logger'] as const,
-    (model: ModelPort, logger: LoggerPort) => new StoryDeduplicationAgentAdapter(model, logger),
+    (model: ModelPort, logger: LoggerPort) => new ReportDeduplicationAgentAdapter(model, logger),
 );
 
 /**
@@ -141,13 +141,13 @@ const articleRepositoryFactory = Injectable(
     },
 );
 
-const storyRepositoryFactory = Injectable(
-    'StoryRepository',
+const reportRepositoryFactory = Injectable(
+    'ReportRepository',
     ['Database', 'Logger'] as const,
     (db: PrismaAdapter, logger: LoggerPort) => {
-        logger.info('repository:init', { component: 'PrismaStory' });
-        const storyRepository = new PrismaStoryRepository(db, logger);
-        return storyRepository;
+        logger.info('repository:init', { component: 'PrismaReport' });
+        const reportRepository = new PrismaReportRepository(db, logger);
+        return reportRepository;
     },
 );
 
@@ -160,56 +160,56 @@ const getArticlesUseCaseFactory = Injectable(
     (articleRepository: ArticleRepositoryPort) => new GetArticlesUseCase(articleRepository),
 );
 
-const ingestStoriesUseCaseFactory = Injectable(
-    'IngestStories',
+const ingestReportsUseCaseFactory = Injectable(
+    'IngestReports',
     [
-        'StoryIngestionAgent',
-        'StoryDeduplicationAgent',
+        'ReportIngestionAgent',
+        'ReportDeduplicationAgent',
         'Logger',
         'News',
-        'StoryRepository',
+        'ReportRepository',
     ] as const,
     (
-        storyIngestionAgent: StoryIngestionAgentPort,
-        storyDeduplicationAgent: StoryDeduplicationAgentPort,
+        reportIngestionAgent: ReportIngestionAgentPort,
+        reportDeduplicationAgent: ReportDeduplicationAgentPort,
         logger: LoggerPort,
         newsService: NewsProviderPort,
-        storyRepository: StoryRepositoryPort,
+        reportRepository: ReportRepositoryPort,
     ) =>
-        new IngestStoriesUseCase(
-            storyIngestionAgent,
-            storyDeduplicationAgent,
+        new IngestReportsUseCase(
+            reportIngestionAgent,
+            reportDeduplicationAgent,
             logger,
             newsService,
-            storyRepository,
+            reportRepository,
         ),
 );
 
-const generateArticlesFromStoriesUseCaseFactory = Injectable(
-    'GenerateArticlesFromStories',
-    ['ArticleCompositionAgent', 'Logger', 'StoryRepository', 'ArticleRepository'] as const,
+const generateArticlesFromReportsUseCaseFactory = Injectable(
+    'GenerateArticlesFromReports',
+    ['ArticleCompositionAgent', 'Logger', 'ReportRepository', 'ArticleRepository'] as const,
     (
         articleCompositionAgent: ArticleCompositionAgentPort,
         logger: LoggerPort,
-        storyRepository: StoryRepositoryPort,
+        reportRepository: ReportRepositoryPort,
         articleRepository: ArticleRepositoryPort,
     ) =>
-        new GenerateArticlesFromStoriesUseCase(
+        new GenerateArticlesFromReportsUseCase(
             articleCompositionAgent,
             logger,
-            storyRepository,
+            reportRepository,
             articleRepository,
         ),
 );
 
-const classifyStoriesUseCaseFactory = Injectable(
-    'ClassifyStories',
-    ['StoryClassificationAgent', 'Logger', 'StoryRepository'] as const,
+const classifyReportsUseCaseFactory = Injectable(
+    'ClassifyReports',
+    ['ReportClassificationAgent', 'Logger', 'ReportRepository'] as const,
     (
-        storyClassificationAgent: StoryClassificationAgentPort,
+        reportClassificationAgent: ReportClassificationAgentPort,
         logger: LoggerPort,
-        storyRepository: StoryRepositoryPort,
-    ) => new ClassifyStoriesUseCase(storyClassificationAgent, logger, storyRepository),
+        reportRepository: ReportRepositoryPort,
+    ) => new ClassifyReportsUseCase(reportClassificationAgent, logger, reportRepository),
 );
 
 /**
@@ -229,29 +229,29 @@ const controllersFactory = Injectable(
 const tasksFactory = Injectable(
     'Tasks',
     [
-        'IngestStories',
-        'GenerateArticlesFromStories',
-        'ClassifyStories',
+        'IngestReports',
+        'GenerateArticlesFromReports',
+        'ClassifyReports',
         'Configuration',
         'Logger',
     ] as const,
     (
-        ingestStories: IngestStoriesUseCase,
-        generateArticlesFromStories: GenerateArticlesFromStoriesUseCase,
-        classifyStories: ClassifyStoriesUseCase,
+        ingestReports: IngestReportsUseCase,
+        generateArticlesFromReports: GenerateArticlesFromReportsUseCase,
+        classifyReports: ClassifyReportsUseCase,
         configuration: ConfigurationPort,
         logger: LoggerPort,
     ): TaskPort[] => {
         const tasks: TaskPort[] = [];
 
-        // Story pipeline task
-        const storyPipelineConfigs = configuration.getInboundConfiguration().tasks.storyPipeline;
+        // Report pipeline task
+        const reportPipelineConfigs = configuration.getInboundConfiguration().tasks.reportPipeline;
         tasks.push(
-            new StoryPipelineTask(
-                ingestStories,
-                generateArticlesFromStories,
-                classifyStories,
-                storyPipelineConfigs,
+            new ReportPipelineTask(
+                ingestReports,
+                generateArticlesFromReports,
+                classifyReports,
+                reportPipelineConfigs,
                 logger,
             ),
         );
@@ -324,18 +324,18 @@ export const createContainer = (overrides?: ContainerOverrides) =>
         .provides(databaseFactory)
         .provides(newsFactory)
         .provides(modelFactory)
-        .provides(storyIngestionAgentFactory)
+        .provides(reportIngestionAgentFactory)
         .provides(articleCompositionAgentFactory)
-        .provides(storyClassificationAgentFactory)
-        .provides(storyDeduplicationAgentFactory)
+        .provides(reportClassificationAgentFactory)
+        .provides(reportDeduplicationAgentFactory)
         // Repositories
         .provides(articleRepositoryFactory)
-        .provides(storyRepositoryFactory)
+        .provides(reportRepositoryFactory)
         // Use cases
         .provides(getArticlesUseCaseFactory)
-        .provides(ingestStoriesUseCaseFactory)
-        .provides(generateArticlesFromStoriesUseCaseFactory)
-        .provides(classifyStoriesUseCaseFactory)
+        .provides(ingestReportsUseCaseFactory)
+        .provides(generateArticlesFromReportsUseCaseFactory)
+        .provides(classifyReportsUseCaseFactory)
         // Controllers and tasks
         .provides(controllersFactory)
         .provides(tasksFactory)

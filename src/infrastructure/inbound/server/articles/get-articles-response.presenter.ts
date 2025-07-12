@@ -4,6 +4,13 @@ import { type PaginatedResponse as UseCasePaginatedResponse } from '../../../../
 
 import { type Article } from '../../../../domain/entities/article.entity.js';
 
+type ArticleFrameResponse = {
+    body: string;
+    discourse: string;
+    headline: string;
+    stance: string;
+};
+
 type ArticleMetadata = {
     category: Category;
     classification?: 'ARCHIVED' | 'NICHE' | 'STANDARD';
@@ -17,18 +24,11 @@ type ArticleResponse = {
         status: 'authentic' | 'fake';
     };
     body: string;
+    frames: ArticleFrameResponse[];
     headline: string;
     id: string;
     metadata: ArticleMetadata;
     publishedAt: string;
-    variants: ArticleVariantResponse[];
-};
-
-type ArticleVariantResponse = {
-    body: string;
-    discourse: string;
-    headline: string;
-    stance: string;
 };
 
 type HttpPaginatedResponse<T> = {
@@ -39,7 +39,7 @@ type HttpPaginatedResponse<T> = {
 
 /**
  * Handles response formatting for GET /articles endpoint
- * Transforms domain objects to HTTP response format with clean article + variants structure
+ * Transforms domain objects to HTTP response format with clean article + frames structure
  */
 export class GetArticlesResponsePresenter {
     present(result: UseCasePaginatedResponse<Article>): HttpPaginatedResponse<ArticleResponse> {
@@ -65,13 +65,13 @@ export class GetArticlesResponsePresenter {
         // Use processed content based on authenticity
         const displayBody = article.isFake() ? contentWithAnnotations : contentRaw;
 
-        // Map article variants from domain entities
-        const variants: ArticleVariantResponse[] =
-            article.variants?.map((variant) => ({
-                body: variant.body.toString(),
-                discourse: variant.discourse.value,
-                headline: variant.headline.toString(),
-                stance: variant.stance.value,
+        // Map article frames from domain entities
+        const frames: ArticleFrameResponse[] =
+            article.frames?.map((frame) => ({
+                body: frame.body.toString(),
+                discourse: frame.discourse.value,
+                headline: frame.headline.toString(),
+                stance: frame.stance.value,
             })) ?? [];
 
         return {
@@ -80,6 +80,7 @@ export class GetArticlesResponsePresenter {
                 status: article.isFake() ? 'fake' : 'authentic',
             },
             body: displayBody,
+            frames,
             headline: article.headline.toString(),
             id: article.id,
             metadata: {
@@ -93,7 +94,6 @@ export class GetArticlesResponsePresenter {
                 language: article.language.toString() as Language,
             },
             publishedAt: article.publishedAt.toISOString(),
-            variants,
         };
     }
 

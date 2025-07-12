@@ -59,7 +59,7 @@ export class ArticleCompositionAgentAdapter implements ArticleCompositionAgentPo
     }
 
     static readonly USER_PROMPT = (input: ArticleCompositionInput) => {
-        const expectedVariantCount = input.story.perspectives.length;
+        const expectedVariantCount = input.story.angles.length;
 
         return new UserPromptAdapter(
             // Hard constraint
@@ -73,7 +73,7 @@ export class ArticleCompositionAgentAdapter implements ArticleCompositionAgentPo
             // The Hierarchical Content Model (The "What")
             'You will create two types of content that are **complementary and do not repeat information**:',
             '1.  **Main Article (The Foundation):** A neutral summary of the core, undisputed facts. This is the baseline "what happened" that is shown first. It contains information all sides agree on.',
-            `2.  **Variants (The Perspectives):** Create **exactly ${expectedVariantCount}** complementary articles, one for each perspective. These must **build upon** the main article's facts, not repeat them. Your goal here is to explain **how that perspective interprets or emphasizes those facts**. Focus on the "why" behind their viewpoint.`,
+            `2.  **Variants (The Angles):** Create **exactly ${expectedVariantCount}** complementary articles, one for each angle. These must **build upon** the main article's facts, not repeat them. Your goal here is to explain **how that angle interprets or emphasizes those facts**. Focus on the "why" behind their viewpoint.`,
             '',
 
             // Your Role as an Editor (The "How")
@@ -86,7 +86,7 @@ export class ArticleCompositionAgentAdapter implements ArticleCompositionAgentPo
 
             // Critical Rules
             'CRITICAL RULES:',
-            `•   You **MUST** create **exactly ${expectedVariantCount}** variants, one for each perspective in the input. Do not combine or omit any.`,
+            `•   You **MUST** create **exactly ${expectedVariantCount}** variants, one for each angle in the input. Do not combine or omit any.`,
             '•   Base all content **only** on the provided story data.',
             '•   **NO REPETITION:** The Main Article contains the core facts. The Variants provide the interpretation. Do not repeat information between them. The user reads them together.',
             '',
@@ -95,12 +95,12 @@ export class ArticleCompositionAgentAdapter implements ArticleCompositionAgentPo
             'STORY DATA FOR COMPOSITION:',
             JSON.stringify(
                 {
-                    dateline: input.story.dateline.toISOString(),
-                    perspectives: input.story.perspectives.map((perspective) => ({
-                        digest: perspective.perspectiveCorpus.value,
-                        discourse: perspective.discourse.value,
-                        stance: perspective.stance.value,
+                    angles: input.story.angles.map((angle) => ({
+                        digest: angle.angleCorpus.value,
+                        discourse: angle.discourse.value,
+                        stance: angle.stance.value,
                     })),
+                    dateline: input.story.dateline.toISOString(),
                 },
                 null,
                 2,
@@ -111,11 +111,11 @@ export class ArticleCompositionAgentAdapter implements ArticleCompositionAgentPo
     async run(input: ArticleCompositionInput): Promise<ArticleCompositionResult | null> {
         try {
             this.logger.info(
-                `[${this.name}] Composing article for story with ${input.story.perspectives.length} perspectives`,
+                `[${this.name}] Composing article for report with ${input.story.angles.length} angles`,
                 {
                     country: input.targetCountry.toString(),
                     language: input.targetLanguage.toString(),
-                    storyCategory: input.story.category.toString(),
+                    reportCategory: input.story.category.toString(),
                 },
             );
 
@@ -127,9 +127,9 @@ export class ArticleCompositionAgentAdapter implements ArticleCompositionAgentPo
             }
 
             // Validate that we have the correct number of variants
-            if (result.variants.length !== input.story.perspectives.length) {
+            if (result.variants.length !== input.story.angles.length) {
                 this.logger.warn(
-                    `[${this.name}] AI returned ${result.variants.length} variants but expected ${input.story.perspectives.length} (one per perspective)`,
+                    `[${this.name}] AI returned ${result.variants.length} variants but expected ${input.story.angles.length} (one per angle)`,
                 );
                 return null;
             }
@@ -145,12 +145,12 @@ export class ArticleCompositionAgentAdapter implements ArticleCompositionAgentPo
                 body: result.body,
                 headline: result.headline,
                 variants: result.variants.map((variant, index) => {
-                    const perspective = input.story.perspectives[index];
+                    const angle = input.story.angles[index];
                     return {
                         body: variant.body,
-                        discourse: perspective.discourse.value || 'MAINSTREAM',
+                        discourse: angle.discourse.value || 'MAINSTREAM',
                         headline: variant.headline,
-                        stance: perspective.stance.value || 'NEUTRAL',
+                        stance: angle.stance.value || 'NEUTRAL',
                     };
                 }),
             };

@@ -1,4 +1,4 @@
-import { type Story } from '../../../../domain/entities/story.entity.js';
+import { type Report } from '../../../../domain/entities/report.entity.js';
 import { type Country } from '../../../../domain/value-objects/country.vo.js';
 import { type Language } from '../../../../domain/value-objects/language.vo.js';
 
@@ -15,7 +15,7 @@ export interface ArticleCompositionAgentPort {
  * Input data required for article composition
  */
 export interface ArticleCompositionInput {
-    story: Story;
+    story: Report;
     targetCountry: Country;
     targetLanguage: Language;
 }

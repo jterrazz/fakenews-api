@@ -32,7 +32,7 @@ export interface InboundConfigurationPort {
         prettyPrint: boolean;
     };
     tasks: {
-        storyPipeline: StoryPipelineTaskConfig[];
+        reportPipeline: ReportPipelineTaskConfig[];
     };
 }
 
@@ -58,16 +58,19 @@ export interface OutboundConfigurationPort {
 }
 
 /**
- * Story pipeline task configuration
+ * Report pipeline task configuration
  */
-export interface StoryPipelineTaskConfig {
+export interface ReportPipelineTaskConfig {
     country: CountryEnum;
     language: LanguageEnum;
 }
+
+// Legacy export for backward compatibility during migration
+export type StoryPipelineTaskConfig = ReportPipelineTaskConfig;
 
 /**
  * Tasks configuration
  */
 export interface TasksConfigurationPort {
-    storyPipeline: StoryPipelineTaskConfig[];
+    reportPipeline: ReportPipelineTaskConfig[];
 }

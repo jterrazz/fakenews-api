@@ -158,6 +158,7 @@ describe('HTTP - Get Articles - Integration Tests', () => {
                     status: 'fake',
                 },
                 body: expectedContentWithAnnotations,
+                frames: [],
                 headline: 'Revolutionary AI Breakthrough Announced',
                 id: expect.stringMatching(
                     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
@@ -169,7 +170,6 @@ describe('HTTP - Get Articles - Integration Tests', () => {
                     language: 'EN',
                 },
                 publishedAt: '2024-03-15T14:30:00.000Z',
-                variants: [],
             });
         });
 
@@ -206,6 +206,7 @@ describe('HTTP - Get Articles - Integration Tests', () => {
                     status: 'authentic',
                 },
                 body: expectedContentRaw,
+                frames: [],
                 headline: 'Legitimate Tech News',
                 id: expect.stringMatching(
                     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
@@ -217,7 +218,6 @@ describe('HTTP - Get Articles - Integration Tests', () => {
                     language: 'EN',
                 },
                 publishedAt: '2024-03-15T14:30:00.000Z',
-                variants: [],
             });
         });
 

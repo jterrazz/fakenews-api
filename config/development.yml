@@ -5,7 +5,7 @@ inbound:
     level: debug
     prettyPrint: true
   tasks:
-    storyPipeline:
+    reportPipeline:
       - country: FR
         language: FR
 
