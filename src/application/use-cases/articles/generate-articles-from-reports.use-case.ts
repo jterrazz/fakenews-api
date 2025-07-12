@@ -15,7 +15,7 @@ import {
     type ArticleCompositionAgentPort,
     type ArticleCompositionInput,
 } from '../../ports/outbound/agents/article-composition.agent.js';
-import { type ArticleFakerAgentPort } from '../../ports/outbound/agents/article-faker.agent.js';
+import { type ArticleFalsificationAgentPort } from '../../ports/outbound/agents/article-falsification.agent.js';
 import { type ArticleRepositoryPort } from '../../ports/outbound/persistence/article-repository.port.js';
 import { type ReportRepositoryPort } from '../../ports/outbound/persistence/report-repository.port.js';
 
@@ -26,7 +26,7 @@ import { type ReportRepositoryPort } from '../../ports/outbound/persistence/repo
 export class GenerateArticlesFromReportsUseCase {
     constructor(
         private readonly articleCompositionAgent: ArticleCompositionAgentPort,
-        private readonly articleFakerAgent: ArticleFakerAgentPort,
+        private readonly articleFalsificationAgent: ArticleFalsificationAgentPort,
         private readonly logger: LoggerPort,
         private readonly reportRepository: ReportRepositoryPort,
         private readonly articleRepository: ArticleRepositoryPort,
@@ -205,7 +205,7 @@ export class GenerateArticlesFromReportsUseCase {
                 for (let i = 0; i < fakeCount; i++) {
                     try {
                         // Let AI choose the category based on recent articles context
-                        const fakeResult = await this.articleFakerAgent.run({
+                        const fakeResult = await this.articleFalsificationAgent.run({
                             context: {
                                 currentDate: new Date(),
                                 recentArticles: recentArticlesContext,
@@ -224,6 +224,45 @@ export class GenerateArticlesFromReportsUseCase {
                             continue;
                         }
 
+                        // Determine publication date so the fake article blends naturally
+                        let publishedAt: Date;
+
+                        if (
+                            recentArticles.length > 0 &&
+                            typeof fakeResult.insertAfterIndex === 'number'
+                        ) {
+                            const targetIdx = fakeResult.insertAfterIndex;
+
+                            // Clamp index to valid range ( -1 .. recentArticles.length - 1 )
+                            const safeIdx = Math.max(
+                                -1,
+                                Math.min(targetIdx, recentArticles.length - 1),
+                            );
+
+                            // Choose the base article after which we insert; if -1, place before first article
+                            const baseArticleDate =
+                                safeIdx === -1
+                                    ? recentArticles[0].publishedAt
+                                    : recentArticles[safeIdx].publishedAt;
+
+                            // Offset between 2 and 10 minutes to keep timeline realistic
+                            const offsetMinutes = 2 + Math.random() * 8;
+                            const offsetMs = offsetMinutes * 60 * 1000;
+
+                            publishedAt = new Date(baseArticleDate.getTime() + offsetMs);
+
+                            // Ensure we don't place articles in the future beyond now
+                            const now = new Date();
+                            if (publishedAt > now) {
+                                publishedAt = new Date(now.getTime() - 60 * 1000); // 1 minute before now
+                            }
+                        } else {
+                            // Fallback: Within last 24 hours
+                            publishedAt = new Date(
+                                Date.now() - Math.random() * 24 * 60 * 60 * 1000,
+                            );
+                        }
+
                         // Create fake article entity
                         const fakeArticle = new Article({
                             authenticity: new Authenticity(true, fakeResult.fakeReason),
@@ -233,8 +272,7 @@ export class GenerateArticlesFromReportsUseCase {
                             headline: new Headline(fakeResult.headline),
                             id: randomUUID(),
                             language,
-                            // Mix fake articles with real ones in the timeline
-                            publishedAt: new Date(Date.now() - Math.random() * 24 * 60 * 60 * 1000), // Within last 24 hours
+                            publishedAt,
                         });
 
                         this.logger.info('article:generate:fake-composed', {

@@ -86,7 +86,7 @@ export class PrismaArticleRepository implements ArticleRepositoryPort {
             }),
             ...(options.country && { country: this.mapper.mapCountryToPrisma(options.country) }),
             ...(options.cursor && {
-                createdAt: {
+                publishedAt: {
                     lt: options.cursor,
                 },
             }),
@@ -133,7 +133,7 @@ export class PrismaArticleRepository implements ArticleRepositoryPort {
                 },
             },
             orderBy: {
-                createdAt: 'desc',
+                publishedAt: 'desc',
             },
             take: options.limit + 1,
             where,

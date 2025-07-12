@@ -9,16 +9,16 @@ import { type LoggerPort } from '@jterrazz/logger';
 import { z } from 'zod/v4';
 
 import {
-    type ArticleFakerAgentPort,
-    type ArticleFakerInput,
-    type ArticleFakerResult,
-} from '../../../application/ports/outbound/agents/article-faker.agent.js';
+    type ArticleFalsificationAgentPort,
+    type ArticleFalsificationInput,
+    type ArticleFalsificationResult,
+} from '../../../application/ports/outbound/agents/article-falsification.agent.js';
 
 import { bodySchema } from '../../../domain/value-objects/article/body.vo.js';
 import { headlineSchema } from '../../../domain/value-objects/article/headline.vo.js';
 import { Category, categorySchema } from '../../../domain/value-objects/category.vo.js';
 
-export class ArticleFakerAgentAdapter implements ArticleFakerAgentPort {
+export class ArticleFalsificationAgentAdapter implements ArticleFalsificationAgentPort {
     static readonly SCHEMA = z.object({
         body: bodySchema,
         category: categorySchema,
@@ -26,6 +26,13 @@ export class ArticleFakerAgentAdapter implements ArticleFakerAgentPort {
             .string()
             .describe('Clear explanation of why this article is fake and what makes it misleading'),
         headline: headlineSchema,
+        insertAfterIndex: z
+            .number()
+            .int()
+            .describe(
+                '0-based index inside the provided recentArticles array **after** which the generated fake article should be placed. Use -1 if recentArticles is empty.',
+            )
+            .default(-1),
         tone: z
             .enum(['serious', 'satirical'])
             .describe('The tone/style used in the generated article'),
@@ -38,9 +45,11 @@ export class ArticleFakerAgentAdapter implements ArticleFakerAgentPort {
         PROMPT_LIBRARY.FOUNDATIONS.CONTEXTUAL_ONLY,
     );
 
-    public readonly name = 'ArticleFakerAgent';
+    public readonly name = 'ArticleFalsificationAgent';
 
-    private readonly agent: BasicAgentAdapter<z.infer<typeof ArticleFakerAgentAdapter.SCHEMA>>;
+    private readonly agent: BasicAgentAdapter<
+        z.infer<typeof ArticleFalsificationAgentAdapter.SCHEMA>
+    >;
 
     constructor(
         private readonly model: ModelPort,
@@ -49,12 +58,12 @@ export class ArticleFakerAgentAdapter implements ArticleFakerAgentPort {
         this.agent = new BasicAgentAdapter(this.name, {
             logger: this.logger,
             model: this.model,
-            schema: ArticleFakerAgentAdapter.SCHEMA,
-            systemPrompt: ArticleFakerAgentAdapter.SYSTEM_PROMPT,
+            schema: ArticleFalsificationAgentAdapter.SCHEMA,
+            systemPrompt: ArticleFalsificationAgentAdapter.SYSTEM_PROMPT,
         });
     }
 
-    static readonly USER_PROMPT = (input: ArticleFakerInput) => {
+    static readonly USER_PROMPT = (input: ArticleFalsificationInput) => {
         const currentDate = input.context?.currentDate || new Date();
         const recentArticles = input.context?.recentArticles || [];
 
@@ -81,6 +90,13 @@ export class ArticleFakerAgentAdapter implements ArticleFakerAgentPort {
             '### SATIRICAL STYLE',
             '•   Humorous, absurd scenarios with deadpan delivery (e.g., The Babylon Bee, The Onion).',
             '•   Clearly fictional and exaggerated upon reflection.',
+            '',
+            '### CONTINUITY REQUIREMENTS',
+            '•   The **overall length** (word count) and **stylistic tone** of your article must closely match recent articles in the history.',
+            '•   Mirror the journalistic structure: similar paragraph count and average sentence length.',
+            '•   HEADLINE: Craft a headline whose length (character count) and style are in line with the sample headlines.',
+            '•   BODY: Aim for a body word count within ±10% of the average of recent article bodies.',
+            '•   The `frames` data is **context only** – do NOT copy or reference frame text verbatim; instead, use it to inspire coherent misinformation.',
         ].join('\n');
 
         const singlePrompt = new UserPromptAdapter(
@@ -103,13 +119,17 @@ export class ArticleFakerAgentAdapter implements ArticleFakerAgentPort {
             recentArticles.length > 0 ? 'RECENT_ARTICLES:' : '',
             ...(recentArticles.length > 0 ? [JSON.stringify(recentArticles, null, 2)] : []),
             '',
-            'OUTPUT: Return a JSON object with the fields { headline, body, fakeReason, category, tone }.',
+            'TIMELINE INSTRUCTION:',
+            '•   Analyse the timestamps of RECENT_ARTICLES. Decide **after which article** your newly generated article should appear so the chronology feels natural. Provide the index (0-based) of that article in the `insertAfterIndex` field of your JSON output.',
+            '•   If there are no recent articles, set `insertAfterIndex` to -1.',
+            '',
+            'OUTPUT: Return a JSON object with the fields { headline, body, fakeReason, category, tone, insertAfterIndex }.',
         );
 
         return singlePrompt;
     };
 
-    async run(input: ArticleFakerInput): Promise<ArticleFakerResult | null> {
+    async run(input: ArticleFalsificationInput): Promise<ArticleFalsificationResult | null> {
         try {
             this.logger.info(`[${this.name}] Generating fake article`, {
                 category: input.targetCategory?.toString() || 'AI will choose',
@@ -117,7 +137,9 @@ export class ArticleFakerAgentAdapter implements ArticleFakerAgentPort {
                 language: input.targetLanguage.toString(),
             });
 
-            const result = await this.agent.run(ArticleFakerAgentAdapter.USER_PROMPT(input));
+            const result = await this.agent.run(
+                ArticleFalsificationAgentAdapter.USER_PROMPT(input),
+            );
 
             if (!result) {
                 this.logger.warn(`[${this.name}] No result from AI model`);
@@ -139,11 +161,12 @@ export class ArticleFakerAgentAdapter implements ArticleFakerAgentPort {
                 headline: result.headline,
             });
 
-            const fakerResult: ArticleFakerResult = {
+            const fakerResult: ArticleFalsificationResult = {
                 body: result.body,
                 category: new Category(result.category),
                 fakeReason: result.fakeReason,
                 headline: result.headline,
+                insertAfterIndex: result.insertAfterIndex,
                 tone: result.tone,
             };
 
@@ -162,4 +185,4 @@ export class ArticleFakerAgentAdapter implements ArticleFakerAgentPort {
             return null;
         }
     }
-}
+} 

@@ -4,17 +4,17 @@ import { type Language } from '../../../../domain/value-objects/language.vo.js';
 
 /**
  * @description
- * Port for the Article Faker Agent that generates convincing but fake news articles
+ * Port for the Article Falsification Agent that generates convincing but fake news articles
  */
-export interface ArticleFakerAgentPort {
-    run(input: ArticleFakerInput): Promise<ArticleFakerResult | null>;
+export interface ArticleFalsificationAgentPort {
+    run(input: ArticleFalsificationInput): Promise<ArticleFalsificationResult | null>;
 }
 
 /**
  * @description
  * Input data required for fake article generation
  */
-export interface ArticleFakerInput {
+export interface ArticleFalsificationInput {
     context?: {
         currentDate?: Date;
         recentArticles?: Array<{
@@ -34,11 +34,17 @@ export interface ArticleFakerInput {
  * @description
  * Result of fake article generation containing the fake article content and metadata
  */
-export interface ArticleFakerResult {
+export interface ArticleFalsificationResult {
     body: string;
     category: Category;
     fakeReason: string;
     headline: string;
+    /**
+     * Index of the recentArticles array **after** which this fake article should be inserted
+     * to preserve a coherent timeline. If no suitable article is found or the list is empty,
+     * the value should be `-1` indicating it should be placed at the very beginning.
+     */
+    insertAfterIndex?: number;
     tone: 'satirical' | 'serious'; // indicates which style was actually generated
 }
 
@@ -46,4 +52,4 @@ export interface ArticleFakerResult {
  * @description
  * The tone/style of fake article to generate
  */
-export type FakeArticleTone = 'random' | 'satirical' | 'serious';
+export type FakeArticleTone = 'random' | 'satirical' | 'serious'; 

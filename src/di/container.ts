@@ -14,7 +14,7 @@ import type { ServerPort } from '../application/ports/inbound/server.port.js';
 import type { TaskPort } from '../application/ports/inbound/worker.port.js';
 import type { WorkerPort } from '../application/ports/inbound/worker.port.js';
 import { type ArticleCompositionAgentPort } from '../application/ports/outbound/agents/article-composition.agent.js';
-import { type ArticleFakerAgentPort } from '../application/ports/outbound/agents/article-faker.agent.js';
+import { type ArticleFalsificationAgentPort } from '../application/ports/outbound/agents/article-falsification.agent.js';
 import { type ReportClassificationAgentPort } from '../application/ports/outbound/agents/report-classification.agent.js';
 import { type ReportDeduplicationAgentPort } from '../application/ports/outbound/agents/report-deduplication.agent.js';
 import { type ReportIngestionAgentPort } from '../application/ports/outbound/agents/report-ingestion.agent.js';
@@ -32,7 +32,7 @@ import { HonoServerAdapter } from '../infrastructure/inbound/server/hono.adapter
 import { NodeCronAdapter } from '../infrastructure/inbound/worker/node-cron.adapter.js';
 import { ReportPipelineTask } from '../infrastructure/inbound/worker/reports/report-pipeline.task.js';
 import { ArticleCompositionAgentAdapter } from '../infrastructure/outbound/agents/article-composition.agent.js';
-import { ArticleFakerAgentAdapter } from '../infrastructure/outbound/agents/article-faker.agent.js';
+import { ArticleFalsificationAgentAdapter } from '../infrastructure/outbound/agents/article-falsification.agent.js';
 import { ReportClassificationAgentAdapter } from '../infrastructure/outbound/agents/report-classification.agent.js';
 import { ReportDeduplicationAgentAdapter } from '../infrastructure/outbound/agents/report-deduplication.agent.js';
 import { ReportIngestionAgentAdapter } from '../infrastructure/outbound/agents/report-ingestion.agent.js';
@@ -118,10 +118,10 @@ const articleCompositionAgentFactory = Injectable(
     (model: ModelPort, logger: LoggerPort) => new ArticleCompositionAgentAdapter(model, logger),
 );
 
-const articleFakerAgentFactory = Injectable(
-    'ArticleFakerAgent',
+const articleFalsificationAgentFactory = Injectable(
+    'ArticleFalsificationAgent',
     ['Model', 'Logger'] as const,
-    (model: ModelPort, logger: LoggerPort) => new ArticleFakerAgentAdapter(model, logger),
+    (model: ModelPort, logger: LoggerPort) => new ArticleFalsificationAgentAdapter(model, logger),
 );
 
 const reportClassificationAgentFactory = Injectable(
@@ -197,21 +197,21 @@ const generateArticlesFromReportsUseCaseFactory = Injectable(
     'GenerateArticlesFromReports',
     [
         'ArticleCompositionAgent',
-        'ArticleFakerAgent',
+        'ArticleFalsificationAgent',
         'Logger',
         'ReportRepository',
         'ArticleRepository',
     ] as const,
     (
         articleCompositionAgent: ArticleCompositionAgentPort,
-        articleFakerAgent: ArticleFakerAgentPort,
+        articleFalsificationAgent: ArticleFalsificationAgentPort,
         logger: LoggerPort,
         reportRepository: ReportRepositoryPort,
         articleRepository: ArticleRepositoryPort,
     ) =>
         new GenerateArticlesFromReportsUseCase(
             articleCompositionAgent,
-            articleFakerAgent,
+            articleFalsificationAgent,
             logger,
             reportRepository,
             articleRepository,
@@ -342,7 +342,7 @@ export const createContainer = (overrides?: ContainerOverrides) =>
         .provides(modelFactory)
         .provides(reportIngestionAgentFactory)
         .provides(articleCompositionAgentFactory)
-        .provides(articleFakerAgentFactory)
+        .provides(articleFalsificationAgentFactory)
         .provides(reportClassificationAgentFactory)
         .provides(reportDeduplicationAgentFactory)
         // Repositories
