@@ -1,10 +1,10 @@
-import { type NewsStory } from '../providers/news.port.js';
+import { type NewsReport } from '../providers/news.port.js';
 
 export interface ReportDeduplicationAgentPort {
     readonly name: string;
     run(params: {
-        existingStories: Array<{ facts: string; id: string }>;
-        newStory: NewsStory;
+        existingReports: Array<{ facts: string; id: string }>;
+        newReport: NewsReport;
     }): Promise<null | ReportDeduplicationResult>;
 }
 
@@ -15,9 +15,5 @@ export interface ReportDeduplicationAgentPort {
  */
 export type ReportDeduplicationResult = {
     /** The ID of the existing report if it's a duplicate, otherwise null. */
-    duplicateOfStoryId: null | string;
+    duplicateOfReportId: null | string;
 };
-
-// Legacy exports for backward compatibility during migration
-export type StoryDeduplicationAgentPort = ReportDeduplicationAgentPort;
-export type StoryDeduplicationResult = ReportDeduplicationResult;

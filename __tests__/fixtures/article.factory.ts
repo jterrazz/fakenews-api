@@ -81,7 +81,7 @@ export class ArticleFactory {
                 dateline: article.publishedAt,
                 facts: `These are test facts for the report related to article ${article.headline.value}. They are long enough to pass validation and cover all key data points required.`,
                 // Default to STANDARD for tests
-                sourceReferences: [],
+                sources: [],
             },
         });
 
@@ -110,7 +110,7 @@ export class ArticleFactory {
         for (let i = 0; i < count; i++) {
             // Create articles with incremental timestamps to ensure proper pagination
             const publishedAt = new Date(this.data.publishedAt.getTime() + i * 1000); // Add 1 second per article
-            
+
             // Create a new factory instance for each article to ensure unique IDs
             const factory = new ArticleFactory()
                 .withCategory(this.data.category)
@@ -118,7 +118,7 @@ export class ArticleFactory {
                 .withLanguage(this.data.language)
                 .withPublishedAt(publishedAt)
                 .withAuthenticity(this.data.authenticity);
-            
+
             const article = await factory.createInDatabase(prisma);
             articles.push(article);
         }

@@ -12,10 +12,10 @@ import { Report } from '../../../domain/entities/report.entity.js';
 import { Category } from '../../../domain/value-objects/category.vo.js';
 import { Country } from '../../../domain/value-objects/country.vo.js';
 import { Discourse } from '../../../domain/value-objects/discourse.vo.js';
+import { Classification } from '../../../domain/value-objects/report/classification.vo.js';
 import { AngleCorpus } from '../../../domain/value-objects/report-angle/angle-corpus.vo.js';
 import { ReportAngle } from '../../../domain/value-objects/report-angle/report-angle.vo.js';
 import { Stance } from '../../../domain/value-objects/stance.vo.js';
-import { Classification } from '../../../domain/value-objects/report/classification.vo.js';
 
 export class ReportMapper {
     angleToPrisma(
@@ -23,8 +23,8 @@ export class ReportMapper {
         reportId: string,
     ): Omit<PrismaReportAngle, 'createdAt' | 'id' | 'updatedAt'> {
         return {
+            corpus: angle.angleCorpus.toString(),
             discourse: this.mapDiscourseToPrisma(angle.discourse.value),
-            holisticDigest: angle.angleCorpus.toString(),
             reportId,
             stance: this.mapStanceToPrisma(angle.stance.value),
         };
@@ -58,7 +58,7 @@ export class ReportMapper {
         const angles = prisma.angles.map(
             (a) =>
                 new ReportAngle({
-                    angleCorpus: new AngleCorpus(a.holisticDigest),
+                    angleCorpus: new AngleCorpus(a.corpus),
                     discourse: new Discourse(a.discourse as PrismaDiscourse),
                     stance: new Stance(a.stance as PrismaStance),
                 }),
@@ -79,9 +79,7 @@ export class ReportMapper {
             dateline: prisma.dateline,
             facts: prisma.facts,
             id: prisma.id,
-            sourceReferences: Array.isArray(prisma.sourceReferences)
-                ? (prisma.sourceReferences as string[])
-                : [],
+            sourceReferences: Array.isArray(prisma.sources) ? (prisma.sources as string[]) : [],
             updatedAt: prisma.updatedAt,
         });
     }
@@ -98,7 +96,7 @@ export class ReportMapper {
             dateline: report.dateline,
             facts: report.facts,
             id: report.id,
-            sourceReferences: report.sourceReferences,
+            sources: report.sourceReferences,
         };
     }
 }

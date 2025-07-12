@@ -101,7 +101,7 @@ An _Article_ is a concrete piece of content (headline + body) published by a sou
 
 ### Article Frame
 
-A _Frame_ is an **expression** of an Angle in a specific Article. Because authors bring biases, a Frame can be _authentic_ (neutral and factual) or _fake_ (distorted or propagandist), often reflecting the perspectives of different parties involved. Frame therefore carries metadata such as `stance`, `discourse`, and an authenticity flag, aligning with media studies where framing indicates how information is structured or emphasized to influence perception.
+A _Frame_ is an **expression** of an Angle in a specific Article. Because authors bring biases, a Frame can be _authentic_ (neutral and factual) or _fake_ (distorted or propagandist), often reflecting the viewpoints of different parties involved. Frame therefore carries metadata such as `stance`, `discourse`, and an authenticity flag, aligning with media studies where framing indicates how information is structured or emphasized to influence perception.
 
 ```
 Report         →   Angle (viewpoint)   →   Article Frame (biased or neutral expression)

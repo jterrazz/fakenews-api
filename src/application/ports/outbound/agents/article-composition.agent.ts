@@ -4,7 +4,7 @@ import { type Language } from '../../../../domain/value-objects/language.vo.js';
 
 /**
  * @description
- * Port for the Article Composition Agent that generates articles from structured story data
+ * Port for the Article Composition Agent that generates articles from structured report data
  */
 export interface ArticleCompositionAgentPort {
     run(input: ArticleCompositionInput): Promise<ArticleCompositionResult | null>;
@@ -15,14 +15,14 @@ export interface ArticleCompositionAgentPort {
  * Input data required for article composition
  */
 export interface ArticleCompositionInput {
-    story: Report;
+    report: Report;
     targetCountry: Country;
     targetLanguage: Language;
 }
 
 /**
  * @description
- * Result of article composition containing the main article and perspective variants
+ * Result of article composition containing the main article and angle frames
  */
 export interface ArticleCompositionResult {
     body: string;

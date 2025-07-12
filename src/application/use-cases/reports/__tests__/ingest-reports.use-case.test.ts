@@ -14,7 +14,7 @@ import {
 import { type ReportRepositoryPort } from '../../../ports/outbound/persistence/report-repository.port.js';
 import {
     type NewsProviderPort,
-    type NewsStory,
+    type NewsReport,
 } from '../../../ports/outbound/providers/news.port.js';
 
 import { IngestReportsUseCase } from '../ingest-reports.use-case.js';
@@ -23,7 +23,7 @@ describe('IngestReportsUseCase', () => {
     // Test Constants
     const DEFAULT_COUNTRY = new Country('us');
     const DEFAULT_LANGUAGE = new Language('en');
-    const MOCK_NEWS_STORIES: NewsStory[] = [
+    const MOCK_NEWS_STORIES: NewsReport[] = [
         {
             articles: [
                 { body: 'B1', headline: 'H1', id: 'a1' },
@@ -67,7 +67,7 @@ describe('IngestReportsUseCase', () => {
         const mockResult: ReportIngestionResult = {
             angles: [
                 {
-                    angleCorpus: 'This is a comprehensive angle corpus that contains detailed information about the mainstream perspective on this topic. It includes various viewpoints, supporting evidence, and contextual information that would be sufficient for creating a proper report angle. This needs to be long enough to pass any validation requirements.',
+                    corpus: 'This is a comprehensive angle corpus that contains detailed information about the mainstream angle on this topic. It includes various viewpoints, supporting evidence, and contextual information that would be sufficient for creating a proper report angle. This needs to be long enough to pass any validation requirements.',
                     discourse: 'MAINSTREAM',
                     stance: 'NEUTRAL',
                 },
@@ -77,7 +77,7 @@ describe('IngestReportsUseCase', () => {
         };
 
         mockReportDeduplicationAgent.run.mockResolvedValue({
-            duplicateOfStoryId: null,
+            duplicateOfReportId: null,
         });
         mockReportIngestionAgent.run.mockResolvedValue(mockResult);
         mockReportRepository.create.mockImplementation(async (report) => report);
@@ -104,9 +104,9 @@ describe('IngestReportsUseCase', () => {
         // Given: The deduplication agent identifies the second report as a duplicate of an existing one.
         const existingReportId = 'existing-report-id';
         mockReportDeduplicationAgent.run
-            .mockResolvedValueOnce({ duplicateOfStoryId: null })
+            .mockResolvedValueOnce({ duplicateOfReportId: null })
             .mockResolvedValueOnce({
-                duplicateOfStoryId: existingReportId,
+                duplicateOfReportId: existingReportId,
             });
 
         // When
@@ -156,7 +156,7 @@ describe('IngestReportsUseCase', () => {
         const mockResult: ReportIngestionResult = {
             angles: [
                 {
-                    angleCorpus: 'This is a comprehensive angle corpus that contains detailed information about the mainstream perspective on this topic. It includes various viewpoints, supporting evidence, and contextual information that would be sufficient for creating a proper report angle. This needs to be long enough to pass any validation requirements.',
+                    corpus: 'This is a comprehensive angle corpus that contains detailed information about the mainstream angle on this topic. It includes various viewpoints, supporting evidence, and contextual information that would be sufficient for creating a proper report angle. This needs to be long enough to pass any validation requirements.',
                     discourse: 'MAINSTREAM',
                     stance: 'NEUTRAL',
                 },

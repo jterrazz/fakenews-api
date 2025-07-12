@@ -67,47 +67,47 @@ export class IngestReportsUseCase {
             this.logger.info('report:ingest:news:fetched', { count: newsStories.length });
 
             // Step 3: Filter out reports that have already been processed by source ID
-            const newNewsStories = newsStories.filter(
-                (story) =>
-                    !story.articles.some((article) =>
+            const newNewsReports = newsStories.filter(
+                (report) =>
+                    !report.articles.some((article) =>
                         existingSourceReferences.includes(article.id),
                     ),
             );
 
-            if (newNewsStories.length === 0) {
+            if (newNewsReports.length === 0) {
                 this.logger.info('report:ingest:duplicates:none');
                 return [];
             }
-            this.logger.info('report:ingest:duplicates:filtered', { count: newNewsStories.length });
+            this.logger.info('report:ingest:duplicates:filtered', { count: newNewsReports.length });
 
             // Step 4: Filter out reports with insufficient articles
-            const validNewsStories = newNewsStories.filter((story) => story.articles.length >= 2);
+            const validNewsReports = newNewsReports.filter((report) => report.articles.length >= 2);
 
-            if (validNewsStories.length === 0) {
+            if (validNewsReports.length === 0) {
                 this.logger.warn('report:ingest:invalid:none');
                 return [];
             }
 
-            // Step 5: Process each valid news story
+            // Step 5: Process each valid news report
             const digestedReports: Report[] = [];
             // Track all reports for deduplication (existing + newly processed in this batch)
             const allReportsForDeduplication = [...recentReports];
 
-            for (const newsStory of validNewsStories) {
+            for (const newsReport of validNewsReports) {
                 try {
                     // Step 5.1: Check for semantic duplicates (including newly processed reports)
                     const deduplicationResult = await this.reportDeduplicationAgent.run({
-                        existingStories: allReportsForDeduplication,
-                        newStory: newsStory,
+                        existingReports: allReportsForDeduplication,
+                        newReport: newsReport,
                     });
 
-                    if (deduplicationResult?.duplicateOfStoryId) {
+                    if (deduplicationResult?.duplicateOfReportId) {
                         this.logger.info('report:deduplicated', {
-                            duplicateOf: deduplicationResult.duplicateOfStoryId,
+                            duplicateOf: deduplicationResult.duplicateOfReportId,
                         });
                         await this.reportRepository.addSourceReferences(
-                            deduplicationResult.duplicateOfStoryId,
-                            newsStory.articles.map((a) => a.id),
+                            deduplicationResult.duplicateOfReportId,
+                            newsReport.articles.map((a) => a.id),
                         );
                         continue; // Skip to the next report
                     }
@@ -115,10 +115,10 @@ export class IngestReportsUseCase {
                     // End deduplication check
 
                     // Step 5.2: Ingest the unique report
-                    const ingestionResult = await this.reportIngestionAgent.run({ newsStory });
+                    const ingestionResult = await this.reportIngestionAgent.run({ newsReport });
                     if (!ingestionResult) {
                         this.logger.warn('report:ingest:agent-null', {
-                            newsStoryArticles: newsStory.articles.length,
+                            newsReportArticles: newsReport.articles.length,
                         });
                         continue;
                     }
@@ -128,7 +128,7 @@ export class IngestReportsUseCase {
                     const angles = ingestionResult.angles.map(
                         (angle) =>
                             new ReportAngle({
-                                angleCorpus: new AngleCorpus(angle.angleCorpus),
+                                angleCorpus: new AngleCorpus(angle.corpus),
                                 discourse: new Discourse(angle.discourse),
                                 stance: new Stance(angle.stance),
                             }),
@@ -140,10 +140,10 @@ export class IngestReportsUseCase {
                         classification: new Classification('PENDING_CLASSIFICATION'),
                         country,
                         createdAt: now,
-                        dateline: newsStory.publishedAt,
+                        dateline: newsReport.publishedAt,
                         facts: ingestionResult.facts,
                         id: reportId,
-                        sourceReferences: newsStory.articles.map((a) => a.id),
+                        sourceReferences: newsReport.articles.map((a) => a.id),
                         updatedAt: now,
                     });
 

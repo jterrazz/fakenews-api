@@ -6,7 +6,7 @@ import {
     type NewsArticle,
     type NewsOptions,
     type NewsProviderPort,
-    type NewsStory,
+    type NewsReport,
 } from '../../../application/ports/outbound/providers/news.port.js';
 
 import { Country } from '../../../domain/value-objects/country.vo.js';
@@ -60,7 +60,7 @@ export class WorldNewsAdapter implements NewsProviderPort {
         private readonly monitoring: MonitoringPort,
     ) {}
 
-    public async fetchNews(options?: NewsOptions): Promise<NewsStory[]> {
+    public async fetchNews(options?: NewsOptions): Promise<NewsReport[]> {
         const {
             country = new Country(DEFAULT_COUNTRY),
             language = new Language(DEFAULT_LANGUAGE),
@@ -143,19 +143,19 @@ export class WorldNewsAdapter implements NewsProviderPort {
         return response;
     }
 
-    private async processApiResponse(response: Response): Promise<NewsStory[]> {
+    private async processApiResponse(response: Response): Promise<NewsReport[]> {
         const data = await response.json();
         const parsed = worldNewsResponseSchema.parse(data);
         return this.transformResponse(parsed);
     }
 
-    private transformResponse(response: WorldNewsResponse): NewsStory[] {
+    private transformResponse(response: WorldNewsResponse): NewsReport[] {
         return response.top_news
             .map((section) => this.transformSection(section))
-            .filter(Boolean) as NewsStory[];
+            .filter(Boolean) as NewsReport[];
     }
 
-    private transformSection(section: { news: WorldNewsArticle[] }): NewsStory | undefined {
+    private transformSection(section: { news: WorldNewsArticle[] }): NewsReport | undefined {
         if (section.news.length === 0) {
             return undefined;
         }

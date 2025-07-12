@@ -66,7 +66,7 @@ model Report {
   dateline DateTime
 
   // Sources
-  sourceReferences Json
+  sources Json
 
   // Relations
   angles   ReportAngle[]
@@ -83,10 +83,10 @@ model Report {
 }
 
 model ReportAngle {
-  id             String     @id @default(uuid())
-  holisticDigest String
-  stance         Stance?
-  discourse      Discourse?
+  id        String     @id @default(uuid())
+  corpus    String
+  stance    Stance?
+  discourse Discourse?
 
   // Relations
   report   Report @relation(fields: [reportId], references: [id], onDelete: Cascade)

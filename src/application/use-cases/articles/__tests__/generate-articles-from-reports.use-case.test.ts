@@ -88,7 +88,7 @@ describe('GenerateArticlesFromReportsUseCase', () => {
             expect(mockArticleCompositionAgent.run).toHaveBeenCalledTimes(TEST_REPORTS_COUNT);
             testReports.forEach((report) => {
                 expect(mockArticleCompositionAgent.run).toHaveBeenCalledWith({
-                    story: report,
+                    report: report,
                     targetCountry: country,
                     targetLanguage: language,
                 });
@@ -132,7 +132,7 @@ describe('GenerateArticlesFromReportsUseCase', () => {
             // Given - agent returns null for some reports
             mockArticleCompositionAgent.run.mockImplementation(async (params) => {
                 // Return null for first report, valid result for others
-                return params?.story === testReports[0] ? null : mockCompositionResults[0];
+                return params?.report === testReports[0] ? null : mockCompositionResults[0];
             });
 
             // When - executing the use case
@@ -147,7 +147,7 @@ describe('GenerateArticlesFromReportsUseCase', () => {
         test('should continue processing if individual article composition fails', async () => {
             // Given - agent throws error for one report
             mockArticleCompositionAgent.run.mockImplementation(async (params) => {
-                if (params?.story === testReports[1]) {
+                if (params?.report === testReports[1]) {
                     throw new Error('Agent composition failed');
                 }
                 return mockCompositionResults[0];

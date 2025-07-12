@@ -7,7 +7,7 @@ import { z } from 'zod/v4';
 import {
     type NewsOptions,
     type NewsProviderPort,
-    type NewsStory,
+    type NewsReport,
 } from '../../../application/ports/outbound/providers/news.port.js';
 
 // Constants
@@ -73,7 +73,7 @@ export class CachedNewsAdapter implements NewsProviderPort {
         }
     }
 
-    public async fetchNews(options?: NewsOptions): Promise<NewsStory[]> {
+    public async fetchNews(options?: NewsOptions): Promise<NewsReport[]> {
         const language = options?.language?.toString() ?? DEFAULT_LANGUAGE;
 
         this.logger.debug('cache:check', { language });
@@ -160,7 +160,7 @@ export class CachedNewsAdapter implements NewsProviderPort {
         }
     }
 
-    private writeCache(data: NewsStory[], language: string): void {
+    private writeCache(data: NewsReport[], language: string): void {
         try {
             const cachePath = getCachePath(this.cacheDirectory, language);
             this.ensureDirectoryExists(cachePath);

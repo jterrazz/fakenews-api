@@ -9,7 +9,7 @@ import { ReportAngle } from '../report-angle.vo.js';
 export function createMockReportAngle(index: number): ReportAngle {
     return new ReportAngle({
         angleCorpus: new AngleCorpus(
-            `Mock angle corpus ${index}. This is a comprehensive summary of a specific viewpoint on the report. It contains all the key arguments, evidence, quotes, and contextual details necessary to construct a full article from this angle. The information is presented in a raw, exhaustive format that provides complete coverage of this particular perspective on the events and issues discussed in the main report.`,
+            `Mock angle corpus ${index}. This is a comprehensive summary of a specific viewpoint on the report. It contains all the key arguments, evidence, quotes, and contextual details necessary to construct a full article from this angle. The information is presented in a raw, exhaustive format that provides complete coverage of this particular angle on the events and issues discussed in the main report.`,
         ),
         discourse: getDiscourse(index),
         stance: getStance(index),
@@ -22,6 +22,3 @@ export function createMockReportAngle(index: number): ReportAngle {
 export function mockReportAngles(count: number): ReportAngle[] {
     return Array.from({ length: count }, (_, index) => createMockReportAngle(index));
 }
-
-// Legacy export for backward compatibility during migration
-export const mockStoryPerspectives = mockReportAngles;

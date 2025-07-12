@@ -12,7 +12,7 @@ import {
     type ReportIngestionAgentPort,
     type ReportIngestionResult,
 } from '../../../application/ports/outbound/agents/report-ingestion.agent.js';
-import { type NewsStory } from '../../../application/ports/outbound/providers/news.port.js';
+import { type NewsReport } from '../../../application/ports/outbound/providers/news.port.js';
 
 import { factsSchema } from '../../../domain/entities/report.entity.js';
 import { Category } from '../../../domain/value-objects/category.vo.js';
@@ -26,7 +26,7 @@ export class ReportIngestionAgentAdapter implements ReportIngestionAgentPort {
         angles: z
             .array(
                 z.object({
-                    angleCorpus: angleCorpusSchema.describe(
+                    corpus: angleCorpusSchema.describe(
                         'A complete compilation of all information for this viewpoint, NOT a summary. It must be focused on the news event itself and include every argument, fact, and piece of evidence presented for this side. It MUST NOT contain information about the news source.',
                     ),
                     discourse: discourseSchema,
@@ -40,7 +40,7 @@ export class ReportIngestionAgentAdapter implements ReportIngestionAgentPort {
     });
 
     static readonly SYSTEM_PROMPT = new SystemPromptAdapter(
-        'You are a master investigative journalist and media analyst. Your core mission is to analyze news articles and deconstruct them into a structured intelligence brief, identifying the core facts and the distinct perspectives presented.',
+        'You are a master investigative journalist and media analyst. Your core mission is to analyze news articles and deconstruct them into a structured intelligence brief, identifying the core facts and the distinct angles presented.',
         'Your analysis must be objective and based solely on the provided text. You do not judge viewpoints; you identify and categorize them. Your primary goal is to find **genuinely distinct or opposing viewpoints** to map the landscape of the public debate, not to find minor variations of the same argument.',
         PROMPT_LIBRARY.PERSONAS.JOURNALIST,
         PROMPT_LIBRARY.FOUNDATIONS.CONTEXTUAL_ONLY,
@@ -66,7 +66,7 @@ export class ReportIngestionAgentAdapter implements ReportIngestionAgentPort {
         });
     }
 
-    static readonly USER_PROMPT = (newsStory: NewsStory) =>
+    static readonly USER_PROMPT = (newsReport: NewsReport) =>
         new UserPromptAdapter(
             // Core Mission
             'Analyze the following news articles about a single event and deconstruct them into a structured intelligence brief.',
@@ -76,7 +76,7 @@ export class ReportIngestionAgentAdapter implements ReportIngestionAgentPort {
             'Your output MUST contain two parts:',
             '1.  **Facts:** A comprehensive, neutral summary of the core facts. What happened, who was involved, where, and when. Prioritize factual completeness.',
             '2.  **Angles:** Identify the 1 or 2 most dominant angles presented in the articles. For each angle, provide:',
-            '    a.  **angleCorpus:** This is NOT a summary. It must be a **complete compilation of all information** for that specific viewpoint, focused *only on the news event*. Gather every argument, fact, and piece of evidence presented *for that side*. It MUST NOT contain information about the news source itself.',
+            '    a.  **corpus:** This is NOT a summary. It must be a **complete compilation of all information** for that specific viewpoint, focused *only on the news event*. Gather every argument, fact, and piece of evidence presented *for that side*. It MUST NOT contain information about the news source itself.',
             "    b.  **tags:** Classify the angle's `stance` and `discourse_type`.",
             '',
 
@@ -101,7 +101,7 @@ export class ReportIngestionAgentAdapter implements ReportIngestionAgentPort {
             // Data input
             'NEWS ARTICLES TO ANALYZE:',
             JSON.stringify(
-                newsStory.articles.map((article) => ({
+                newsReport.articles.map((article) => ({
                     body: article.body,
                     headline: article.headline,
                 })),
@@ -110,14 +110,14 @@ export class ReportIngestionAgentAdapter implements ReportIngestionAgentPort {
             ),
         );
 
-    async run(params: { newsStory: NewsStory }): Promise<null | ReportIngestionResult> {
+    async run(params: { newsReport: NewsReport }): Promise<null | ReportIngestionResult> {
         try {
             this.logger.info(
-                `[${this.name}] Ingesting story with ${params.newsStory.articles.length} articles`,
+                `[${this.name}] Ingesting report with ${params.newsReport.articles.length} articles`,
             );
 
             const result = await this.agent.run(
-                ReportIngestionAgentAdapter.USER_PROMPT(params.newsStory),
+                ReportIngestionAgentAdapter.USER_PROMPT(params.newsReport),
             );
 
             if (!result) {
@@ -139,7 +139,7 @@ export class ReportIngestionAgentAdapter implements ReportIngestionAgentPort {
 
             // Create angle data from AI response (without creating full ReportAngle entities)
             const angles = result.angles.map((angleData) => ({
-                angleCorpus: angleData.angleCorpus,
+                corpus: angleData.corpus,
                 discourse: angleData.discourse,
                 stance: angleData.stance,
             }));
@@ -151,13 +151,13 @@ export class ReportIngestionAgentAdapter implements ReportIngestionAgentPort {
             };
 
             this.logger.info(
-                `[${this.name}] Successfully ingested story: ${ingestionResult.facts.substring(0, 100)}... with ${ingestionResult.angles.length} angles`,
+                `[${this.name}] Successfully ingested report: ${ingestionResult.facts.substring(0, 100)}... with ${ingestionResult.angles.length} angles`,
             );
 
             return ingestionResult;
         } catch (error) {
-            this.logger.error(`[${this.name}] Failed to ingest story`, {
-                articleCount: params.newsStory.articles.length,
+            this.logger.error(`[${this.name}] Failed to ingest report`, {
+                articleCount: params.newsReport.articles.length,
                 error,
             });
             return null;

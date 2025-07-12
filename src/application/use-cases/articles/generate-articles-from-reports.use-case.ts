@@ -66,7 +66,7 @@ export class GenerateArticlesFromReportsUseCase {
             for (const report of reportsToProcess) {
                 try {
                     const compositionInput: ArticleCompositionInput = {
-                        story: report, // Keep as 'story' until agent interface is updated
+                        report: report,
                         targetCountry: country,
                         targetLanguage: language,
                     };

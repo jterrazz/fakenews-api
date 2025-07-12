@@ -29,12 +29,12 @@ export class ArticleCompositionAgentAdapter implements ArticleCompositionAgentPo
                 }),
             )
             .describe(
-                'You MUST return one variant for EACH perspective in the input. The length of this array MUST match the number of perspectives provided.',
+                'You MUST return one variant for EACH angle in the input. The length of this array MUST match the number of angles provided.',
             ),
     });
 
     static readonly SYSTEM_PROMPT = new SystemPromptAdapter(
-        'You are an expert content composer and journalistic writer. Your mission is to transform structured story data into compelling articles: a neutral main article presenting only facts, plus variants representing different viewpoints.',
+        'You are an expert content composer and journalistic writer. Your mission is to transform structured report data into compelling articles: a neutral main article presenting only facts, plus variants representing different viewpoints.',
         'Adopt the style of a quality newspaper: professional and authoritative, yet written in clear, simple words for a broad audience. Your tone should be neutral and objective.',
         PROMPT_LIBRARY.PERSONAS.JOURNALIST,
         PROMPT_LIBRARY.FOUNDATIONS.CONTEXTUAL_ONLY,
@@ -59,7 +59,7 @@ export class ArticleCompositionAgentAdapter implements ArticleCompositionAgentPo
     }
 
     static readonly USER_PROMPT = (input: ArticleCompositionInput) => {
-        const expectedVariantCount = input.story.angles.length;
+        const expectedVariantCount = input.report.angles.length;
 
         return new UserPromptAdapter(
             // Hard constraint
@@ -67,7 +67,7 @@ export class ArticleCompositionAgentAdapter implements ArticleCompositionAgentPo
             '',
 
             // Core Mission & Audience
-            'Your mission is to write content for a mobile app that helps users understand all sides of a story. The content must be engaging, concise, and perfectly clear for a broad audience.',
+            'Your mission is to write content for a mobile app that helps users understand all sides of a report. The content must be engaging, concise, and perfectly clear for a broad audience.',
             '',
 
             // The Hierarchical Content Model (The "What")
@@ -87,20 +87,20 @@ export class ArticleCompositionAgentAdapter implements ArticleCompositionAgentPo
             // Critical Rules
             'CRITICAL RULES:',
             `•   You **MUST** create **exactly ${expectedVariantCount}** variants, one for each angle in the input. Do not combine or omit any.`,
-            '•   Base all content **only** on the provided story data.',
+            '•   Base all content **only** on the provided report data.',
             '•   **NO REPETITION:** The Main Article contains the core facts. The Variants provide the interpretation. Do not repeat information between them. The user reads them together.',
             '',
 
-            // Story data input
-            'STORY DATA FOR COMPOSITION:',
+            // Report data input
+            'REPORT DATA FOR COMPOSITION:',
             JSON.stringify(
                 {
-                    angles: input.story.angles.map((angle) => ({
+                    angles: input.report.angles.map((angle) => ({
                         digest: angle.angleCorpus.value,
                         discourse: angle.discourse.value,
                         stance: angle.stance.value,
                     })),
-                    dateline: input.story.dateline.toISOString(),
+                    dateline: input.report.dateline.toISOString(),
                 },
                 null,
                 2,
@@ -111,11 +111,11 @@ export class ArticleCompositionAgentAdapter implements ArticleCompositionAgentPo
     async run(input: ArticleCompositionInput): Promise<ArticleCompositionResult | null> {
         try {
             this.logger.info(
-                `[${this.name}] Composing article for report with ${input.story.angles.length} angles`,
+                `[${this.name}] Composing article for report with ${input.report.angles.length} angles`,
                 {
                     country: input.targetCountry.toString(),
                     language: input.targetLanguage.toString(),
-                    reportCategory: input.story.category.toString(),
+                    reportCategory: input.report.category.toString(),
                 },
             );
 
@@ -127,9 +127,9 @@ export class ArticleCompositionAgentAdapter implements ArticleCompositionAgentPo
             }
 
             // Validate that we have the correct number of variants
-            if (result.variants.length !== input.story.angles.length) {
+            if (result.variants.length !== input.report.angles.length) {
                 this.logger.warn(
-                    `[${this.name}] AI returned ${result.variants.length} variants but expected ${input.story.angles.length} (one per angle)`,
+                    `[${this.name}] AI returned ${result.variants.length} variants but expected ${input.report.angles.length} (one per angle)`,
                 );
                 return null;
             }
@@ -145,7 +145,7 @@ export class ArticleCompositionAgentAdapter implements ArticleCompositionAgentPo
                 body: result.body,
                 headline: result.headline,
                 variants: result.variants.map((variant, index) => {
-                    const angle = input.story.angles[index];
+                    const angle = input.report.angles[index];
                     return {
                         body: variant.body,
                         discourse: angle.discourse.value || 'MAINSTREAM',
@@ -163,7 +163,7 @@ export class ArticleCompositionAgentAdapter implements ArticleCompositionAgentPo
         } catch (error) {
             this.logger.error(`[${this.name}] Failed to compose article`, {
                 error,
-                storyId: input.story.id,
+                reportId: input.report.id,
                 targetCountry: input.targetCountry.toString(),
                 targetLanguage: input.targetLanguage.toString(),
             });

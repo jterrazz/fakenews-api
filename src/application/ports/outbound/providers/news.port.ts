@@ -2,7 +2,7 @@ import { type Country } from '../../../../domain/value-objects/country.vo.js';
 import { type Language } from '../../../../domain/value-objects/language.vo.js';
 
 /**
- * Individual article within a story
+ * Individual article within a report
  */
 export interface NewsArticle {
     body: string;
@@ -11,7 +11,7 @@ export interface NewsArticle {
 }
 
 /**
- * Options for fetching news stories
+ * Options for fetching news reports
  */
 export interface NewsOptions {
     country?: Country;
@@ -19,19 +19,22 @@ export interface NewsOptions {
 }
 
 /**
- * News provider port - defines how to fetch news stories from external providers
+ * News provider port - defines how to fetch news reports from external providers
  */
 export interface NewsProviderPort {
     /**
-     * Fetch news stories (each containing multiple articles) based on language and country
+     * Fetch news reports (each containing multiple articles) based on language and country
      */
-    fetchNews(options?: NewsOptions): Promise<NewsStory[]>;
+    fetchNews(options?: NewsOptions): Promise<NewsReport[]>;
 }
 
 /**
- * News story containing multiple articles/perspectives
+ * News report containing multiple articles/angles
  */
-export interface NewsStory {
+export interface NewsReport {
     articles: NewsArticle[];
     publishedAt: Date;
 }
+
+// Legacy export for backward compatibility
+export type NewsStory = NewsReport;

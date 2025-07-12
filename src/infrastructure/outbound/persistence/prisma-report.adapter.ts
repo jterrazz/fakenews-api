@@ -21,7 +21,7 @@ export class PrismaReportRepository implements ReportRepositoryPort {
 
     async addSourceReferences(reportId: string, sourceIds: string[]): Promise<void> {
         const report = await this.prisma.getPrismaClient().report.findUnique({
-            select: { sourceReferences: true },
+            select: { sources: true },
             where: { id: reportId },
         });
 
@@ -30,12 +30,12 @@ export class PrismaReportRepository implements ReportRepositoryPort {
             return;
         }
 
-        const existingSources = (report.sourceReferences as string[]) || [];
+        const existingSources = (report.sources as string[]) || [];
         const updatedSources = Array.from(new Set([...existingSources, ...sourceIds]));
 
         await this.prisma.getPrismaClient().report.update({
             data: {
-                sourceReferences: updatedSources,
+                sources: updatedSources,
             },
             where: { id: reportId },
         });
@@ -207,7 +207,7 @@ export class PrismaReportRepository implements ReportRepositoryPort {
                 createdAt: 'desc',
             },
             select: {
-                sourceReferences: true,
+                sources: true,
             },
             where: {
                 country: this.mapper.mapCountryToPrisma(country),
@@ -216,7 +216,7 @@ export class PrismaReportRepository implements ReportRepositoryPort {
 
         // Flatten the array of arrays and remove duplicates
         const allSourceReferences = reports
-            .map((report) => report.sourceReferences as string[])
+            .map((report) => report.sources as string[])
             .flat()
             .filter((ref, index, arr) => arr.indexOf(ref) === index);
 
