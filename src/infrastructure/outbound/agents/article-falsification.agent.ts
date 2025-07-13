@@ -25,7 +25,7 @@ export class ArticleFalsificationAgentAdapter implements ArticleFalsificationAge
         clarification: z
             .string()
             .describe(
-                'Clear explanation of why this article is fabricated and what makes it misleading',
+                'Clear explanation **for the reader, revealed after their guess**, of why this article is fabricated and what makes it misleading',
             ),
         headline: headlineSchema,
         insertAfterIndex: z
@@ -35,9 +35,7 @@ export class ArticleFalsificationAgentAdapter implements ArticleFalsificationAge
                 '0-based index inside the provided recentArticles array **after** which the generated fake article should be placed. Use -1 if recentArticles is empty.',
             )
             .default(-1),
-        tone: z
-            .enum(['serious', 'satirical'])
-            .describe('The tone/style used in the generated article'),
+        tone: z.enum(['satirical']).describe('The tone/style used in the generated article'),
     });
 
     static readonly SYSTEM_PROMPT = new SystemPromptAdapter(
@@ -108,7 +106,7 @@ export class ArticleFalsificationAgentAdapter implements ArticleFalsificationAge
             'OUTPUT STRUCTURE (JSON): { headline, body, clarification, category, tone, insertAfterIndex }',
             '• headline → Click-worthy headline (8-16 words) matching chosen tone.',
             '• body → Article body with word-count matching continuity rules.',
-            '• clarification → One sentence explaining *why* and *how* the article is misleading.',
+            '• clarification → One sentence the reader will see **after guessing**, explaining *why* and *how* the article is misleading.',
             '• category → As instructed in CATEGORY.',
             '• tone → "serious" or "satirical".',
             '• insertAfterIndex → Index after which this article fits chronologically in recentArticles, or -1 if none.',

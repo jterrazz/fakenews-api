@@ -68,8 +68,8 @@ export class ReportClassificationAgentAdapter implements ReportClassificationAge
 
             // Classification Guidelines
             'CLASSIFICATION GUIDELINES:',
-            '• STANDARD → Broad mainstream appeal; most readers would find it timely and important (e.g. championship finals, national elections, major policy changes).',
-            '• NICHE → Valuable to a specific community or hobby but limited mainstream interest (e.g. minor league updates, niche tech releases, specialised hobby news).',
+            '• STANDARD → National or international relevance with broad public interest; would appear on the front page of leading general-interest outlets (e.g., FIFA World Cup final, presidential election results, central-bank rate changes).',
+            '• NICHE → Relevant primarily to a well-defined subgroup (region, industry, hobby, or demographic) with limited mainstream crossover (e.g., minor league transfers, specialised open-source framework update, niche hobby convention).',
             '• ARCHIVED → Lacks real-world news value or is purely auxiliary content (e.g. game guides, listicles, promotions, opinion pieces without factual basis).',
             '',
 

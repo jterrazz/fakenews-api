@@ -43,7 +43,7 @@ export interface ArticleFalsificationResult {
      * the value should be `-1` indicating it should be placed at the very beginning.
      */
     insertAfterIndex?: number;
-    tone: 'satirical' | 'serious'; // indicates which style was actually generated
+    tone: 'satirical';
 }
 
 /**
