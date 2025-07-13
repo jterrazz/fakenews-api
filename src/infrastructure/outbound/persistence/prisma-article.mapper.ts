@@ -51,7 +51,10 @@ export class ArticleMapper {
         );
 
         return new Article({
-            authenticity: new Authenticity(prisma.fakeStatus, prisma.fakeReason),
+            authenticity: new Authenticity(
+                prisma.authenticity === 'FALSIFIED',
+                prisma.falsificationReason,
+            ),
             body: new Body(prisma.body),
             category: new Category(prisma.category),
             classification: prisma.reports?.[0]?.classification
@@ -71,11 +74,11 @@ export class ArticleMapper {
 
     toPrisma(domain: Article): Prisma.ArticleCreateInput {
         return {
+            authenticity: domain.isFalsified() ? 'FALSIFIED' : 'AUTHENTIC',
             body: domain.body.value,
             category: this.mapCategoryToPrisma(domain.category),
             country: this.mapCountryToPrisma(domain.country),
-            fakeReason: domain.authenticity.reason,
-            fakeStatus: domain.isFake(),
+            falsificationReason: domain.authenticity.falsificationReason,
             frames: domain.frames
                 ? {
                       create: domain.frames.map((frame) => ({

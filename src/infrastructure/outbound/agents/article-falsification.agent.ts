@@ -22,9 +22,11 @@ export class ArticleFalsificationAgentAdapter implements ArticleFalsificationAge
     static readonly SCHEMA = z.object({
         body: bodySchema,
         category: categorySchema,
-        fakeReason: z
+        falsificationReason: z
             .string()
-            .describe('Clear explanation of why this article is fake and what makes it misleading'),
+            .describe(
+                'Clear explanation of why this article is fake (falsified) and what makes it misleading',
+            ),
         headline: headlineSchema,
         insertAfterIndex: z
             .number()
@@ -123,7 +125,7 @@ export class ArticleFalsificationAgentAdapter implements ArticleFalsificationAge
             '•   Analyse the timestamps of RECENT_ARTICLES. Decide **after which article** your newly generated article should appear so the chronology feels natural. Provide the index (0-based) of that article in the `insertAfterIndex` field of your JSON output.',
             '•   If there are no recent articles, set `insertAfterIndex` to -1.',
             '',
-            'OUTPUT: Return a JSON object with the fields { headline, body, fakeReason, category, tone, insertAfterIndex }.',
+            'OUTPUT: Return a JSON object with the fields { headline, body, falsificationReason, category, tone, insertAfterIndex }.',
         );
 
         return singlePrompt;
@@ -164,7 +166,7 @@ export class ArticleFalsificationAgentAdapter implements ArticleFalsificationAge
             const fakerResult: ArticleFalsificationResult = {
                 body: result.body,
                 category: new Category(result.category),
-                fakeReason: result.fakeReason,
+                falsificationReason: result.falsificationReason,
                 headline: result.headline,
                 insertAfterIndex: result.insertAfterIndex,
                 tone: result.tone,
@@ -185,4 +187,4 @@ export class ArticleFalsificationAgentAdapter implements ArticleFalsificationAge
             return null;
         }
     }
-} 
+}

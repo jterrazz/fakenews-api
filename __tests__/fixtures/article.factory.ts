@@ -87,12 +87,12 @@ export class ArticleFactory {
 
         await prisma.article.create({
             data: {
+                authenticity: article.isFalsified() ? 'FALSIFIED' : 'AUTHENTIC',
                 body: article.body.value,
                 category: article.category.toString() as PrismaCategory,
                 country: article.country.toString() as PrismaCountry,
                 createdAt: article.publishedAt,
-                fakeReason: article.authenticity.reason,
-                fakeStatus: article.isFake(),
+                falsificationReason: article.authenticity.falsificationReason,
                 headline: article.headline.value,
                 id: article.id,
                 language: article.language.toString() as PrismaLanguage,

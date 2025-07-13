@@ -176,7 +176,7 @@ export class GenerateArticlesFromReportsUseCase {
             });
 
             // Simple check: has there been any fake article in recent articles?
-            const hasFakeInRecent = recentArticles.some((article) => article.isFake());
+            const hasFakeInRecent = recentArticles.some((article) => article.isFalsified());
 
             // If no fake articles recently, generate 1-2
             if (!hasFakeInRecent) {
@@ -265,7 +265,7 @@ export class GenerateArticlesFromReportsUseCase {
 
                         // Create fake article entity
                         const fakeArticle = new Article({
-                            authenticity: new Authenticity(true, fakeResult.fakeReason),
+                            authenticity: new Authenticity(true, fakeResult.falsificationReason),
                             body: new Body(fakeResult.body),
                             category: fakeResult.category,
                             country,

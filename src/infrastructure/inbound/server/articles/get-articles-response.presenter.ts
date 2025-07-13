@@ -63,7 +63,7 @@ export class GetArticlesResponsePresenter {
         const { contentRaw, contentWithAnnotations } = this.processContent(content);
 
         // Use processed content based on authenticity
-        const displayBody = article.isFake() ? contentWithAnnotations : contentRaw;
+        const displayBody = article.isFalsified() ? contentWithAnnotations : contentRaw;
 
         // Map article frames from domain entities
         const frames: ArticleFrameResponse[] =
@@ -76,8 +76,8 @@ export class GetArticlesResponsePresenter {
 
         return {
             authenticity: {
-                reason: article.authenticity.reason ?? undefined,
-                status: article.isFake() ? 'fake' : 'authentic',
+                reason: article.authenticity.falsificationReason ?? undefined,
+                status: article.isFalsified() ? 'fake' : 'authentic',
             },
             body: displayBody,
             frames,

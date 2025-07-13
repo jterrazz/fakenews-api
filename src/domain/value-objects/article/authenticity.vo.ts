@@ -2,30 +2,32 @@ import { z } from 'zod/v4';
 
 export const authenticitySchema = z
     .object({
-        isFake: z.boolean().default(false),
-        reason: z.string().nullable().default(null),
+        falsificationReason: z.string().nullable().default(null),
+        isFalsified: z.boolean().default(false),
     })
-    .refine((data) => !data.isFake || (data.isFake && data.reason), {
-        message: 'Fake articles must have a reason specified',
-        path: ['reason'],
+    .refine((data) => !data.isFalsified || (data.isFalsified && data.falsificationReason), {
+        message: 'Falsified articles must include a falsificationReason',
+        path: ['falsificationReason'],
     });
 
 export class Authenticity {
-    public readonly isFake: boolean;
-    public readonly reason: null | string;
+    public readonly falsificationReason: null | string;
+    public readonly isFalsified: boolean;
 
-    constructor(isFake: boolean, reason: null | string = null) {
-        const result = authenticitySchema.safeParse({ isFake, reason });
+    constructor(isFalsified: boolean, falsificationReason: null | string = null) {
+        const result = authenticitySchema.safeParse({ falsificationReason, isFalsified });
 
         if (!result.success) {
             throw new Error(`Invalid authenticity: ${result.error.message}`);
         }
 
-        this.isFake = result.data.isFake;
-        this.reason = result.data.reason;
+        this.isFalsified = result.data.isFalsified;
+        this.falsificationReason = result.data.falsificationReason;
     }
 
     public toString(): string {
-        return this.isFake ? `Fake article (Reason: ${this.reason})` : 'Legitimate article';
+        return this.isFalsified
+            ? `Falsified article (Reason: ${this.falsificationReason})`
+            : 'Authentic article';
     }
 }

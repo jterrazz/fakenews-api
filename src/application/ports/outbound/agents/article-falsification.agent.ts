@@ -37,7 +37,7 @@ export interface ArticleFalsificationInput {
 export interface ArticleFalsificationResult {
     body: string;
     category: Category;
-    fakeReason: string;
+    falsificationReason: string;
     headline: string;
     /**
      * Index of the recentArticles array **after** which this fake article should be inserted
@@ -52,4 +52,4 @@ export interface ArticleFalsificationResult {
  * @description
  * The tone/style of fake article to generate
  */
-export type FakeArticleTone = 'random' | 'satirical' | 'serious'; 
+export type FakeArticleTone = 'random' | 'satirical' | 'serious';
