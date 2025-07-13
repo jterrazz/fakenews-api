@@ -461,7 +461,7 @@ describe('GenerateArticlesFromReportsUseCase', () => {
 
             // Should have logged the error but continued processing
             expect(mockLogger.warn).toHaveBeenCalledWith(
-                'article:generate:fake-error',
+                'Error generating fake article',
                 expect.objectContaining({
                     country: DEFAULT_COUNTRY.toString(),
                     error: expect.any(Error),
@@ -489,7 +489,7 @@ describe('GenerateArticlesFromReportsUseCase', () => {
 
             // Should have logged the error
             expect(mockLogger.warn).toHaveBeenCalledWith(
-                'article:generate:fake-check-error',
+                'Error checking fake article requirements',
                 expect.objectContaining({
                     country: DEFAULT_COUNTRY.toString(),
                     error: expect.any(Error),

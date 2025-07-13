@@ -97,12 +97,12 @@ describe('ClassifyReportsUseCase', () => {
             expect(mockReportRepository.update).toHaveBeenCalledWith(reportToReview.id, {
                 classification: expect.any(Object),
             });
-            expect(mockLogger.info).toHaveBeenCalledWith('report:classify:classified', {
+            expect(mockLogger.info).toHaveBeenCalledWith('Report classified', {
                 classification: expect.any(Object),
                 reason: classificationResult.reason,
                 reportId: reportToReview.id,
             });
-            expect(mockLogger.info).toHaveBeenCalledWith('report:classify:done', {
+            expect(mockLogger.info).toHaveBeenCalledWith('Report classification completed', {
                 failed: 0,
                 successful: 1,
                 totalReviewed: 1,
@@ -119,7 +119,7 @@ describe('ClassifyReportsUseCase', () => {
             // Then
             expect(mockReportClassificationAgent.run).not.toHaveBeenCalled();
             expect(mockReportRepository.update).not.toHaveBeenCalled();
-            expect(mockLogger.info).toHaveBeenCalledWith('report:classify:none');
+            expect(mockLogger.info).toHaveBeenCalledWith('No reports pending classification');
         });
 
         test('should continue processing even if one report fails classification', async () => {
@@ -147,10 +147,10 @@ describe('ClassifyReportsUseCase', () => {
                 report2.id,
                 expect.any(Object),
             );
-            expect(mockLogger.warn).toHaveBeenCalledWith('report:classify:agent-null', {
+            expect(mockLogger.warn).toHaveBeenCalledWith('Classification agent returned no result', {
                 reportId: report2.id,
             });
-            expect(mockLogger.info).toHaveBeenCalledWith('report:classify:done', {
+            expect(mockLogger.info).toHaveBeenCalledWith('Report classification completed', {
                 failed: 1,
                 successful: 1,
                 totalReviewed: 2,
@@ -167,11 +167,11 @@ describe('ClassifyReportsUseCase', () => {
 
             // Then
             expect(mockReportRepository.update).not.toHaveBeenCalled();
-            expect(mockLogger.error).toHaveBeenCalledWith('report:classify:error', {
+            expect(mockLogger.error).toHaveBeenCalledWith('Error during report classification', {
                 error: agentError,
                 reportId: reportToReview.id,
             });
-            expect(mockLogger.info).toHaveBeenCalledWith('report:classify:done', {
+            expect(mockLogger.info).toHaveBeenCalledWith('Report classification completed', {
                 failed: 1,
                 successful: 0,
                 totalReviewed: 1,
@@ -185,7 +185,7 @@ describe('ClassifyReportsUseCase', () => {
 
             // When / Then
             await expect(useCase.execute()).rejects.toThrow(repositoryError);
-            expect(mockLogger.error).toHaveBeenCalledWith('report:classify:unhandled-error', {
+            expect(mockLogger.error).toHaveBeenCalledWith('Unhandled error during classification process', {
                 error: repositoryError,
             });
         });

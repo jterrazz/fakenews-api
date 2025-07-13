@@ -62,8 +62,8 @@ describe('CachedNewsAdapter', () => {
             // Then - it should return the cached data
             expect(result).toEqual([mockReport]);
             expect(mockNewsSource.fetchNews).not.toHaveBeenCalled();
-            expect(mockLogger.info).toHaveBeenCalledWith('cache:hit', {
-                cacheAge: expect.any(Number),
+            expect(mockLogger.info).toHaveBeenCalledWith('Cache hit', {
+                ageMs: expect.any(Number),
                 language: 'EN',
                 reportCount: 1,
             });
@@ -85,9 +85,9 @@ describe('CachedNewsAdapter', () => {
             // Then - it should fetch fresh data and update the cache
             expect(result).toEqual([mockReport]);
             expect(mockNewsSource.fetchNews).toHaveBeenCalledWith(options);
-            expect(mockLogger.info).toHaveBeenCalledWith('cache:expired', {
-                cachePath: expect.stringContaining(`${cacheDirectory}/reports/EN.json`),
+            expect(mockLogger.info).toHaveBeenCalledWith('Cache expired, removing file', {
                 language: 'EN',
+                path: expect.stringContaining(`${cacheDirectory}/reports/EN.json`),
             });
             expect(writeFileSync).toHaveBeenCalledWith(
                 expect.stringContaining(`${cacheDirectory}/reports/EN.json`),
@@ -106,7 +106,7 @@ describe('CachedNewsAdapter', () => {
             // Then - it should fetch fresh data and return it
             expect(result).toEqual([mockReport]);
             expect(mockNewsSource.fetchNews).toHaveBeenCalledWith(options);
-            expect(mockLogger.info).toHaveBeenCalledWith('cache:miss', {
+            expect(mockLogger.info).toHaveBeenCalledWith('Cache miss', {
                 language: 'EN',
             });
         });
@@ -125,10 +125,10 @@ describe('CachedNewsAdapter', () => {
 
                 // Then - it should fetch fresh data and log the cache read error
                 expect(result).toEqual([mockReport]);
-                expect(mockLogger.error).toHaveBeenCalledWith('cache:read:error', {
-                    cachePath: expect.stringContaining(`${cacheDirectory}/reports/EN.json`),
+                expect(mockLogger.error).toHaveBeenCalledWith('Error reading cache', {
                     error: expect.any(Error),
                     language: 'EN',
+                    path: expect.stringContaining(`${cacheDirectory}/reports/EN.json`),
                 });
                 expect(mockNewsSource.fetchNews).toHaveBeenCalledWith(options);
             });
@@ -146,7 +146,7 @@ describe('CachedNewsAdapter', () => {
 
                 // Then - it should return the data and log the cache write error
                 expect(result).toEqual([mockReport]);
-                expect(mockLogger.error).toHaveBeenCalledWith('cache:write:error', {
+                expect(mockLogger.error).toHaveBeenCalledWith('Error writing cache file', {
                     error: expect.any(Error),
                     language: 'EN',
                 });
