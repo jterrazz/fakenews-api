@@ -147,9 +147,12 @@ describe('ClassifyReportsUseCase', () => {
                 report2.id,
                 expect.any(Object),
             );
-            expect(mockLogger.warn).toHaveBeenCalledWith('Classification agent returned no result', {
-                reportId: report2.id,
-            });
+            expect(mockLogger.warn).toHaveBeenCalledWith(
+                'Classification agent returned no result',
+                {
+                    reportId: report2.id,
+                },
+            );
             expect(mockLogger.info).toHaveBeenCalledWith('Report classification completed', {
                 failed: 1,
                 successful: 1,
@@ -185,9 +188,12 @@ describe('ClassifyReportsUseCase', () => {
 
             // When / Then
             await expect(useCase.execute()).rejects.toThrow(repositoryError);
-            expect(mockLogger.error).toHaveBeenCalledWith('Unhandled error during classification process', {
-                error: repositoryError,
-            });
+            expect(mockLogger.error).toHaveBeenCalledWith(
+                'Unhandled error during classification process',
+                {
+                    error: repositoryError,
+                },
+            );
         });
     });
 });

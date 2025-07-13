@@ -114,9 +114,7 @@ export class ReportIngestionAgentAdapter implements ReportIngestionAgentPort {
 
     async run(params: { newsReport: NewsReport }): Promise<null | ReportIngestionResult> {
         try {
-            this.logger.info(
-                `Ingesting report with ${params.newsReport.articles.length} articles`,
-            );
+            this.logger.info(`Ingesting report with ${params.newsReport.articles.length} articles`);
 
             const result = await this.agent.run(
                 ReportIngestionAgentAdapter.USER_PROMPT(params.newsReport),
