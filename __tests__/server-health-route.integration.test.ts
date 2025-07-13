@@ -1,28 +1,35 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from '@jterrazz/test';
 
 import {
-    cleanupIntegrationTest,
-    type IntegrationTestContext,
-    setupIntegrationTest,
+    createIntegrationContext,
+    executeRequest,
+    type IntegrationContext,
+    startIntegrationContext,
+    stopIntegrationContext,
 } from './setup/integration.js';
 
+/**
+ * Integration test for the /health server route.
+ * Ensures the service responds with HTTP 200 and plain 'OK' text, verifying basic liveness.
+ */
 describe('Server /health route – integration', () => {
-    let testContext: IntegrationTestContext;
+    let integrationContext: IntegrationContext;
 
     beforeAll(async () => {
-        testContext = await setupIntegrationTest();
+        integrationContext = await createIntegrationContext();
     });
 
-    afterAll(async () => {
-        await cleanupIntegrationTest(testContext);
+    beforeEach(async () => {
+        await startIntegrationContext(integrationContext);
+    });
+
+    afterEach(async () => {
+        await stopIntegrationContext(integrationContext);
     });
 
     it('should return OK status for the root route', async () => {
-        // Given
-        const { httpServer } = testContext.gateways;
-
         // When
-        const response = await httpServer.request('/');
+        const response = await executeRequest(integrationContext, '/');
 
         // Then
         expect(response.status).toBe(200);

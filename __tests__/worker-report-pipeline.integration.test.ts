@@ -1,64 +1,87 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from '@jterrazz/test';
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from '@jterrazz/test';
 
 import { openRouterUniversalResolver } from './providers/ai.openrouter/open-router-universal.resolver.js';
 import { worldNewsResolver } from './providers/com.worldnewsapi.api/top-news.resolver.js';
+import { worldNewsEmptyResolver } from './providers/com.worldnewsapi.api/top-news-empty.resolver.js';
 import {
-    cleanupDatabase,
-    cleanupIntegrationTest,
-    type IntegrationTestContext,
-    setupIntegrationTest,
+    createIntegrationContext,
+    executeTask,
+    type IntegrationContext,
+    startIntegrationContext,
+    stopIntegrationContext,
 } from './setup/integration.js';
 import { normaliseSnapshot } from './setup/snapshot-normaliser.js';
 
 /**
  * Integration tests for the Report Pipeline task.
- * Scenario: News provider returns reports, AI agents ingest, classify, and compose articles.
+ * Combines scenarios for empty news and happy path into a single file.
  */
 
-describe('Worker – report-pipeline task (happy path) – integration', () => {
-    let testContext: IntegrationTestContext;
-
-    // --------------------
-    // Setup & Teardown
-    // --------------------
+// Empty news scenario
+describe('Worker – report-pipeline task (empty news) – integration', () => {
+    let integrationContext: IntegrationContext;
 
     beforeAll(async () => {
-        testContext = await setupIntegrationTest([worldNewsResolver, openRouterUniversalResolver]);
+        integrationContext = await createIntegrationContext([worldNewsEmptyResolver]);
     });
 
     beforeEach(async () => {
-        // Clean database and reset classification counter.
-        await cleanupDatabase(testContext.prisma);
-        await testContext.prisma.report.deleteMany();
+        await startIntegrationContext(integrationContext);
     });
 
-    afterAll(async () => {
-        await cleanupIntegrationTest(testContext);
+    afterEach(async () => {
+        await stopIntegrationContext(integrationContext);
     });
 
-    // --------------------
-    // Test cases
-    // --------------------
+    describe('No articles found on sources', () => {
+        it('should not create any reports or articles', async () => {
+            // When – executing the pipeline
+            await executeTask(integrationContext, 'report-pipeline');
+
+            // Then – nothing should be persisted
+            const articleCount = await integrationContext.prisma.article.count();
+            const reportCount = await integrationContext.prisma.report.count();
+
+            expect(articleCount).toBe(0);
+            expect(reportCount).toBe(0);
+        });
+    });
+});
+
+// Happy path scenario
+describe('Worker – report-pipeline task (happy path) – integration', () => {
+    let integrationContext: IntegrationContext;
+
+    beforeAll(async () => {
+        integrationContext = await createIntegrationContext([
+            worldNewsResolver,
+            openRouterUniversalResolver,
+        ]);
+    });
+
+    beforeEach(async () => {
+        await startIntegrationContext(integrationContext);
+    });
+
+    afterEach(async () => {
+        await stopIntegrationContext(integrationContext);
+    });
 
     it('creates well-structured articles with mixed authenticity', async () => {
         // When – run pipeline
-        const pipelineTask = testContext.gateways.tasks.find((t) => t.name === 'report-pipeline');
-        expect(pipelineTask).toBeDefined();
-        await pipelineTask!.execute();
+        await executeTask(integrationContext, 'report-pipeline');
 
         // Then – fetch reports & articles with relations for deeper validation
-        const reports = await testContext.prisma.report.findMany({ include: { angles: true } });
-        const articles = await testContext.prisma.article.findMany({
+        const reports = await integrationContext.prisma.report.findMany({
+            include: { angles: true },
+        });
+        const articles = await integrationContext.prisma.article.findMany({
             include: { frames: true, reports: true },
         });
 
         // Basic expectations
         expect(reports.length).toBeGreaterThan(0);
         expect(articles.length).toBeGreaterThan(0);
-
-        /* ------------------------------------------------------------------ */
-        /* Strict JSON snapshot comparison with normalised dynamic fields      */
-        /* ------------------------------------------------------------------ */
 
         const SOURCE_RE = /^worldnewsapi:/;
 
@@ -67,11 +90,13 @@ describe('Worker – report-pipeline task (happy path) – integration', () => {
             (JSON.parse(JSON.stringify(articles)) as any[]).sort(
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 (a: any, b: any) => {
+                    const aClass = a.reports[0]?.classification ?? '';
+                    const bClass = b.reports[0]?.classification ?? '';
                     return (
                         a.country.localeCompare(b.country) ||
                         a.language.localeCompare(b.language) ||
                         a.authenticity.localeCompare(b.authenticity) ||
-                        a.reports[0].classification.localeCompare(b.reports[0].classification)
+                        aClass.localeCompare(bClass)
                     );
                 },
             ),

@@ -1,42 +1,35 @@
-// Simplified integration test focusing on observable behaviour
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from '@jterrazz/test';
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from '@jterrazz/test';
 
 import { ArticleFactory, ArticleTestScenarios } from './fixtures/article.factory.js';
 import {
-    cleanupDatabase,
-    cleanupIntegrationTest,
-    type IntegrationTestContext,
-    setupIntegrationTest,
+    createIntegrationContext,
+    executeRequest,
+    type IntegrationContext,
+    startIntegrationContext,
+    stopIntegrationContext,
 } from './setup/integration.js';
 import { normaliseSnapshot } from './setup/snapshot-normaliser.js';
 
-// -----------------------------------------------------------------------------
-// /articles route – integration
-// -----------------------------------------------------------------------------
-
+/**
+ * Integration tests for the /articles server route.
+ * Scenario: Mixed set of articles with different authenticity statuses.
+ */
 describe('Server /articles route – integration', () => {
-    let testContext: IntegrationTestContext;
+    let integrationContext: IntegrationContext;
 
     beforeAll(async () => {
-        testContext = await setupIntegrationTest();
-    });
-
-    afterAll(async () => {
-        await cleanupIntegrationTest(testContext);
+        integrationContext = await createIntegrationContext();
     });
 
     beforeEach(async () => {
-        await cleanupDatabase(testContext.prisma);
+        await startIntegrationContext(integrationContext);
     });
 
-    // -------------------------------------------------------------------------
-    // Content validation (full response & pagination)
-    // -------------------------------------------------------------------------
+    afterEach(async () => {
+        await stopIntegrationContext(integrationContext);
+    });
 
     describe('Content validation', () => {
-        /* ------------------------------------------------------------------ */
-        /* Shared expected snapshot                                            */
-        /* ------------------------------------------------------------------ */
         const expectedSnapshot = {
             items: [
                 {
@@ -93,13 +86,9 @@ describe('Server /articles route – integration', () => {
             total: 3,
         };
 
-        /* ------------------------------------------------------------------ */
-        /* Tests                                                              */
-        /* ------------------------------------------------------------------ */
-
         it('returns full structured JSON response for mixed US articles', async () => {
             // Given – a mixed set of US articles including falsified and authentic ones
-            await ArticleTestScenarios.createMixedArticles(testContext.prisma);
+            await ArticleTestScenarios.createMixedArticles(integrationContext.prisma);
 
             const bodyWithMarkers =
                 'Breaking %%[(FAKE)]( sensational )%% news about an invented event.';
@@ -109,10 +98,10 @@ describe('Server /articles route – integration', () => {
                 .withBody(bodyWithMarkers)
                 .withPublishedAt(new Date('2024-03-03T12:00:00.000Z'))
                 .asFake('Fabricated story')
-                .createInDatabase(testContext.prisma);
+                .createInDatabase(integrationContext.prisma);
 
             // When – request all articles
-            const res = await testContext.gateways.httpServer.request('/articles?limit=10');
+            const res = await executeRequest(integrationContext, '/articles?limit=10');
             const response = await res.json();
 
             // Then – status is OK
@@ -125,7 +114,7 @@ describe('Server /articles route – integration', () => {
 
         it('returns the same structured JSON response when paginated', async () => {
             // Given – the same mixed set of articles in the database
-            await ArticleTestScenarios.createMixedArticles(testContext.prisma);
+            await ArticleTestScenarios.createMixedArticles(integrationContext.prisma);
 
             const bodyWithMarkers =
                 'Breaking %%[(FAKE)]( sensational )%% news about an invented event.';
@@ -135,10 +124,10 @@ describe('Server /articles route – integration', () => {
                 .withBody(bodyWithMarkers)
                 .withPublishedAt(new Date('2024-03-03T12:00:00.000Z'))
                 .asFake('Fabricated story')
-                .createInDatabase(testContext.prisma);
+                .createInDatabase(integrationContext.prisma);
 
             // When – first page request (limit 2)
-            const firstRes = await testContext.gateways.httpServer.request('/articles?limit=2');
+            const firstRes = await executeRequest(integrationContext, '/articles?limit=2');
             const firstBody = await firstRes.json();
 
             // Then – first page OK and contains 2 items
@@ -147,7 +136,8 @@ describe('Server /articles route – integration', () => {
             expect(firstBody.nextCursor).toBeDefined();
 
             // When – second page using cursor (limit 2)
-            const secondRes = await testContext.gateways.httpServer.request(
+            const secondRes = await executeRequest(
+                integrationContext,
                 `/articles?limit=2&cursor=${firstBody.nextCursor}`,
             );
             const secondBody = await secondRes.json();
