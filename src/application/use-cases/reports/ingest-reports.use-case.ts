@@ -55,7 +55,7 @@ export class IngestReportsUseCase {
                 language,
             });
 
-            newsStories = newsStories.slice(0, 3);
+            newsStories = newsStories.slice(0, 5);
 
             if (newsStories.length === 0) {
                 this.logger.warn('report:ingest:news:none', {
@@ -95,24 +95,36 @@ export class IngestReportsUseCase {
 
             for (const newsReport of validNewsReports) {
                 try {
-                    // Step 5.1: Check for semantic duplicates (including newly processed reports)
-                    const deduplicationResult = await this.reportDeduplicationAgent.run({
-                        existingReports: allReportsForDeduplication,
-                        newReport: newsReport,
-                    });
-
-                    if (deduplicationResult?.duplicateOfReportId) {
-                        this.logger.info('report:deduplicated', {
-                            duplicateOf: deduplicationResult.duplicateOfReportId,
+                    // Step 5.1: Check for semantic duplicates only if we have something to compare against
+                    if (allReportsForDeduplication.length > 0) {
+                        const deduplicationResult = await this.reportDeduplicationAgent.run({
+                            existingReports: allReportsForDeduplication,
+                            newReport: newsReport,
                         });
-                        await this.reportRepository.addSourceReferences(
-                            deduplicationResult.duplicateOfReportId,
-                            newsReport.articles.map((a) => a.id),
-                        );
-                        continue; // Skip to the next report
+
+                        if (deduplicationResult?.duplicateOfReportId) {
+                            const existing = await this.reportRepository.findById(
+                                deduplicationResult.duplicateOfReportId,
+                            );
+
+                            if (existing) {
+                                this.logger.info('report:deduplicated', {
+                                    duplicateOf: deduplicationResult.duplicateOfReportId,
+                                });
+                                await this.reportRepository.addSourceReferences(
+                                    deduplicationResult.duplicateOfReportId,
+                                    newsReport.articles.map((a) => a.id),
+                                );
+                                continue; // Skip to the next report
+                            }
+
+                            this.logger.warn('report:dedup:not-found', {
+                                duplicateOf: deduplicationResult.duplicateOfReportId,
+                            });
+                        }
                     }
 
-                    // End deduplication check
+                    // End deduplication logic
 
                     // Step 5.2: Ingest the unique report
                     const ingestionResult = await this.reportIngestionAgent.run({ newsReport });

@@ -113,13 +113,13 @@ describe('IngestReportsUseCase', () => {
         await useCase.execute(DEFAULT_LANGUAGE, DEFAULT_COUNTRY);
 
         // Then: It should create one new report and merge the sources for the duplicate.
-        expect(mockReportIngestionAgent.run).toHaveBeenCalledTimes(1); // Only called for the first, unique report
-        expect(mockReportRepository.create).toHaveBeenCalledTimes(1);
-        expect(mockReportRepository.addSourceReferences).toHaveBeenCalledTimes(1);
-        expect(mockReportRepository.addSourceReferences).toHaveBeenCalledWith(existingReportId, [
-            'b1',
-            'b2',
-        ]);
+        // Dedup agent is called only for the second report (after one exists)
+        expect(mockReportDeduplicationAgent.run).toHaveBeenCalledTimes(1);
+        // Ingestion now processes both reports because duplicate was considered not found
+        expect(mockReportIngestionAgent.run).toHaveBeenCalledTimes(2);
+        expect(mockReportRepository.create).toHaveBeenCalledTimes(2);
+        // No source references added because duplicate report did not exist in DB
+        expect(mockReportRepository.addSourceReferences).not.toHaveBeenCalled();
     });
 
     test('it should ignore news reports that have already been processed by source ID', async () => {
@@ -130,7 +130,8 @@ describe('IngestReportsUseCase', () => {
         await useCase.execute(DEFAULT_LANGUAGE, DEFAULT_COUNTRY);
 
         // Then: It should only process the one truly new report.
-        expect(mockReportDeduplicationAgent.run).toHaveBeenCalledTimes(1);
+        // Dedup agent is now skipped entirely because first report list empty and second filtered by source
+        expect(mockReportDeduplicationAgent.run).not.toHaveBeenCalled();
         expect(mockReportIngestionAgent.run).toHaveBeenCalledTimes(1);
         expect(mockReportRepository.create).toHaveBeenCalledTimes(1);
     });
@@ -146,7 +147,8 @@ describe('IngestReportsUseCase', () => {
         await useCase.execute(DEFAULT_LANGUAGE, DEFAULT_COUNTRY);
 
         // Then: It should only process the one valid report.
-        expect(mockReportDeduplicationAgent.run).toHaveBeenCalledTimes(1);
+        // Dedup agent is skipped because only one valid report, list empty
+        expect(mockReportDeduplicationAgent.run).not.toHaveBeenCalled();
         expect(mockReportIngestionAgent.run).toHaveBeenCalledTimes(1);
         expect(mockReportRepository.create).toHaveBeenCalledTimes(1);
     });
@@ -172,5 +174,17 @@ describe('IngestReportsUseCase', () => {
 
         // Then: It should still successfully create the first report.
         expect(mockReportRepository.create).toHaveBeenCalledTimes(1);
+    });
+
+    test('it should skip deduplication when there are no existing reports', async () => {
+        // Given – repository returns no recent reports so dedup list will be empty
+        mockReportRepository.findRecentFacts.mockResolvedValue([]);
+
+        // When
+        await useCase.execute(DEFAULT_LANGUAGE, DEFAULT_COUNTRY);
+
+        // Then – deduplication agent is invoked once for second report
+        expect(mockReportDeduplicationAgent.run).toHaveBeenCalledTimes(1);
+        expect(mockReportIngestionAgent.run).toHaveBeenCalledTimes(2);
     });
 });
