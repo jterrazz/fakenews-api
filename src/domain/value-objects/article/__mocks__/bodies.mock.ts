@@ -12,7 +12,3 @@ export const BODY_FIXTURES: Body[] = BODY_TEXTS.map((t) => new Body(t));
 export function getBody(index = 0): Body {
     return BODY_FIXTURES[index % BODY_FIXTURES.length];
 }
-
-export function randomBody(): Body {
-    return BODY_FIXTURES[Math.floor(Math.random() * BODY_FIXTURES.length)];
-}

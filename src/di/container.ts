@@ -36,9 +36,9 @@ import { ArticleFalsificationAgentAdapter } from '../infrastructure/outbound/age
 import { ReportClassificationAgentAdapter } from '../infrastructure/outbound/agents/report-classification.agent.js';
 import { ReportDeduplicationAgentAdapter } from '../infrastructure/outbound/agents/report-deduplication.agent.js';
 import { ReportIngestionAgentAdapter } from '../infrastructure/outbound/agents/report-ingestion.agent.js';
+import { PrismaArticleRepository } from '../infrastructure/outbound/persistence/article/prisma-article.adapter.js';
 import { PrismaAdapter } from '../infrastructure/outbound/persistence/prisma.adapter.js';
-import { PrismaArticleRepository } from '../infrastructure/outbound/persistence/prisma-article.adapter.js';
-import { PrismaReportRepository } from '../infrastructure/outbound/persistence/prisma-report.adapter.js';
+import { PrismaReportRepository } from '../infrastructure/outbound/persistence/report/prisma-report.adapter.js';
 import { CachedNewsAdapter } from '../infrastructure/outbound/providers/cached-news.adapter.js';
 import { WorldNewsAdapter } from '../infrastructure/outbound/providers/world-news.adapter.js';
 

@@ -7,7 +7,3 @@ export const COUNTRY_FIXTURES: Country[] = COUNTRY_VALUES.map((c) => new Country
 export function getCountry(index = 0): Country {
     return COUNTRY_FIXTURES[index % COUNTRY_FIXTURES.length];
 }
-
-export function randomCountry(): Country {
-    return COUNTRY_FIXTURES[Math.floor(Math.random() * COUNTRY_FIXTURES.length)];
-}

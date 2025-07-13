@@ -18,7 +18,3 @@ export const CATEGORY_FIXTURES: Category[] = CATEGORY_VALUES.map((c) => new Cate
 export function getCategory(index = 0): Category {
     return CATEGORY_FIXTURES[index % CATEGORY_FIXTURES.length];
 }
-
-export function randomCategory(): Category {
-    return CATEGORY_FIXTURES[Math.floor(Math.random() * CATEGORY_FIXTURES.length)];
-}

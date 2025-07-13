@@ -9,20 +9,20 @@ import {
     type Stance as PrismaStance,
 } from '@prisma/client';
 
-import { Article } from '../../../domain/entities/article.entity.js';
+import { Article } from '../../../../domain/entities/article.entity.js';
 import {
     Authenticity,
     AuthenticityStatusEnum,
-} from '../../../domain/value-objects/article/authenticity.vo.js';
-import { Body } from '../../../domain/value-objects/article/body.vo.js';
-import { Headline } from '../../../domain/value-objects/article/headline.vo.js';
-import { ArticleFrame } from '../../../domain/value-objects/article-frame/article-frame.vo.js';
-import { Category } from '../../../domain/value-objects/category.vo.js';
-import { Country } from '../../../domain/value-objects/country.vo.js';
-import { Discourse } from '../../../domain/value-objects/discourse.vo.js';
-import { Language } from '../../../domain/value-objects/language.vo.js';
-import { Classification } from '../../../domain/value-objects/report/classification.vo.js';
-import { Stance } from '../../../domain/value-objects/stance.vo.js';
+} from '../../../../domain/value-objects/article/authenticity.vo.js';
+import { Body } from '../../../../domain/value-objects/article/body.vo.js';
+import { Headline } from '../../../../domain/value-objects/article/headline.vo.js';
+import { ArticleFrame } from '../../../../domain/value-objects/article-frame/article-frame.vo.js';
+import { Category } from '../../../../domain/value-objects/category.vo.js';
+import { Country } from '../../../../domain/value-objects/country.vo.js';
+import { Discourse } from '../../../../domain/value-objects/discourse.vo.js';
+import { Language } from '../../../../domain/value-objects/language.vo.js';
+import { Classification } from '../../../../domain/value-objects/report/classification.vo.js';
+import { Stance } from '../../../../domain/value-objects/stance.vo.js';
 
 export class ArticleMapper {
     mapCategoryToPrisma(category: Category): PrismaCategory {

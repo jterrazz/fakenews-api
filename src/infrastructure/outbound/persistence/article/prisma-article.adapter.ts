@@ -5,11 +5,12 @@ import type {
     CountManyOptions,
     FindHeadlinesAndSummariesOptions,
     FindManyOptions,
-} from '../../../application/ports/outbound/persistence/article-repository.port.js';
+} from '../../../../application/ports/outbound/persistence/article-repository.port.js';
 
-import type { Article } from '../../../domain/entities/article.entity.js';
+import type { Article } from '../../../../domain/entities/article.entity.js';
 
-import type { PrismaAdapter } from './prisma.adapter.js';
+import type { PrismaAdapter } from '../prisma.adapter.js';
+
 import { ArticleMapper } from './prisma-article.mapper.js';
 
 export class PrismaArticleRepository implements ArticleRepositoryPort {

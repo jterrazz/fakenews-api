@@ -12,7 +12,3 @@ export const HEADLINE_FIXTURES: Headline[] = HEADLINE_TEXTS.map((h) => new Headl
 export function getHeadline(index = 0): Headline {
     return HEADLINE_FIXTURES[index % HEADLINE_FIXTURES.length];
 }
-
-export function randomHeadline(): Headline {
-    return HEADLINE_FIXTURES[Math.floor(Math.random() * HEADLINE_FIXTURES.length)];
-}

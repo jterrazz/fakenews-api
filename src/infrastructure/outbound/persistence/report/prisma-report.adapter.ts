@@ -1,12 +1,13 @@
 import { type LoggerPort } from '@jterrazz/logger';
 
-import { type ReportRepositoryPort } from '../../../application/ports/outbound/persistence/report-repository.port.js';
+import { type ReportRepositoryPort } from '../../../../application/ports/outbound/persistence/report-repository.port.js';
 
-import { type Report } from '../../../domain/entities/report.entity.js';
-import { type Country } from '../../../domain/value-objects/country.vo.js';
-import { type Language } from '../../../domain/value-objects/language.vo.js';
+import { type Report } from '../../../../domain/entities/report.entity.js';
+import { type Country } from '../../../../domain/value-objects/country.vo.js';
+import { type Language } from '../../../../domain/value-objects/language.vo.js';
 
-import { type PrismaAdapter } from './prisma.adapter.js';
+import { type PrismaAdapter } from '../prisma.adapter.js';
+
 import { ReportMapper } from './prisma-report.mapper.js';
 
 export class PrismaReportRepository implements ReportRepositoryPort {

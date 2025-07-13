@@ -1,16 +1,15 @@
 import { getDiscourse } from '../../__mocks__/discourses.mock.js';
 import { getStance } from '../../__mocks__/stances.mock.js';
-import { AngleCorpus } from '../angle-corpus.vo.js';
 import { ReportAngle } from '../report-angle.vo.js';
+
+import { getAngleCorpus } from './angle-corpus.mock.js';
 
 /**
  * Generates a single mock `ReportAngle` instance.
  */
 export function createMockReportAngle(index: number): ReportAngle {
     return new ReportAngle({
-        angleCorpus: new AngleCorpus(
-            `Mock angle corpus ${index}. This is a comprehensive summary of a specific viewpoint on the report. It contains all the key arguments, evidence, quotes, and contextual details necessary to construct a full article from this angle. The information is presented in a raw, exhaustive format that provides complete coverage of this particular angle on the events and issues discussed in the main report.`,
-        ),
+        angleCorpus: getAngleCorpus(index),
         discourse: getDiscourse(index),
         stance: getStance(index),
     });

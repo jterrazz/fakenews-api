@@ -15,7 +15,3 @@ export const STANCE_FIXTURES: Stance[] = STANCE_VALUES.map((s) => new Stance(s))
 export function getStance(index = 0): Stance {
     return STANCE_FIXTURES[index % STANCE_FIXTURES.length];
 }
-
-export function randomStance(): Stance {
-    return STANCE_FIXTURES[Math.floor(Math.random() * STANCE_FIXTURES.length)];
-}
