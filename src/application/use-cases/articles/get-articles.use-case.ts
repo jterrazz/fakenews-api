@@ -16,16 +16,27 @@ export interface GetArticlesParams {
     limit: number;
 }
 
-export type PaginatedResponse<T> = {
-    items: T[];
+/**
+ * Result returned by GetArticlesUseCase containing the raw domain articles and
+ * additional pagination metadata.
+ */
+export interface GetArticlesResult {
+    /** Raw domain articles list */
+    articles: Article[];
+    /**
+     * Date of the last item in the current page **only if** there is another page.
+     * When there are no further pages, this is `null` so the presenter can omit
+     * the `nextCursor` value.
+     */
     lastItemDate: Date | null;
+    /** Total number of articles matching the filters. */
     total: number;
-};
+}
 
 export class GetArticlesUseCase {
     constructor(private readonly articleRepository: ArticleRepositoryPort) {}
 
-    async execute(params: GetArticlesParams): Promise<PaginatedResponse<Article>> {
+    async execute(params: GetArticlesParams): Promise<GetArticlesResult> {
         const { category, country, cursor, language, limit } = params;
 
         const [rawArticles, total] = await Promise.all([
@@ -51,7 +62,7 @@ export class GetArticlesUseCase {
             hasMore && results.length > 0 ? results[results.length - 1].publishedAt : null;
 
         return {
-            items: results,
+            articles: results,
             lastItemDate,
             total,
         };

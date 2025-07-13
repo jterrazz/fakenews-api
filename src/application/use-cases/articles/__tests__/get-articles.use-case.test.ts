@@ -69,7 +69,7 @@ describe('GetArticlesUseCase', () => {
 
             // And return correct paginated response
             expect(result).toEqual({
-                items: testArticles.slice(0, DEFAULT_LIMIT),
+                articles: testArticles.slice(0, DEFAULT_LIMIT),
                 lastItemDate: expect.any(Date),
                 total: TEST_ARTICLES_COUNT,
             });
@@ -87,7 +87,7 @@ describe('GetArticlesUseCase', () => {
             expect(mockArticleRepository.findMany).toHaveBeenCalledWith(
                 expect.objectContaining({ limit: customLimit + 1 }),
             );
-            expect(result.items).toHaveLength(customLimit);
+            expect(result.articles).toHaveLength(customLimit);
         });
 
         it('should handle category filter', async () => {
@@ -168,7 +168,7 @@ describe('GetArticlesUseCase', () => {
 
             // Then - it should indicate no more pages
             expect(result.lastItemDate).toBeNull();
-            expect(result.items).toHaveLength(5);
+            expect(result.articles).toHaveLength(5);
         });
     });
 });

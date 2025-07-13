@@ -1,6 +1,6 @@
 import { type Category, type Country, type Language } from '@prisma/client';
 
-import { type PaginatedResponse as UseCasePaginatedResponse } from '../../../../application/use-cases/articles/get-articles.use-case.js';
+import { type GetArticlesResult } from '../../../../application/use-cases/articles/get-articles.use-case.js';
 
 import { type Article } from '../../../../domain/entities/article.entity.js';
 
@@ -42,8 +42,8 @@ type HttpPaginatedResponse<T> = {
  * Transforms domain objects to HTTP response format with clean article + frames structure
  */
 export class GetArticlesResponsePresenter {
-    present(result: UseCasePaginatedResponse<Article>): HttpPaginatedResponse<ArticleResponse> {
-        const articles: ArticleResponse[] = result.items.map((article) =>
+    present(result: GetArticlesResult): HttpPaginatedResponse<ArticleResponse> {
+        const articles: ArticleResponse[] = result.articles.map((article) =>
             this.mapArticleToResponse(article),
         );
 
