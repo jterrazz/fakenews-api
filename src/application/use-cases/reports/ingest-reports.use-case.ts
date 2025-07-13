@@ -124,8 +124,6 @@ export class IngestReportsUseCase {
                         }
                     }
 
-                    // End deduplication logic
-
                     // Step 5.2: Ingest the unique report
                     const ingestionResult = await this.reportIngestionAgent.run({ newsReport });
                     if (!ingestionResult) {

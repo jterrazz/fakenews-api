@@ -20,6 +20,41 @@ import { type NewsReport } from '../../../application/ports/outbound/providers/n
  * semantic analysis. For now, it always returns 'not a duplicate'.
  */
 export class ReportDeduplicationAgentAdapter implements ReportDeduplicationAgentPort {
+    // New reusable prompt template containing detailed instructions and real-world examples.
+    static readonly BASE_PROMPT_PARTS: readonly string[] = [
+        // Core Mission
+        'Perform a deep semantic comparison to decide whether the incoming report describes the SAME underlying event—who did what, where, and when—as any report already stored. This must go beyond surface-level keyword matching. Keep in mind we ingest raw internet sources that commonly report on the *same* events from slightly different angles.',
+        '',
+        // Decision Framework
+        'DECISION FRAMEWORK:',
+        '1. Identify ACTORS (people, organisations), ACTION (what happened), LOCATION (where), and TIMEFRAME (when) for the NEW report.',
+        '2. Do the same for EACH EXISTING report.',
+        "3. If MOST essential elements (actors + action + either location OR timeframe) align for ANY existing report, classify the new report as a duplicate of that report's id.",
+        '4. If the overlap is weak (e.g., only one element matches) or conflicting details dominate, classify the new report as unique.',
+        '',
+        // Normalisation Tips
+        'NORMALISATION TIPS:',
+        '• Ignore minor wording differences, synonyms, or grammatical variations.',
+        '• Normalise dates ("July 13th" ↔ "13 July 2025") and times ("9 AM" ↔ "09:00").',
+        '• Convert accents/diacritics ("Corsica" ≅ "Corse").',
+        '• Treat equivalent units ("over 100 km/h" ≅ ">100 km/h").',
+        '',
+        // Real-world Examples
+        'EXAMPLES:',
+        '• DUPLICATE — New: "Météo-France issued an orange alert for Corsica on Sunday, July 13th, from 9 AM to 12 PM, anticipating "brief but active" thunderstorms with gusts potentially exceeding 100 km/h." Existing: "Météo-France issued an orange alert for Corsica on Sunday, July 13, 2025, forecasting a brief but active thunderstorm episode between 9 AM and 12 PM with gusts over 100 km/h."',
+        '• DUPLICATE — New: "Torrential rains in Catalonia, Spain, on Saturday evening caused localised flooding. Two people are missing in Cubelles." Existing: "Torrential rains battered Catalonia, Spain, on Saturday evening, causing floods and infrastructure disruption. Two people are missing near Cubelles."',
+        '• UNIQUE   — New: "Star player from Team A injures knee during practice." Existing: "Team A beats Team B 3-1 in championship final."',
+        '',
+        // Safety Rule
+        '**SAFETY RULE:** When there is substantial overlap but minor discrepancies, lean toward marking as DUPLICATE. Only mark as UNIQUE when clearly describing a distinct event.',
+        '',
+        // Output Requirements
+        'OUTPUT REQUIREMENTS:',
+        '• duplicateOfReportId → id of existing duplicate OR null.',
+        '• reason → one concise sentence explaining the decision.',
+        '',
+    ];
+
     static readonly SCHEMA = z.object({
         duplicateOfReportId: z
             .string()
@@ -59,35 +94,8 @@ export class ReportDeduplicationAgentAdapter implements ReportDeduplicationAgent
         const { existingReports, newReport } = input;
 
         return new UserPromptAdapter(
-            // Core Mission
-            'Perform a deep semantic comparison to decide whether the incoming report describes the SAME underlying event—who did what, where, and when—as any report already stored. This is far beyond surface-level keyword matching.',
-            '',
-
-            // Decision Framework
-            'DECISION FRAMEWORK:',
-            '1. Extract the core event from the NEW report (actors, action, location, timeframe, etc.).',
-            '2. Extract the core event from EACH EXISTING report.',
-            "3. If every element (actors, action, location, timeframe, etc.) matches for any existing report, classify the new report as a duplicate of that report's id.",
-            '4. If no existing report matches on all elements, classify the new report as unique.',
-            '',
-
-            // Examples
-            'EXAMPLES:',
-            '• DUPLICATE → New: "Team A beats Team B 3-1 in the championship final." Existing: "Championship final ends with Team A\'s 3-1 victory over Team B."',
-            '• UNIQUE → New: "Star player from Team A injures knee during practice." Existing: "Team A beats Team B 3-1 in championship final."',
-            '',
-
-            // Safety Rule
-            '**SAFETY RULE:** If you are not absolutely certain a report is a duplicate, classify it as UNIQUE (duplicateOfReportId = null). It is better to allow a rare duplicate than to miss a new story.',
-            '',
-
-            // Output Requirements
-            'OUTPUT REQUIREMENTS:',
-            '• duplicateOfReportId → id of existing duplicate OR null.',
-            '• reason → one concise sentence explaining the decision.',
-            '',
-
-            // Data to Analyze
+            ...ReportDeduplicationAgentAdapter.BASE_PROMPT_PARTS,
+            // Data to Analyse
             'EXISTING REPORTS (ID and Facts):',
             JSON.stringify(existingReports, null, 2),
             '',

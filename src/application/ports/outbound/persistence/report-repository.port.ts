@@ -61,7 +61,7 @@ export interface ReportRepositoryPort {
 
     /**
      * Get all existing source references (article IDs) to support deduplication
-     * Limited to 2000 most recent entries, optionally filtered by country
+     * Limited to 5000 most recent entries, optionally filtered by country
      */
     getAllSourceReferences(country?: Country): Promise<string[]>;
 

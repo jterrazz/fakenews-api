@@ -202,7 +202,7 @@ export class PrismaReportRepository implements ReportRepositoryPort {
         return reports.map((report) => this.mapper.toDomain(report));
     }
 
-    async getAllSourceReferences(country: Country): Promise<string[]> {
+    async getAllSourceReferences(country?: Country): Promise<string[]> {
         const reports = await this.prisma.getPrismaClient().report.findMany({
             orderBy: {
                 createdAt: 'desc',
@@ -210,9 +210,12 @@ export class PrismaReportRepository implements ReportRepositoryPort {
             select: {
                 sources: true,
             },
-            where: {
-                country: this.mapper.mapCountryToPrisma(country),
-            },
+            take: 5000, // Limit to the 5,000 most recent reports as per contract
+            where: country
+                ? {
+                      country: this.mapper.mapCountryToPrisma(country),
+                  }
+                : undefined,
         });
 
         // Flatten the array of arrays and remove duplicates
