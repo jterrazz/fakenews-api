@@ -100,8 +100,8 @@ export class GetArticlesResponsePresenter {
             body: displayBody,
             challenges: {
                 authenticity: {
-                    enable: false,
-                    explanation: '',
+                    enable: article.shouldShowAuthenticityChallenge(),
+                    explanation: article.authenticity.clarification ?? '',
                 },
                 quiz: {
                     enable: false,

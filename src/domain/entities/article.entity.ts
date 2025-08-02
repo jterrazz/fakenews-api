@@ -66,4 +66,24 @@ export class Article {
     public isFabricated(): boolean {
         return this.authenticity.isFabricated();
     }
+
+    /**
+     * Determines if this article should show an authenticity challenge.
+     * Always shows for fabricated articles, and for 20% of authentic articles
+     * based on a deterministic hash of the article ID.
+     */
+    public shouldShowAuthenticityChallenge(): boolean {
+        // Always show challenge for fabricated articles
+        if (this.isFabricated()) {
+            return true;
+        }
+
+        // Show for 20% of authentic articles based on ID hash
+        // Remove dashes and take last 2 characters for consistent hashing
+        const idHash = this.id.replace(/-/g, '').slice(-2);
+        const numericValue = parseInt(idHash, 16);
+
+        // 20% chance: modulo 5 equals 0 (1 in 5 articles)
+        return numericValue % 5 === 0;
+    }
 }

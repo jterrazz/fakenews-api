@@ -36,8 +36,8 @@ describe('Server /articles route – integration', () => {
                     body: 'Breaking %%[(FABRICATED)]( sensational ) news about an invented event.',
                     challenges: {
                         authenticity: {
-                            enable: false,
-                            explanation: '',
+                            enable: true,
+                            explanation: 'Fabricated story',
                         },
                         quiz: {
                             enable: false,
