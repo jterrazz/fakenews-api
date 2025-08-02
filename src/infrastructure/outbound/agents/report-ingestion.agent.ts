@@ -18,7 +18,6 @@ import { factsSchema } from '../../../domain/entities/report.entity.js';
 import { ArticleTraits } from '../../../domain/value-objects/article-traits.vo.js';
 import { Categories, categoriesSchema } from '../../../domain/value-objects/categories.vo.js';
 import { angleCorpusSchema } from '../../../domain/value-objects/report-angle/angle-corpus.vo.js';
-import { stanceSchema } from '../../../domain/value-objects/stance.vo.js';
 
 export class ReportIngestionAgentAdapter implements ReportIngestionAgentPort {
     static readonly SCHEMA = z.object({
@@ -28,7 +27,6 @@ export class ReportIngestionAgentAdapter implements ReportIngestionAgentPort {
                     corpus: angleCorpusSchema.describe(
                         'A complete compilation of all information for this viewpoint, NOT a summary. It must be focused on the news event itself and include every argument, fact, and piece of evidence presented for this side. It MUST NOT contain information about the news source.',
                     ),
-                    stance: stanceSchema,
                 }),
             )
             .max(3, 'No more than three angles should be created.'),
@@ -87,7 +85,7 @@ export class ReportIngestionAgentAdapter implements ReportIngestionAgentPort {
             '    • uplifting → true if content promotes positive emotions and hope (not just "less bad" news)',
             '• angles → An array with **1-2** items. For each angle include:',
             '    • corpus → NOT a summary. Compile EVERY argument, fact, and piece of evidence supporting that viewpoint, focused solely on the subject. Exclude information about the publication or author.',
-            '    • stance → A metadata about the tone (e.g. SUPPORTIVE, CRITICAL, NEUTRAL).',
+
             '',
 
             // Analysis Framework
@@ -96,7 +94,7 @@ export class ReportIngestionAgentAdapter implements ReportIngestionAgentPort {
             '2. Identify every viewpoint expressed across articles and MERGE any that share the same core argument.',
             '3. Select the 0-3 most dominant, clearly DIFFERENT angles.',
             '4. For each selected angle, compile the full corpus',
-            '5. Assign the `stance` tag.',
+
             '',
 
             // Critical Rules
@@ -141,7 +139,6 @@ export class ReportIngestionAgentAdapter implements ReportIngestionAgentPort {
                 `AI response parsed successfully with ${result.angles.length} angles`,
                 {
                     categories: result.categories,
-                    stances: result.angles.map((angle) => angle.stance),
                     traits: result.traits,
                 },
             );
@@ -153,7 +150,6 @@ export class ReportIngestionAgentAdapter implements ReportIngestionAgentPort {
             // Create angle data from AI response (without creating full ReportAngle entities)
             const angles = result.angles.map((angleData) => ({
                 corpus: angleData.corpus,
-                stance: angleData.stance,
             }));
 
             const ingestionResult: ReportIngestionResult = {

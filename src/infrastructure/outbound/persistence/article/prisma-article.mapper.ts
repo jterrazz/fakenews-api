@@ -4,7 +4,6 @@ import {
     type Country as PrismaCountry,
     type Language as PrismaLanguage,
     type Prisma,
-    type Stance as PrismaStance,
 } from '@prisma/client';
 
 import { Article } from '../../../../domain/entities/article.entity.js';
@@ -21,7 +20,6 @@ import { type Category } from '../../../../domain/value-objects/category.vo.js';
 import { Country } from '../../../../domain/value-objects/country.vo.js';
 import { Language } from '../../../../domain/value-objects/language.vo.js';
 import { Classification } from '../../../../domain/value-objects/report/classification.vo.js';
-import { Stance } from '../../../../domain/value-objects/stance.vo.js';
 
 export class ArticleMapper {
     /**
@@ -72,7 +70,6 @@ export class ArticleMapper {
                 new ArticleFrame({
                     body: new Body(frame.body),
                     headline: new Headline(frame.headline),
-                    stance: new Stance(frame.stance as PrismaStance),
                 }),
         );
 
@@ -116,7 +113,6 @@ export class ArticleMapper {
                       create: domain.frames.map((frame) => ({
                           body: frame.body.value,
                           headline: frame.headline.value,
-                          stance: frame.stance.value,
                       })),
                   }
                 : undefined,

@@ -10,7 +10,6 @@ import { Country } from '../../../../domain/value-objects/country.vo.js';
 import { Classification } from '../../../../domain/value-objects/report/classification.vo.js';
 import { AngleCorpus } from '../../../../domain/value-objects/report-angle/angle-corpus.vo.js';
 import { ReportAngle } from '../../../../domain/value-objects/report-angle/report-angle.vo.js';
-import { Stance } from '../../../../domain/value-objects/stance.vo.js';
 
 import {
     type ReportClassificationAgentPort,
@@ -31,7 +30,6 @@ const createMockReport = (
                 angleCorpus: new AngleCorpus(
                     'This is a very long and detailed holistic digest for the mock angle, created specifically for testing. It needs to be over 200 characters long to pass the validation rules of the value object. This ensures that when our use case tests run, they do not fail due to simple validation errors in the mock data construction process, allowing us to focus on the actual logic of the use case itself.',
                 ),
-                stance: new Stance('neutral'),
             }),
         ],
         categories: new Categories(['TECHNOLOGY']),

@@ -29,7 +29,6 @@ export interface ArticleCompositionResult {
     frames: Array<{
         body: string;
         headline: string;
-        stance: string;
     }>;
     headline: string;
 }

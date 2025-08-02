@@ -3,7 +3,6 @@ import {
     type Prisma,
     type Report as PrismaReport,
     type ReportAngle as PrismaReportAngle,
-    type Stance as PrismaStance,
 } from '@prisma/client';
 
 import { Report } from '../../../../domain/entities/report.entity.js';
@@ -13,7 +12,6 @@ import { Country } from '../../../../domain/value-objects/country.vo.js';
 import { Classification } from '../../../../domain/value-objects/report/classification.vo.js';
 import { AngleCorpus } from '../../../../domain/value-objects/report-angle/angle-corpus.vo.js';
 import { ReportAngle } from '../../../../domain/value-objects/report-angle/report-angle.vo.js';
-import { Stance } from '../../../../domain/value-objects/stance.vo.js';
 
 export class ReportMapper {
     angleToPrisma(
@@ -23,7 +21,6 @@ export class ReportMapper {
         return {
             corpus: angle.angleCorpus.toString(),
             reportId,
-            stance: this.mapStanceToPrisma(angle.stance.value),
         };
     }
 
@@ -64,10 +61,6 @@ export class ReportMapper {
         return country.toString() as PrismaCountry;
     }
 
-    mapStanceToPrisma(stance?: string): null | PrismaStance {
-        return stance ? (stance as PrismaStance) : null;
-    }
-
     toDomain(
         prisma: PrismaReport & {
             angles: PrismaReportAngle[];
@@ -77,7 +70,6 @@ export class ReportMapper {
             (a) =>
                 new ReportAngle({
                     angleCorpus: new AngleCorpus(a.corpus),
-                    stance: new Stance(a.stance as PrismaStance),
                 }),
         );
 

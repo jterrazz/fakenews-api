@@ -68,7 +68,6 @@ describe('GenerateArticlesFromReportsUseCase', () => {
                 {
                     body: `Frame article body for report ${index + 1} presenting a specific viewpoint on the matter.`,
                     headline: `${report.categories.primary().toString()} Angle: ${index + 1}`,
-                    stance: 'NEUTRAL',
                 },
             ],
             headline: `Composed Article ${index + 1}`,

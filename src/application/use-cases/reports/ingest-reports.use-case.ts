@@ -7,7 +7,6 @@ import { type Language } from '../../../domain/value-objects/language.vo.js';
 import { Classification } from '../../../domain/value-objects/report/classification.vo.js';
 import { AngleCorpus } from '../../../domain/value-objects/report-angle/angle-corpus.vo.js';
 import { ReportAngle } from '../../../domain/value-objects/report-angle/report-angle.vo.js';
-import { Stance } from '../../../domain/value-objects/stance.vo.js';
 
 import { type ReportDeduplicationAgentPort } from '../../ports/outbound/agents/report-deduplication.agent.js';
 import { type ReportIngestionAgentPort } from '../../ports/outbound/agents/report-ingestion.agent.js';
@@ -54,7 +53,7 @@ export class IngestReportsUseCase {
                 language,
             });
 
-            newsStories = newsStories.slice(0, 7);
+            newsStories = newsStories.slice(0, 3);
 
             if (newsStories.length === 0) {
                 this.logger.warn('No news reports fetched', {
@@ -156,7 +155,6 @@ export class IngestReportsUseCase {
                         (angle) =>
                             new ReportAngle({
                                 angleCorpus: new AngleCorpus(angle.corpus),
-                                stance: new Stance(angle.stance),
                             }),
                     );
 

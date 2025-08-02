@@ -2,12 +2,10 @@ import { z } from 'zod/v4';
 
 import { Body } from '../article/body.vo.js';
 import { Headline } from '../article/headline.vo.js';
-import { Stance } from '../stance.vo.js';
 
 export const articleFrameSchema = z.object({
     body: z.instanceof(Body),
     headline: z.instanceof(Headline),
-    stance: z.instanceof(Stance),
 });
 
 export type ArticleFrameData = z.input<typeof articleFrameSchema>;
@@ -18,7 +16,6 @@ export type ArticleFrameData = z.input<typeof articleFrameSchema>;
 export class ArticleFrame {
     public readonly body: Body;
     public readonly headline: Headline;
-    public readonly stance: Stance;
 
     constructor(data: ArticleFrameData) {
         const result = articleFrameSchema.safeParse(data);
@@ -30,6 +27,5 @@ export class ArticleFrame {
         const validatedData = result.data;
         this.headline = validatedData.headline;
         this.body = validatedData.body;
-        this.stance = validatedData.stance;
     }
 }

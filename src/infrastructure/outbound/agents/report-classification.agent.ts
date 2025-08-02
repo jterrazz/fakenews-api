@@ -54,7 +54,6 @@ export class ReportClassificationAgentAdapter implements ReportClassificationAge
         const reportData = {
             angles: report.angles?.map((angle) => ({
                 digest: angle.angleCorpus.value,
-                stance: angle.stance.value,
             })),
             category: report.categories.primary().toString(),
             facts: report.facts,

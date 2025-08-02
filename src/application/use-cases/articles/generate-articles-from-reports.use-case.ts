@@ -12,7 +12,6 @@ import { ArticleFrame } from '../../../domain/value-objects/article-frame/articl
 import { ArticleTraits } from '../../../domain/value-objects/article-traits.vo.js';
 import { type Country } from '../../../domain/value-objects/country.vo.js';
 import { type Language } from '../../../domain/value-objects/language.vo.js';
-import { Stance } from '../../../domain/value-objects/stance.vo.js';
 
 import {
     type ArticleCompositionAgentPort,
@@ -96,7 +95,6 @@ export class GenerateArticlesFromReportsUseCase {
                                 new ArticleFrame({
                                     body: new Body(frameData.body),
                                     headline: new Headline(frameData.headline),
-                                    stance: new Stance(frameData.stance),
                                 }),
                         );
 

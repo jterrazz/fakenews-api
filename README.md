@@ -87,7 +87,7 @@ A concise reference of central concepts used across the Fake News API. This glos
 
 ### Report
 
-A _Report_ is an abstract, **fact-centric** representation of pieces of information. Reports have no tone, stance, or rhetorical flavor—they are the neutral backbone we can link multiple articles to for analysis, emphasizing their reported nature as gathered information.
+A _Report_ is an abstract, **fact-centric** representation of pieces of information. Reports have no tone or rhetorical flavor—they are the neutral backbone we can link multiple articles to for analysis, emphasizing their reported nature as gathered information.
 
 ### Report Angle
 
@@ -101,7 +101,7 @@ An _Article_ is a concrete piece of content (headline + body) published by a sou
 
 ### Article Frame
 
-A _Frame_ is an **expression** of an Angle in a specific Article. Because authors bring biases, a Frame can be _authentic_ (neutral and factual) or _fake_ (distorted or propagandist), often reflecting the viewpoints of different parties involved. Frame therefore carries metadata such as `stance`, `discourse`, and an authenticity flag, aligning with media studies where framing indicates how information is structured or emphasized to influence perception.
+A _Frame_ is an **expression** of an Angle in a specific Article. Because authors bring biases, a Frame can be _authentic_ (neutral and factual) or _fake_ (distorted or propagandist), often reflecting the viewpoints of different parties involved. Frame therefore carries metadata and an authenticity flag, aligning with media studies where framing indicates how information is structured or emphasized to influence perception.
 
 ```
 Report         →   Angle (viewpoint)   →   Article Frame (biased or neutral expression)

@@ -101,7 +101,6 @@ describe('Worker – report-pipeline task (happy path) – integration', () => {
                     createdAt: '<date>',
                     headline: 'Angle headline',
                     id: '<uuid>',
-                    stance: 'NEUTRAL',
                 },
             ],
             headline: 'Main headline for the article',

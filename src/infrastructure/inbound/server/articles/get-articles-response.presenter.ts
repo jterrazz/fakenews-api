@@ -7,7 +7,6 @@ import { type Article } from '../../../../domain/entities/article.entity.js';
 type ArticleFrameResponse = {
     body: string;
     headline: string;
-    stance: string;
 };
 
 type ArticleInteractions = {
@@ -93,7 +92,6 @@ export class GetArticlesResponsePresenter {
             article.frames?.map((frame) => ({
                 body: frame.body.toString(),
                 headline: frame.headline.toString(),
-                stance: frame.stance.value,
             })) ?? [];
 
         return {

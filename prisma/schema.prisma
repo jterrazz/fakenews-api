@@ -31,16 +31,6 @@ enum Category {
   OTHER
 }
 
-enum Stance {
-  SUPPORTIVE
-  CRITICAL
-  NEUTRAL
-  MIXED
-  CONCERNED
-  OPTIMISTIC
-  SKEPTICAL
-}
-
 enum Classification {
   STANDARD
   NICHE
@@ -81,9 +71,8 @@ model Report {
 }
 
 model ReportAngle {
-  id     String  @id @default(uuid())
+  id     String @id @default(uuid())
   corpus String
-  stance Stance?
 
   // Relations
   report   Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
@@ -94,7 +83,6 @@ model ReportAngle {
   updatedAt DateTime @updatedAt
 
   @@index([reportId])
-  @@index([stance])
 }
 
 model Article {
@@ -123,7 +111,6 @@ model ArticleFrame {
   id       String @id @default(uuid())
   headline String // Frame headline from this viewpoint
   body     String // Viewpoint-specific content explaining this side of the report
-  stance   Stance // The viewpoint/stance this frame represents
 
   // Relations
   article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
@@ -133,5 +120,4 @@ model ArticleFrame {
   createdAt DateTime @default(now())
 
   @@index([articleId])
-  @@index([stance])
 }

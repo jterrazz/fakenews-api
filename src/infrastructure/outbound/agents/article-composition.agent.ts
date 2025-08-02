@@ -74,10 +74,10 @@ export class ArticleCompositionAgentAdapter implements ArticleCompositionAgentPo
             // Output Structure (The "What")
             'OUTPUT STRUCTURE:',
             '• headline → Main article headline.',
-            '• body → Main Article (≈50-100 words) presenting ONLY the undisputed facts.',
+            '• body → Main Article (≈50-100 words) presenting ONLY the undisputed facts. Use markdown formatting: line breaks for paragraphs, **bold** for key facts, *italic* for emphasis.',
             `• frames → EXACTLY ${expectedFrameCount} items (one per angle) where each item contains:`,
             '    • headline → Frame headline capturing its viewpoint.',
-            '    • body → Frame article (≈20-60 words) that EXPANDS on the facts from its specific perspective without repeating them verbatim.',
+            '    • body → Frame article (≈20-60 words) that EXPANDS on the facts from its specific perspective without repeating them verbatim. Use markdown formatting: line breaks for readability, **bold** for critical points, *italic* for perspective emphasis.',
             '',
 
             // Editorial Guidance (The "How")
@@ -87,6 +87,14 @@ export class ArticleCompositionAgentAdapter implements ArticleCompositionAgentPo
             '• Craft vivid, memorable headlines and key phrases to keep readers engaged.',
             '• Maintain strict neutrality in the Main Article; use the frames to express the angles.',
             '• Target a total reading time of about one minute.',
+            '',
+
+            // Formatting Guidelines
+            'MARKDOWN FORMATTING:',
+            '• Use line breaks (double newline) to separate paragraphs for better readability.',
+            '• Use **bold** to highlight crucial facts, numbers, or key developments.',
+            '• Use *italic* for subtle emphasis, context, or perspective nuances.',
+            '• Apply formatting sparingly—enhance readability without overwhelming the text.',
             '',
 
             // Critical Rules
@@ -102,7 +110,6 @@ export class ArticleCompositionAgentAdapter implements ArticleCompositionAgentPo
                 {
                     angles: input.report.angles.map((angle) => ({
                         digest: angle.angleCorpus.value,
-                        stance: angle.stance.value,
                     })),
                     dateline: input.report.dateline.toISOString(),
                 },
@@ -147,14 +154,10 @@ export class ArticleCompositionAgentAdapter implements ArticleCompositionAgentPo
 
             const compositionResult: ArticleCompositionResult = {
                 body: result.body,
-                frames: result.frames.map((frame, index) => {
-                    const angle = input.report.angles[index];
-                    return {
-                        body: frame.body,
-                        headline: frame.headline,
-                        stance: angle.stance.value || 'NEUTRAL',
-                    };
-                }),
+                frames: result.frames.map((frame) => ({
+                    body: frame.body,
+                    headline: frame.headline,
+                })),
                 headline: result.headline,
             };
 
