@@ -75,11 +75,10 @@ export class ArticleMapper {
 
         return new Article({
             authenticity: new Authenticity(
-                prisma.authenticity === 'FABRICATED'
+                (prisma as PrismaArticle & { fabricated: boolean }).fabricated
                     ? AuthenticityStatusEnum.FABRICATED
                     : AuthenticityStatusEnum.AUTHENTIC,
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                (prisma as any).clarification ?? (prisma as any).falsificationReason ?? null,
+                (prisma as PrismaArticle & { fabricatedReason?: string }).fabricatedReason ?? null,
             ),
             body: new Body(prisma.body),
             categories: new Categories(
@@ -103,11 +102,11 @@ export class ArticleMapper {
 
     toPrisma(domain: Article): Prisma.ArticleCreateInput {
         return {
-            authenticity: domain.isFabricated() ? 'FABRICATED' : 'AUTHENTIC',
             body: domain.body.value,
             categories: this.mapCategoriesToPrisma(domain.categories),
-            clarification: domain.authenticity.clarification,
             country: this.mapCountryToPrisma(domain.country),
+            fabricated: domain.isFabricated(),
+            fabricatedReason: domain.authenticity.clarification,
             frames: domain.frames
                 ? {
                       create: domain.frames.map((frame) => ({

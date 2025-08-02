@@ -83,15 +83,22 @@ describe('Worker – report-pipeline task (happy path) – integration', () => {
         expect(reports.length).toBeGreaterThan(0);
         expect(articles.length).toBeGreaterThan(0);
 
+        // Transform database format to API format for consistent testing
+        const articlesApiFormat = articles.map((article) => ({
+            ...article,
+            // Remove the raw database reason field (keep fabricated boolean)
+            fabricatedReason: undefined,
+        }));
+
         const SOURCE_RE = /^worldnewsapi:/;
 
-        const snapshot = normaliseSnapshot(articles, [[SOURCE_RE, '<source>']]);
+        const snapshot = normaliseSnapshot(articlesApiFormat, [[SOURCE_RE, '<source>']]);
 
         const authTemplate = (country: 'FR' | 'US', classification: 'NICHE' | 'STANDARD') => ({
-            authenticity: 'AUTHENTIC',
+            authenticity: 'authentic',
             body: 'Neutral summary of the core, undisputed facts of the event.',
             category: 'TECHNOLOGY',
-            clarification: null,
+
             country,
             createdAt: '<date>',
             frames: [
@@ -129,10 +136,10 @@ describe('Worker – report-pipeline task (happy path) – integration', () => {
             authTemplate('US', 'NICHE'),
             authTemplate('US', 'STANDARD'),
             {
-                authenticity: 'FABRICATED',
+                authenticity: 'fabricated',
                 body: 'Satirical article body exaggerating the discovery of unicorn fossil fuels capable of infinite clean energy, clearly fictional.',
                 categories: ['TECHNOLOGY'],
-                clarification: 'Unrealistic scientific claims with no evidence',
+
                 country: 'FR',
                 createdAt: '<date>',
                 frames: [],
@@ -143,10 +150,10 @@ describe('Worker – report-pipeline task (happy path) – integration', () => {
                 reports: [],
             },
             {
-                authenticity: 'FABRICATED',
+                authenticity: 'fabricated',
                 body: 'Satirical article body exaggerating the discovery of unicorn fossil fuels capable of infinite clean energy, clearly fictional.',
                 categories: ['TECHNOLOGY'],
-                clarification: 'Unrealistic scientific claims with no evidence',
+
                 country: 'US',
                 createdAt: '<date>',
                 frames: [],
@@ -159,12 +166,8 @@ describe('Worker – report-pipeline task (happy path) – integration', () => {
         ];
 
         // Check that we have the expected article types
-        const authenticArticles = snapshot.filter(
-            (article) => article.authenticity === 'AUTHENTIC',
-        );
-        const fabricatedArticles = snapshot.filter(
-            (article) => article.authenticity === 'FABRICATED',
-        );
+        const authenticArticles = snapshot.filter((article) => article.fabricated === false);
+        const fabricatedArticles = snapshot.filter((article) => article.fabricated === true);
 
         // Should have multiple authentic articles and at least 1 fabricated article
         expect(authenticArticles.length).toBeGreaterThanOrEqual(3);
@@ -174,9 +177,9 @@ describe('Worker – report-pipeline task (happy path) – integration', () => {
         for (const article of snapshot) {
             expect(article).toEqual(
                 expect.objectContaining({
-                    authenticity: expect.stringMatching(/^(AUTHENTIC|FABRICATED)$/),
                     categories: expect.arrayContaining(['TECHNOLOGY']),
                     country: expect.stringMatching(/^(FR|US)$/),
+                    fabricated: expect.any(Boolean),
                     language: expect.stringMatching(/^(FR|EN)$/),
                 }),
             );

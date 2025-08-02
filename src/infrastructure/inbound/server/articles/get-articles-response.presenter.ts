@@ -10,9 +10,19 @@ type ArticleFrameResponse = {
 };
 
 type ArticleInteractions = {
-    authenticityChallenge: {
-        enable: boolean;
-        explanation: string;
+    challenges: {
+        authenticity: {
+            enable: boolean;
+            explanation: string;
+        };
+        quiz: {
+            enable: boolean;
+            questions: Array<{
+                answers: string[];
+                correctAnswerIndex: number;
+                question: string;
+            }>;
+        };
     };
     insights: Array<{
         agent: string;
@@ -21,21 +31,13 @@ type ArticleInteractions = {
         enable: boolean;
         publishedAt: string;
     }>;
-    quiz: {
-        enable: boolean;
-        questions: Array<{
-            answers: string[];
-            correctAnswerIndex: number;
-            question: string;
-        }>;
-    };
 };
 
 type ArticleMetadata = {
-    authenticity: 'authentic' | 'fabricated';
     categories: Category[];
     classification?: 'ARCHIVED' | 'NICHE' | 'STANDARD';
     country: Country;
+    fabricated: boolean;
     language: Language;
     traits: {
         smart: boolean;
@@ -100,18 +102,19 @@ export class GetArticlesResponsePresenter {
             headline: article.headline.toString(),
             id: article.id,
             interactions: {
-                authenticityChallenge: {
-                    enable: false,
-                    explanation: '',
+                challenges: {
+                    authenticity: {
+                        enable: false,
+                        explanation: '',
+                    },
+                    quiz: {
+                        enable: false,
+                        questions: [],
+                    },
                 },
                 insights: [],
-                quiz: {
-                    enable: false,
-                    questions: [],
-                },
             },
             metadata: {
-                authenticity: article.isFabricated() ? 'fabricated' : 'authentic',
                 categories: article.categories.toArray() as Category[],
                 classification: article.classification?.toString() as
                     | 'ARCHIVED'
@@ -119,6 +122,7 @@ export class GetArticlesResponsePresenter {
                     | 'STANDARD'
                     | undefined,
                 country: article.country.toString() as Country,
+                fabricated: article.isFabricated(),
                 language: article.language.toString() as Language,
                 traits: {
                     smart: article.traits.smart,

@@ -38,21 +38,23 @@ describe('Server /articles route – integration', () => {
                     headline: 'Invented Event Shocks World',
                     id: '<uuid>',
                     interactions: {
-                        authenticityChallenge: {
-                            enable: false,
-                            explanation: '',
+                        challenges: {
+                            authenticity: {
+                                enable: false,
+                                explanation: '',
+                            },
+                            quiz: {
+                                enable: false,
+                                questions: [],
+                            },
                         },
                         insights: [],
-                        quiz: {
-                            enable: false,
-                            questions: [],
-                        },
                     },
                     metadata: {
-                        authenticity: 'fabricated',
                         categories: ['TECHNOLOGY'],
                         classification: 'STANDARD',
                         country: 'US',
+                        fabricated: true,
                         language: 'EN',
                         traits: {
                             smart: false,
@@ -67,21 +69,23 @@ describe('Server /articles route – integration', () => {
                     headline: 'Default Test Article',
                     id: '<uuid>',
                     interactions: {
-                        authenticityChallenge: {
-                            enable: false,
-                            explanation: '',
+                        challenges: {
+                            authenticity: {
+                                enable: false,
+                                explanation: '',
+                            },
+                            quiz: {
+                                enable: false,
+                                questions: [],
+                            },
                         },
                         insights: [],
-                        quiz: {
-                            enable: false,
-                            questions: [],
-                        },
                     },
                     metadata: {
-                        authenticity: 'authentic',
                         categories: ['TECHNOLOGY'],
                         classification: 'STANDARD',
                         country: 'US',
+                        fabricated: false,
                         language: 'EN',
                         traits: {
                             smart: false,
@@ -96,21 +100,23 @@ describe('Server /articles route – integration', () => {
                     headline: 'Default Test Article',
                     id: '<uuid>',
                     interactions: {
-                        authenticityChallenge: {
-                            enable: false,
-                            explanation: '',
+                        challenges: {
+                            authenticity: {
+                                enable: false,
+                                explanation: '',
+                            },
+                            quiz: {
+                                enable: false,
+                                questions: [],
+                            },
                         },
                         insights: [],
-                        quiz: {
-                            enable: false,
-                            questions: [],
-                        },
                     },
                     metadata: {
-                        authenticity: 'authentic',
                         categories: ['TECHNOLOGY'],
                         classification: 'STANDARD',
                         country: 'US',
+                        fabricated: false,
                         language: 'EN',
                         traits: {
                             smart: false,

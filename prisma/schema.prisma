@@ -38,11 +38,6 @@ enum Classification {
   ARCHIVED
 }
 
-enum AuthenticityStatus {
-  AUTHENTIC
-  FABRICATED
-}
-
 model Report {
   id             String         @id @default(uuid())
   facts          String
@@ -86,17 +81,17 @@ model ReportAngle {
 }
 
 model Article {
-  id            String             @id @default(uuid())
-  headline      String
-  body          String // Main neutral article presenting only facts from all sides
-  categories    Json // Array of Category enum values  
-  traits        Json // Content traits: { smart: boolean, uplifting: boolean }
-  authenticity  AuthenticityStatus @default(AUTHENTIC) // Whether the article is authentic or fabricated
-  clarification String? // Explanation when authenticity is FABRICATED
-  country       Country
-  language      Language
-  publishedAt   DateTime // When the original report was published
-  createdAt     DateTime           @default(now())
+  id               String   @id @default(uuid())
+  headline         String
+  body             String // Main neutral article presenting only facts from all sides
+  categories       Json // Array of Category enum values  
+  traits           Json // Content traits: { smart: boolean, uplifting: boolean }
+  fabricated       Boolean  @default(false) // Whether the article is fabricated
+  fabricatedReason String? // Explanation when article is fabricated
+  country          Country
+  language         Language
+  publishedAt      DateTime // When the original report was published
+  createdAt        DateTime @default(now())
 
   // Relations
   frames  ArticleFrame[]
