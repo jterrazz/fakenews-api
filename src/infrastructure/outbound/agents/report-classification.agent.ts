@@ -1,9 +1,9 @@
 import {
-    BasicAgent,
+    ChatAgent,
     type ModelPort,
-    PROMPT_LIBRARY,
-    SystemPromptAdapter,
-    UserPromptAdapter,
+    PROMPTS,
+    SystemPrompt,
+    UserPrompt,
 } from '@jterrazz/intelligence';
 import { type LoggerPort } from '@jterrazz/logger';
 import { z } from 'zod/v4';
@@ -38,21 +38,21 @@ export class ReportClassificationAgentAdapter implements ReportClassificationAge
         }),
     });
 
-    static readonly SYSTEM_PROMPT = new SystemPromptAdapter(
+    static readonly SYSTEM_PROMPT = new SystemPrompt(
         'You are a seasoned Senior Editor and content curator for a global digital news platform. Your mission is to evaluate each incoming report and decide which classification best serves our readership and content strategy.',
         'Apply rigorous editorial judgment to distinguish stories with broad mainstream appeal from niche-interest pieces, and to filter out content that offers little news value. Your decision keeps the main feed compelling for the widest audience while still surfacing specialised content to the right readers.',
-        PROMPT_LIBRARY.FOUNDATIONS.CONTEXTUAL_ONLY,
+        PROMPTS.FOUNDATIONS.CONTEXTUAL_ONLY,
     );
 
     public readonly name = 'ReportClassificationAgent';
 
-    private readonly agent: BasicAgent<z.infer<typeof ReportClassificationAgentAdapter.SCHEMA>>;
+    private readonly agent: ChatAgent<z.infer<typeof ReportClassificationAgentAdapter.SCHEMA>>;
 
     constructor(
         private readonly model: ModelPort,
         private readonly logger: LoggerPort,
     ) {
-        this.agent = new BasicAgent(this.name, {
+        this.agent = new ChatAgent(this.name, {
             logger: this.logger,
             model: this.model,
             schema: ReportClassificationAgentAdapter.SCHEMA,
@@ -70,7 +70,7 @@ export class ReportClassificationAgentAdapter implements ReportClassificationAge
             facts: report.facts,
         };
 
-        return new UserPromptAdapter(
+        return new UserPrompt(
             // Core Mission
             'You are the Senior Editor of a global digital newsroom. Decide whether the following report belongs in the MAIN feed (STANDARD), in a specialised vertical (NICHE), or should be excluded (ARCHIVED). Your judgment balances audience breadth, relevance, and editorial quality.',
             '',

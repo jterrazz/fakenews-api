@@ -1,9 +1,9 @@
 import {
-    BasicAgent,
+    ChatAgent,
     type ModelPort,
-    PROMPT_LIBRARY,
-    SystemPromptAdapter,
-    UserPromptAdapter,
+    PROMPTS,
+    SystemPrompt,
+    UserPrompt,
 } from '@jterrazz/intelligence';
 import { type LoggerPort } from '@jterrazz/logger';
 import { z } from 'zod/v4';
@@ -25,21 +25,21 @@ export class ArticleQuizGenerationAgentAdapter implements ArticleQuizGenerationA
         ),
     });
 
-    static readonly SYSTEM_PROMPT = new SystemPromptAdapter(
+    static readonly SYSTEM_PROMPT = new SystemPrompt(
         'You are an expert quiz generator that creates engaging, educational questions based on news articles. Your goal is to help readers test their comprehension and engagement with the content.',
         'Create 2-4 multiple choice questions per article that test understanding of key facts, implications, and context. You may include questions based on useful generic context or widely-known facts, but you must ALWAYS be 100% certain of the correct answer - never guess or hallucinate. Include a mix of factual recall and analytical thinking questions. Always provide exactly 4 short, concise answer options that will fit in small UI elements. Make incorrect answers plausible but clearly wrong to someone who read carefully.',
-        PROMPT_LIBRARY.FOUNDATIONS.CONTEXTUAL_ONLY,
+        PROMPTS.FOUNDATIONS.CONTEXTUAL_ONLY,
     );
 
     public readonly name = 'ArticleQuizGenerationAgent';
 
-    private readonly agent: BasicAgent<z.infer<typeof ArticleQuizGenerationAgentAdapter.SCHEMA>>;
+    private readonly agent: ChatAgent<z.infer<typeof ArticleQuizGenerationAgentAdapter.SCHEMA>>;
 
     constructor(
         private readonly model: ModelPort,
         private readonly logger: LoggerPort,
     ) {
-        this.agent = new BasicAgent(this.name, {
+        this.agent = new ChatAgent(this.name, {
             logger: this.logger,
             model: this.model,
             schema: ArticleQuizGenerationAgentAdapter.SCHEMA,
@@ -55,7 +55,7 @@ export class ArticleQuizGenerationAgentAdapter implements ArticleQuizGenerationA
                       .join('')
                 : '';
 
-        return new UserPromptAdapter(
+        return new UserPrompt(
             `Create quiz questions for this article.
 
 TARGET LANGUAGE: ${input.targetLanguage.toString()}

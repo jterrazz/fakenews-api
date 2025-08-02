@@ -1,9 +1,9 @@
 import {
-    BasicAgent,
+    ChatAgent,
     type ModelPort,
-    PROMPT_LIBRARY,
-    SystemPromptAdapter,
-    UserPromptAdapter,
+    PROMPTS,
+    SystemPrompt,
+    UserPrompt,
 } from '@jterrazz/intelligence';
 import { type LoggerPort } from '@jterrazz/logger';
 import { z } from 'zod/v4';
@@ -33,25 +33,25 @@ export class ReportIngestionAgentAdapter implements ReportIngestionAgentPort {
         facts: factsSchema,
     });
 
-    static readonly SYSTEM_PROMPT = new SystemPromptAdapter(
+    static readonly SYSTEM_PROMPT = new SystemPrompt(
         'You are a senior investigative journalist and media analyst for a global newsroom. Your mission is to distil multiple news articles about the same event into a structured intelligence brief that surfaces the undisputed facts and the genuinely distinct viewpoints at play.',
         'Your analysis must remain strictly grounded in the provided text—no external knowledge or opinions. Identify and categorise only those viewpoints that are truly different or opposing, ignoring superficial wording variations, so that readers can quickly grasp the real landscape of the public debate.',
         'CRITICAL: Output MUST be in English.',
-        PROMPT_LIBRARY.LANGUAGES.ENGLISH_NATIVE,
-        PROMPT_LIBRARY.FOUNDATIONS.CONTEXTUAL_ONLY,
-        PROMPT_LIBRARY.TONES.NEUTRAL,
-        PROMPT_LIBRARY.VERBOSITY.DETAILED,
+        PROMPTS.LANGUAGES.ENGLISH_NATIVE,
+        PROMPTS.FOUNDATIONS.CONTEXTUAL_ONLY,
+        PROMPTS.TONES.NEUTRAL,
+        PROMPTS.VERBOSITY.DETAILED,
     );
 
     public readonly name = 'ReportIngestionAgent';
 
-    private readonly agent: BasicAgent<z.infer<typeof ReportIngestionAgentAdapter.SCHEMA>>;
+    private readonly agent: ChatAgent<z.infer<typeof ReportIngestionAgentAdapter.SCHEMA>>;
 
     constructor(
         private readonly model: ModelPort,
         private readonly logger: LoggerPort,
     ) {
-        this.agent = new BasicAgent(this.name, {
+        this.agent = new ChatAgent(this.name, {
             logger: this.logger,
             model: this.model,
             schema: ReportIngestionAgentAdapter.SCHEMA,
@@ -60,7 +60,7 @@ export class ReportIngestionAgentAdapter implements ReportIngestionAgentPort {
     }
 
     static readonly USER_PROMPT = (newsReport: NewsReport) =>
-        new UserPromptAdapter(
+        new UserPrompt(
             // Core Mission
             'Your mission is to transform the following news articles, all covering the SAME subject, into a structured intelligence brief composed of VERIFIED FACTS and up to TWO genuinely DISTINCT ANGLES (viewpoints).',
             '',

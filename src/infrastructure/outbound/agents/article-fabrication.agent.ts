@@ -1,9 +1,9 @@
 import {
-    BasicAgent,
+    ChatAgent,
     type ModelPort,
-    PROMPT_LIBRARY,
-    SystemPromptAdapter,
-    UserPromptAdapter,
+    PROMPTS,
+    SystemPrompt,
+    UserPrompt,
 } from '@jterrazz/intelligence';
 import { type LoggerPort } from '@jterrazz/logger';
 import { z } from 'zod/v4';
@@ -39,21 +39,21 @@ export class ArticleFabricationAgentAdapter implements ArticleFabricationAgentPo
         tone: z.enum(['satirical']).describe('The tone/style used in the generated article'),
     });
 
-    static readonly SYSTEM_PROMPT = new SystemPromptAdapter(
+    static readonly SYSTEM_PROMPT = new SystemPrompt(
         'You are a senior editorial simulator specialising in crafting **convincing but completely fabricated** news articles for an educational fake-news-detection game.',
         'Your purpose is twofold: 1) entertain and educate by showing how misinformation can look credible, 2) never risk real-world harm. The content must be plausible, professional, and journalistic in tone, yet entirely fictional and safe.',
-        PROMPT_LIBRARY.FOUNDATIONS.CONTEXTUAL_ONLY,
+        PROMPTS.FOUNDATIONS.CONTEXTUAL_ONLY,
     );
 
     public readonly name = 'ArticleFabricationAgent';
 
-    private readonly agent: BasicAgent<z.infer<typeof ArticleFabricationAgentAdapter.SCHEMA>>;
+    private readonly agent: ChatAgent<z.infer<typeof ArticleFabricationAgentAdapter.SCHEMA>>;
 
     constructor(
         private readonly model: ModelPort,
         private readonly logger: LoggerPort,
     ) {
-        this.agent = new BasicAgent(this.name, {
+        this.agent = new ChatAgent(this.name, {
             logger: this.logger,
             model: this.model,
             schema: ArticleFabricationAgentAdapter.SCHEMA,
@@ -92,7 +92,7 @@ export class ArticleFabricationAgentAdapter implements ArticleFabricationAgentPo
             '•   If no recentArticles, aim for headline 8-16 words and body 40-100 words.',
         ].join('\n');
 
-        return new UserPromptAdapter(
+        return new UserPrompt(
             // Language Constraint
             `CRITICAL: All output MUST be written in ${input.targetLanguage.toString().toUpperCase()}.`,
             '',

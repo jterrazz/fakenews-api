@@ -1,9 +1,4 @@
-import {
-    BasicAgent,
-    type ModelPort,
-    SystemPromptAdapter,
-    UserPromptAdapter,
-} from '@jterrazz/intelligence';
+import { ChatAgent, type ModelPort, SystemPrompt, UserPrompt } from '@jterrazz/intelligence';
 import { type LoggerPort } from '@jterrazz/logger';
 import { z } from 'zod/v4';
 
@@ -63,7 +58,7 @@ export class ReportDeduplicationAgentAdapter implements ReportDeduplicationAgent
         reason: z.string().describe('A brief, clear justification for your decision.'),
     });
 
-    static readonly SYSTEM_PROMPT = new SystemPromptAdapter(
+    static readonly SYSTEM_PROMPT = new SystemPrompt(
         'You are a senior editorial gatekeeper for a global news organisation.',
         'Your mission is to decide whether an incoming news report describes the exact same core information as any report that already exists in our database.',
         'If two reports describe the identical event, flag the new one as a duplicate; otherwise mark it as unique. Differences in wording, headline, publisher, language, or minor details do NOT create uniqueness. When in doubt, prefer uniqueness.',
@@ -71,13 +66,13 @@ export class ReportDeduplicationAgentAdapter implements ReportDeduplicationAgent
 
     public readonly name = 'ReportDeduplicationAgent';
 
-    private readonly agent: BasicAgent<z.infer<typeof ReportDeduplicationAgentAdapter.SCHEMA>>;
+    private readonly agent: ChatAgent<z.infer<typeof ReportDeduplicationAgentAdapter.SCHEMA>>;
 
     constructor(
         private readonly model: ModelPort,
         private readonly logger: LoggerPort,
     ) {
-        this.agent = new BasicAgent(this.name, {
+        this.agent = new ChatAgent(this.name, {
             logger: this.logger,
             model: this.model,
             schema: ReportDeduplicationAgentAdapter.SCHEMA,
@@ -91,7 +86,7 @@ export class ReportDeduplicationAgentAdapter implements ReportDeduplicationAgent
     }) => {
         const { existingReports, newReport } = input;
 
-        return new UserPromptAdapter(
+        return new UserPrompt(
             ...ReportDeduplicationAgentAdapter.BASE_PROMPT_PARTS,
             // Data to Analyse
             'EXISTING REPORTS (ID and Facts):',

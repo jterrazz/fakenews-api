@@ -1,9 +1,9 @@
 import {
-    BasicAgent,
+    ChatAgent,
     type ModelPort,
-    PROMPT_LIBRARY,
-    SystemPromptAdapter,
-    UserPromptAdapter,
+    PROMPTS,
+    SystemPrompt,
+    UserPrompt,
 } from '@jterrazz/intelligence';
 import { type LoggerPort } from '@jterrazz/logger';
 import { z } from 'zod/v4';
@@ -33,21 +33,21 @@ export class ArticleCompositionAgentAdapter implements ArticleCompositionAgentPo
         headline: headlineSchema,
     });
 
-    static readonly SYSTEM_PROMPT = new SystemPromptAdapter(
+    static readonly SYSTEM_PROMPT = new SystemPrompt(
         'You are a senior editorial writer and narrative composer for a global news application. Your mission is to convert structured report data into a compelling news package: a concise, neutral main article presenting only verified facts, plus viewpoint frames that build on—never repeat—the core facts.',
         'Write in the clear, authoritative style of a quality newspaper—professional yet accessible to a broad audience. Maintain strict neutrality, avoid jargon, and aim for a total reading time of roughly one minute.',
-        PROMPT_LIBRARY.FOUNDATIONS.CONTEXTUAL_ONLY,
+        PROMPTS.FOUNDATIONS.CONTEXTUAL_ONLY,
     );
 
     public readonly name = 'ArticleCompositionAgent';
 
-    private readonly agent: BasicAgent<z.infer<typeof ArticleCompositionAgentAdapter.SCHEMA>>;
+    private readonly agent: ChatAgent<z.infer<typeof ArticleCompositionAgentAdapter.SCHEMA>>;
 
     constructor(
         private readonly model: ModelPort,
         private readonly logger: LoggerPort,
     ) {
-        this.agent = new BasicAgent(this.name, {
+        this.agent = new ChatAgent(this.name, {
             logger: this.logger,
             model: this.model,
             schema: ArticleCompositionAgentAdapter.SCHEMA,
@@ -58,7 +58,7 @@ export class ArticleCompositionAgentAdapter implements ArticleCompositionAgentPo
     static readonly USER_PROMPT = (input: ArticleCompositionInput) => {
         const expectedFrameCount = input.report.angles.length;
 
-        return new UserPromptAdapter(
+        return new UserPrompt(
             // Language Constraint
             `CRITICAL: All output MUST be written in ${input.targetLanguage
                 .toString()
