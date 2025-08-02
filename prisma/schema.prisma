@@ -94,8 +94,9 @@ model Article {
   createdAt        DateTime @default(now())
 
   // Relations
-  frames  ArticleFrame[]
-  reports Report[]       @relation("ReportArticles")
+  frames        ArticleFrame[]
+  quizQuestions ArticleQuizQuestion[]
+  reports       Report[]              @relation("ReportArticles")
 
   @@index([language, country])
   @@index([createdAt])
@@ -106,6 +107,22 @@ model ArticleFrame {
   id       String @id @default(uuid())
   headline String // Frame headline from this viewpoint
   body     String // Viewpoint-specific content explaining this side of the report
+
+  // Relations
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  articleId String
+
+  // Metadata
+  createdAt DateTime @default(now())
+
+  @@index([articleId])
+}
+
+model ArticleQuizQuestion {
+  id                 String @id @default(uuid())
+  question           String // The quiz question text
+  answers            Json // Array of possible answers ["Answer 1", "Answer 2", "Answer 3", "Answer 4"]
+  correctAnswerIndex Int // Index (0-based) of the correct answer in the answers array
 
   // Relations
   article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)

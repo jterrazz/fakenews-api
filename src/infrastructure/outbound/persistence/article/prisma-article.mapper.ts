@@ -1,6 +1,7 @@
 import {
     type Article as PrismaArticle,
     type ArticleFrame as PrismaArticleFrame,
+    type ArticleQuizQuestion as PrismaArticleQuizQuestion,
     type Country as PrismaCountry,
     type Language as PrismaLanguage,
     type Prisma,
@@ -14,6 +15,8 @@ import {
 import { Body } from '../../../../domain/value-objects/article/body.vo.js';
 import { Headline } from '../../../../domain/value-objects/article/headline.vo.js';
 import { ArticleFrame } from '../../../../domain/value-objects/article-frame/article-frame.vo.js';
+import { ArticleQuizQuestion } from '../../../../domain/value-objects/article-quiz-question.vo.js';
+import { ArticleQuizQuestions } from '../../../../domain/value-objects/article-quiz-questions.vo.js';
 import { ArticleTraits } from '../../../../domain/value-objects/article-traits.vo.js';
 import { Categories } from '../../../../domain/value-objects/categories.vo.js';
 import { type Category } from '../../../../domain/value-objects/category.vo.js';
@@ -62,6 +65,7 @@ export class ArticleMapper {
     toDomain(
         prisma: PrismaArticle & {
             frames?: PrismaArticleFrame[];
+            quizQuestions?: PrismaArticleQuizQuestion[];
             reports?: { classification: string; id: string }[];
         },
     ): Article {
@@ -72,6 +76,21 @@ export class ArticleMapper {
                     headline: new Headline(frame.headline),
                 }),
         );
+
+        const quizQuestions = prisma.quizQuestions?.length
+            ? new ArticleQuizQuestions(
+                  prisma.quizQuestions.map(
+                      (quiz) =>
+                          new ArticleQuizQuestion({
+                              answers: Array.isArray(quiz.answers)
+                                  ? (quiz.answers as string[])
+                                  : [],
+                              correctAnswerIndex: quiz.correctAnswerIndex,
+                              question: quiz.question,
+                          }),
+                  ),
+              )
+            : undefined;
 
         return new Article({
             authenticity: new Authenticity(
@@ -95,6 +114,7 @@ export class ArticleMapper {
             id: prisma.id,
             language: new Language(prisma.language),
             publishedAt: prisma.publishedAt,
+            quizQuestions,
             reportIds: prisma.reports?.map((report) => report.id),
             traits: ArticleTraits.fromJSON(prisma.traits || {}),
         });
@@ -119,6 +139,16 @@ export class ArticleMapper {
             id: domain.id,
             language: this.mapLanguageToPrisma(domain.language),
             publishedAt: domain.publishedAt,
+            quizQuestions:
+                domain.quizQuestions && !domain.quizQuestions.isEmpty()
+                    ? {
+                          create: domain.quizQuestions.toArray().map((quiz) => ({
+                              answers: quiz.answers,
+                              correctAnswerIndex: quiz.correctAnswerIndex,
+                              question: quiz.question,
+                          })),
+                      }
+                    : undefined,
             reports: domain.reportIds
                 ? {
                       connect: domain.reportIds.map((id) => ({ id })),

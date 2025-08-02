@@ -130,6 +130,7 @@ export class PrismaArticleRepository implements ArticleRepositoryPort {
         const items = await this.prisma.getPrismaClient().article.findMany({
             include: {
                 frames: true,
+                quizQuestions: true,
                 reports: {
                     select: {
                         classification: true,
@@ -146,5 +147,80 @@ export class PrismaArticleRepository implements ArticleRepositoryPort {
         });
 
         return items.map((item) => this.mapper.toDomain(item));
+    }
+
+    async updateMany(articles: Article[]): Promise<void> {
+        if (articles.length === 0) {
+            return;
+        }
+
+        const client = this.prisma.getPrismaClient();
+
+        for (const article of articles) {
+            await client.$transaction(async (tx) => {
+                const prismaData = this.mapper.toPrisma(article);
+
+                // Update the main article
+                await tx.article.update({
+                    data: {
+                        body: prismaData.body,
+                        categories: prismaData.categories,
+                        country: prismaData.country,
+                        fabricated: prismaData.fabricated,
+                        fabricatedReason: prismaData.fabricatedReason,
+                        headline: prismaData.headline,
+                        language: prismaData.language,
+                        publishedAt: prismaData.publishedAt,
+                        traits: prismaData.traits,
+                    },
+                    where: { id: article.id },
+                });
+
+                // Handle quiz questions - delete existing and create new ones
+                if (
+                    prismaData.quizQuestions &&
+                    typeof prismaData.quizQuestions === 'object' &&
+                    'create' in prismaData.quizQuestions
+                ) {
+                    await tx.articleQuizQuestion.deleteMany({
+                        where: { articleId: article.id },
+                    });
+
+                    const quizData = prismaData.quizQuestions.create;
+                    if (Array.isArray(quizData)) {
+                        await tx.articleQuizQuestion.createMany({
+                            data: quizData.map((quiz: any) => ({
+                                answers: quiz.answers,
+                                articleId: article.id,
+                                correctAnswerIndex: quiz.correctAnswerIndex,
+                                question: quiz.question,
+                            })),
+                        });
+                    }
+                }
+
+                // Handle frames - delete existing and create new ones if provided
+                if (
+                    prismaData.frames &&
+                    typeof prismaData.frames === 'object' &&
+                    'create' in prismaData.frames
+                ) {
+                    await tx.articleFrame.deleteMany({
+                        where: { articleId: article.id },
+                    });
+
+                    const frameData = prismaData.frames.create;
+                    if (Array.isArray(frameData)) {
+                        await tx.articleFrame.createMany({
+                            data: frameData.map((frame: any) => ({
+                                articleId: article.id,
+                                body: frame.body,
+                                headline: frame.headline,
+                            })),
+                        });
+                    }
+                }
+            });
+        }
     }
 }

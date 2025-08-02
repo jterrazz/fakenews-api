@@ -15,12 +15,14 @@ import type { TaskPort } from '../application/ports/inbound/worker.port.js';
 import type { WorkerPort } from '../application/ports/inbound/worker.port.js';
 import { type ArticleCompositionAgentPort } from '../application/ports/outbound/agents/article-composition.agent.js';
 import { type ArticleFalsificationAgentPort } from '../application/ports/outbound/agents/article-falsification.agent.js';
+import { type ArticleQuizGenerationAgentPort } from '../application/ports/outbound/agents/article-quiz-generation.agent.js';
 import { type ReportClassificationAgentPort } from '../application/ports/outbound/agents/report-classification.agent.js';
 import { type ReportDeduplicationAgentPort } from '../application/ports/outbound/agents/report-deduplication.agent.js';
 import { type ReportIngestionAgentPort } from '../application/ports/outbound/agents/report-ingestion.agent.js';
 import type { ArticleRepositoryPort } from '../application/ports/outbound/persistence/article-repository.port.js';
 import { type ReportRepositoryPort } from '../application/ports/outbound/persistence/report-repository.port.js';
 import type { NewsProviderPort } from '../application/ports/outbound/providers/news.port.js';
+import { GenerateArticleChallengesUseCase } from '../application/use-cases/articles/generate-article-challenges.use-case.js';
 import { GenerateArticlesFromReportsUseCase } from '../application/use-cases/articles/generate-articles-from-reports.use-case.js';
 import { GetArticlesUseCase } from '../application/use-cases/articles/get-articles.use-case.js';
 import { ClassifyReportsUseCase } from '../application/use-cases/reports/classify-reports.use-case.js';
@@ -33,6 +35,7 @@ import { NodeCronAdapter } from '../infrastructure/inbound/worker/node-cron.adap
 import { ReportPipelineTask } from '../infrastructure/inbound/worker/reports/report-pipeline.task.js';
 import { ArticleCompositionAgentAdapter } from '../infrastructure/outbound/agents/article-composition.agent.js';
 import { ArticleFalsificationAgentAdapter } from '../infrastructure/outbound/agents/article-falsification.agent.js';
+import { ArticleQuizGenerationAgentAdapter } from '../infrastructure/outbound/agents/article-quiz-generation.agent.js';
 import { ReportClassificationAgentAdapter } from '../infrastructure/outbound/agents/report-classification.agent.js';
 import { ReportDeduplicationAgentAdapter } from '../infrastructure/outbound/agents/report-deduplication.agent.js';
 import { ReportIngestionAgentAdapter } from '../infrastructure/outbound/agents/report-ingestion.agent.js';
@@ -122,6 +125,12 @@ const articleFalsificationAgentFactory = Injectable(
     'ArticleFalsificationAgent',
     ['Model', 'Logger'] as const,
     (model: ModelPort, logger: LoggerPort) => new ArticleFalsificationAgentAdapter(model, logger),
+);
+
+const articleQuizGenerationAgentFactory = Injectable(
+    'ArticleQuizGenerationAgent',
+    ['Model', 'Logger'] as const,
+    (model: ModelPort, logger: LoggerPort) => new ArticleQuizGenerationAgentAdapter(model, logger),
 );
 
 const reportClassificationAgentFactory = Injectable(
@@ -228,6 +237,17 @@ const classifyReportsUseCaseFactory = Injectable(
     ) => new ClassifyReportsUseCase(reportClassificationAgent, logger, reportRepository),
 );
 
+const generateArticleChallengesUseCaseFactory = Injectable(
+    'GenerateArticleChallenges',
+    ['ArticleRepository', 'ArticleQuizGenerationAgent', 'Logger'] as const,
+    (
+        articleRepository: ArticleRepositoryPort,
+        articleQuizGenerationAgent: ArticleQuizGenerationAgentPort,
+        logger: LoggerPort,
+    ) =>
+        new GenerateArticleChallengesUseCase(articleRepository, articleQuizGenerationAgent, logger),
+);
+
 /**
  * Controller factories
  */
@@ -247,6 +267,7 @@ const tasksFactory = Injectable(
     [
         'IngestReports',
         'GenerateArticlesFromReports',
+        'GenerateArticleChallenges',
         'ClassifyReports',
         'Configuration',
         'Logger',
@@ -254,6 +275,7 @@ const tasksFactory = Injectable(
     (
         ingestReports: IngestReportsUseCase,
         generateArticlesFromReports: GenerateArticlesFromReportsUseCase,
+        generateArticleChallenges: GenerateArticleChallengesUseCase,
         classifyReports: ClassifyReportsUseCase,
         configuration: ConfigurationPort,
         logger: LoggerPort,
@@ -266,6 +288,7 @@ const tasksFactory = Injectable(
             new ReportPipelineTask(
                 ingestReports,
                 generateArticlesFromReports,
+                generateArticleChallenges,
                 classifyReports,
                 reportPipelineConfigs,
                 logger,
@@ -343,6 +366,7 @@ export const createContainer = (overrides?: ContainerOverrides) =>
         .provides(reportIngestionAgentFactory)
         .provides(articleCompositionAgentFactory)
         .provides(articleFalsificationAgentFactory)
+        .provides(articleQuizGenerationAgentFactory)
         .provides(reportClassificationAgentFactory)
         .provides(reportDeduplicationAgentFactory)
         // Repositories
@@ -352,6 +376,7 @@ export const createContainer = (overrides?: ContainerOverrides) =>
         .provides(getArticlesUseCaseFactory)
         .provides(ingestReportsUseCaseFactory)
         .provides(generateArticlesFromReportsUseCaseFactory)
+        .provides(generateArticleChallengesUseCaseFactory)
         .provides(classifyReportsUseCaseFactory)
         // Controllers and tasks
         .provides(controllersFactory)

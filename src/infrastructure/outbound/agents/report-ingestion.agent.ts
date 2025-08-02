@@ -36,7 +36,7 @@ export class ReportIngestionAgentAdapter implements ReportIngestionAgentPort {
             smart: z
                 .boolean()
                 .default(false)
-                .describe('Content that improves understanding and intellectual growth'),
+                .describe('Reserved for content that helps understand world dynamics, geopolitics, economics, systemic issues, or deep mechanisms - for readers who genuinely want to comprehend how the world works'),
             uplifting: z
                 .boolean()
                 .default(false)
@@ -81,7 +81,7 @@ export class ReportIngestionAgentAdapter implements ReportIngestionAgentPort {
             '• facts → A neutral, exhaustive statement of who did what, where, and when. No speculation, opinion, or editorialising.',
             '• categories → An array of at least one topic category: POLITICS, BUSINESS, TECHNOLOGY, SCIENCE, HEALTH, ENVIRONMENT, SOCIETY, ENTERTAINMENT, SPORTS, OTHER',
             '• traits → Content characteristics (boolean flags):',
-            '    • smart → true if content improves understanding and intellectual growth (avoid superficial/clickbait)',
+            '    • smart → true ONLY for content that helps understand world dynamics, geopolitics, economics, or systemic mechanisms - reserved for readers who genuinely want to comprehend how the world works (avoid superficial/clickbait)',
             '    • uplifting → true if content promotes positive emotions and hope (not just "less bad" news)',
             '• angles → An array with **1-2** items. For each angle include:',
             '    • corpus → NOT a summary. Compile EVERY argument, fact, and piece of evidence supporting that viewpoint, focused solely on the subject. Exclude information about the publication or author.',
@@ -104,7 +104,7 @@ export class ReportIngestionAgentAdapter implements ReportIngestionAgentPort {
             '• Never produce more than 2 angles; merge redundant ones.',
             '• ALWAYS include at least one topic category in the categories array.',
             '• Trait flags are boolean - set to true only when content genuinely meets the criteria.',
-            '• smart flag should only be true for intellectually enriching content that helps understanding.',
+            '• smart flag should only be true for content that genuinely helps understand world dynamics, geopolitics, economics, or systemic mechanisms - not just general knowledge or surface-level insights.',
             '• uplifting flag should only be true for authentically positive content, not neutral or "less negative" stories.',
             '• Traits are separate from categories - keep topic classification distinct from content characteristics.',
             '',

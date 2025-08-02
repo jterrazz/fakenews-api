@@ -104,8 +104,13 @@ export class GetArticlesResponsePresenter {
                     explanation: article.authenticity.clarification ?? '',
                 },
                 quiz: {
-                    enable: false,
-                    questions: [],
+                    enable: Boolean(article.quizQuestions && !article.quizQuestions.isEmpty()),
+                    questions:
+                        article.quizQuestions?.toArray().map((quiz) => ({
+                            answers: quiz.answers,
+                            correctAnswerIndex: quiz.correctAnswerIndex,
+                            question: quiz.question,
+                        })) ?? [],
                 },
             },
             frames,

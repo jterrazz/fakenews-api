@@ -116,6 +116,35 @@ function handleFalsification(model: string) {
     );
 }
 
+function handleQuizGeneration(model: string) {
+    return HttpResponse.json(
+        buildCompletion('mock-quiz-generation-id', model, {
+            questions: [
+                {
+                    answers: [
+                        'It provides instant solutions to all problems',
+                        'It helps readers test their understanding of the article',
+                        'It generates random trivia questions',
+                        'It replaces the need to read the article',
+                    ],
+                    correctAnswerIndex: 1,
+                    question: 'What is the primary purpose of quiz questions for news articles?',
+                },
+                {
+                    answers: [
+                        'Only basic yes/no questions',
+                        'Questions requiring external knowledge',
+                        'A mix of factual recall and analytical thinking',
+                        'Only opinion-based questions',
+                    ],
+                    correctAnswerIndex: 2,
+                    question: 'What types of questions should be included in an article quiz?',
+                },
+            ],
+        }),
+    );
+}
+
 /**
  * Single MSW handler mocking every OpenRouter AI agent used in integration tests.
  * Route discrimination is done by analysing the (second) user prompt.
@@ -174,6 +203,13 @@ export const openRouterUniversalResolver = http.post(
             userPrompt.startsWith('CRITICAL: All output MUST be')
         ) {
             return handleComposition(model);
+        }
+
+        if (
+            userPrompt.startsWith('Create quiz questions for this article') ||
+            userPrompt.includes('Generate 2-4 comprehensive quiz questions')
+        ) {
+            return handleQuizGeneration(model);
         }
 
         /* ------------------------------ Fallback -------------------------------- */

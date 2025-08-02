@@ -29,6 +29,11 @@ export interface ArticleRepositoryPort {
      * Find articles matching the given criteria
      */
     findMany(options: FindManyOptions): Promise<Article[]>;
+
+    /**
+     * Update multiple existing articles
+     */
+    updateMany(articles: Article[]): Promise<void>;
 }
 
 export interface CountManyOptions {

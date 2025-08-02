@@ -3,6 +3,7 @@ import { type LoggerPort } from '@jterrazz/logger';
 import { type ReportPipelineTaskConfig } from '../../../../application/ports/inbound/configuration.port.js';
 
 import { type TaskPort } from '../../../../application/ports/inbound/worker.port.js';
+import { type GenerateArticleChallengesUseCase } from '../../../../application/use-cases/articles/generate-article-challenges.use-case.js';
 import { type GenerateArticlesFromReportsUseCase } from '../../../../application/use-cases/articles/generate-articles-from-reports.use-case.js';
 import { type ClassifyReportsUseCase } from '../../../../application/use-cases/reports/classify-reports.use-case.js';
 import { type IngestReportsUseCase } from '../../../../application/use-cases/reports/ingest-reports.use-case.js';
@@ -18,6 +19,7 @@ export class ReportPipelineTask implements TaskPort {
     constructor(
         private readonly ingestReports: IngestReportsUseCase,
         private readonly generateArticlesFromReports: GenerateArticlesFromReportsUseCase,
+        private readonly generateArticleChallenges: GenerateArticleChallengesUseCase,
         private readonly classifyReports: ClassifyReportsUseCase,
         private readonly taskConfigs: ReportPipelineTaskConfig[],
         private readonly logger: LoggerPort,
@@ -65,6 +67,21 @@ export class ReportPipelineTask implements TaskPort {
                     return this.generateArticlesFromReports.execute(language, country);
                 }),
             );
+
+            this.logger.info('Article generation completed');
+
+            // Step 4: Generate quiz questions/challenges for articles
+            await Promise.all(
+                languages.map(async ({ country, language }) => {
+                    this.logger.info('Generating challenges for articles', {
+                        country: country.toString(),
+                        language: language.toString(),
+                    });
+                    return this.generateArticleChallenges.execute(language, country);
+                }),
+            );
+
+            this.logger.info('Article challenges generation completed');
 
             this.logger.info('Report pipeline execution finished');
         } catch (error) {
