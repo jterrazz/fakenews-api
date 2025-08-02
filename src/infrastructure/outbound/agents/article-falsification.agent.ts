@@ -1,5 +1,5 @@
 import {
-    BasicAgentAdapter,
+    BasicAgent,
     type ModelPort,
     PROMPT_LIBRARY,
     SystemPromptAdapter,
@@ -47,15 +47,13 @@ export class ArticleFalsificationAgentAdapter implements ArticleFalsificationAge
 
     public readonly name = 'ArticleFalsificationAgent';
 
-    private readonly agent: BasicAgentAdapter<
-        z.infer<typeof ArticleFalsificationAgentAdapter.SCHEMA>
-    >;
+    private readonly agent: BasicAgent<z.infer<typeof ArticleFalsificationAgentAdapter.SCHEMA>>;
 
     constructor(
         private readonly model: ModelPort,
         private readonly logger: LoggerPort,
     ) {
-        this.agent = new BasicAgentAdapter(this.name, {
+        this.agent = new BasicAgent(this.name, {
             logger: this.logger,
             model: this.model,
             schema: ArticleFalsificationAgentAdapter.SCHEMA,

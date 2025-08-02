@@ -1,4 +1,10 @@
-import { type ModelPort, OpenRouterAdapter } from '@jterrazz/intelligence';
+import { type ModelPort, OpenRouterProvider, type ProviderPort } from '@jterrazz/intelligence';
+
+export interface ModelsPort {
+    gemini25Flash: ModelPort;
+    gemini25FlashLite: ModelPort;
+    grok4: ModelPort;
+}
 import { type LoggerPort, PinoLoggerAdapter } from '@jterrazz/logger';
 import {
     type MonitoringPort,
@@ -92,57 +98,141 @@ const newsFactory = Injectable(
     },
 );
 
-const modelFactory = Injectable(
-    'Model',
+const providerFactory = Injectable(
+    'Provider',
     ['Configuration'] as const,
-    (config: ConfigurationPort): ModelPort =>
-        new OpenRouterAdapter({
+    (config: ConfigurationPort): ProviderPort =>
+        new OpenRouterProvider({
             apiKey: config.getOutboundConfiguration().openRouter.apiKey,
             metadata: {
                 application: 'jterrazz-agents',
                 website: 'https://jterrazz.com',
             },
-            modelName:
-                config.getOutboundConfiguration().openRouter.budget === 'low'
-                    ? 'google/gemini-2.5-flash-lite-preview-06-17'
-                    : 'google/gemini-2.5-flash',
         }),
+);
+
+// Helper function to select model based on budget
+const selectModelByBudget = (
+    models: ModelsPort,
+    budget: 'high' | 'low' | 'medium',
+    preferredModel: 'gemini25Flash' | 'gemini25FlashLite' | 'grok4',
+): ModelPort => {
+    if (budget === 'low') {
+        return models.gemini25FlashLite;
+    }
+    return models[preferredModel];
+};
+
+const modelsFactory = Injectable(
+    'Models',
+    ['Provider'] as const,
+    (provider: ProviderPort): ModelsPort => ({
+        gemini25Flash: provider.getModel('google/gemini-2.5-flash', {
+            maxTokens: 128_000,
+            reasoning: {
+                effort: 'high',
+                exclude: true,
+            },
+        }),
+        gemini25FlashLite: provider.getModel('google/gemini-2.5-flash-lite', {
+            maxTokens: 128_000,
+            reasoning: {
+                effort: 'high',
+                exclude: true,
+            },
+        }),
+        grok4: provider.getModel('x-ai/grok-4', {
+            maxTokens: 64_000,
+            reasoning: {
+                effort: 'high',
+                exclude: true,
+            },
+        }),
+    }),
 );
 
 const reportIngestionAgentFactory = Injectable(
     'ReportIngestionAgent',
-    ['Model', 'Logger'] as const,
-    (model: ModelPort, logger: LoggerPort) => new ReportIngestionAgentAdapter(model, logger),
+    ['Models', 'Configuration', 'Logger'] as const,
+    (models: ModelsPort, config: ConfigurationPort, logger: LoggerPort) =>
+        new ReportIngestionAgentAdapter(
+            selectModelByBudget(
+                models,
+                config.getOutboundConfiguration().openRouter.budget,
+                'gemini25Flash',
+            ),
+            logger,
+        ),
 );
 
 const articleCompositionAgentFactory = Injectable(
     'ArticleCompositionAgent',
-    ['Model', 'Logger'] as const,
-    (model: ModelPort, logger: LoggerPort) => new ArticleCompositionAgentAdapter(model, logger),
+    ['Models', 'Configuration', 'Logger'] as const,
+    (models: ModelsPort, config: ConfigurationPort, logger: LoggerPort) =>
+        new ArticleCompositionAgentAdapter(
+            selectModelByBudget(
+                models,
+                config.getOutboundConfiguration().openRouter.budget,
+                'gemini25Flash',
+            ),
+            logger,
+        ),
 );
 
 const articleFalsificationAgentFactory = Injectable(
     'ArticleFalsificationAgent',
-    ['Model', 'Logger'] as const,
-    (model: ModelPort, logger: LoggerPort) => new ArticleFalsificationAgentAdapter(model, logger),
+    ['Models', 'Configuration', 'Logger'] as const,
+    (models: ModelsPort, config: ConfigurationPort, logger: LoggerPort) =>
+        new ArticleFalsificationAgentAdapter(
+            selectModelByBudget(
+                models,
+                config.getOutboundConfiguration().openRouter.budget,
+                'grok4',
+            ),
+            logger,
+        ),
 );
 
 const articleQuizGenerationAgentFactory = Injectable(
     'ArticleQuizGenerationAgent',
-    ['Model', 'Logger'] as const,
-    (model: ModelPort, logger: LoggerPort) => new ArticleQuizGenerationAgentAdapter(model, logger),
+    ['Models', 'Configuration', 'Logger'] as const,
+    (models: ModelsPort, config: ConfigurationPort, logger: LoggerPort) =>
+        new ArticleQuizGenerationAgentAdapter(
+            selectModelByBudget(
+                models,
+                config.getOutboundConfiguration().openRouter.budget,
+                'gemini25Flash',
+            ),
+            logger,
+        ),
 );
 
 const reportClassificationAgentFactory = Injectable(
     'ReportClassificationAgent',
-    ['Model', 'Logger'] as const,
-    (model: ModelPort, logger: LoggerPort) => new ReportClassificationAgentAdapter(model, logger),
+    ['Models', 'Configuration', 'Logger'] as const,
+    (models: ModelsPort, config: ConfigurationPort, logger: LoggerPort) =>
+        new ReportClassificationAgentAdapter(
+            selectModelByBudget(
+                models,
+                config.getOutboundConfiguration().openRouter.budget,
+                'gemini25FlashLite',
+            ),
+            logger,
+        ),
 );
 
 const reportDeduplicationAgentFactory = Injectable(
     'ReportDeduplicationAgent',
-    ['Model', 'Logger'] as const,
-    (model: ModelPort, logger: LoggerPort) => new ReportDeduplicationAgentAdapter(model, logger),
+    ['Models', 'Configuration', 'Logger'] as const,
+    (models: ModelsPort, config: ConfigurationPort, logger: LoggerPort) =>
+        new ReportDeduplicationAgentAdapter(
+            selectModelByBudget(
+                models,
+                config.getOutboundConfiguration().openRouter.budget,
+                'gemini25Flash',
+            ),
+            logger,
+        ),
 );
 
 /**
@@ -362,7 +452,8 @@ export const createContainer = (overrides?: ContainerOverrides) =>
         .provides(newRelicFactory)
         .provides(databaseFactory)
         .provides(newsFactory)
-        .provides(modelFactory)
+        .provides(providerFactory)
+        .provides(modelsFactory)
         .provides(reportIngestionAgentFactory)
         .provides(articleCompositionAgentFactory)
         .provides(articleFalsificationAgentFactory)

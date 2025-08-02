@@ -1,5 +1,5 @@
 import {
-    BasicAgentAdapter,
+    BasicAgent,
     type ModelPort,
     PROMPT_LIBRARY,
     SystemPromptAdapter,
@@ -45,13 +45,13 @@ export class ReportIngestionAgentAdapter implements ReportIngestionAgentPort {
 
     public readonly name = 'ReportIngestionAgent';
 
-    private readonly agent: BasicAgentAdapter<z.infer<typeof ReportIngestionAgentAdapter.SCHEMA>>;
+    private readonly agent: BasicAgent<z.infer<typeof ReportIngestionAgentAdapter.SCHEMA>>;
 
     constructor(
         private readonly model: ModelPort,
         private readonly logger: LoggerPort,
     ) {
-        this.agent = new BasicAgentAdapter(this.name, {
+        this.agent = new BasicAgent(this.name, {
             logger: this.logger,
             model: this.model,
             schema: ReportIngestionAgentAdapter.SCHEMA,

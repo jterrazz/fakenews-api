@@ -1,5 +1,5 @@
 import {
-    BasicAgentAdapter,
+    BasicAgent,
     type ModelPort,
     PROMPT_LIBRARY,
     SystemPromptAdapter,
@@ -41,15 +41,13 @@ export class ArticleCompositionAgentAdapter implements ArticleCompositionAgentPo
 
     public readonly name = 'ArticleCompositionAgent';
 
-    private readonly agent: BasicAgentAdapter<
-        z.infer<typeof ArticleCompositionAgentAdapter.SCHEMA>
-    >;
+    private readonly agent: BasicAgent<z.infer<typeof ArticleCompositionAgentAdapter.SCHEMA>>;
 
     constructor(
         private readonly model: ModelPort,
         private readonly logger: LoggerPort,
     ) {
-        this.agent = new BasicAgentAdapter(this.name, {
+        this.agent = new BasicAgent(this.name, {
             logger: this.logger,
             model: this.model,
             schema: ArticleCompositionAgentAdapter.SCHEMA,

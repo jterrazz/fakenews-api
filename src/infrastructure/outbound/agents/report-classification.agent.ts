@@ -1,5 +1,5 @@
 import {
-    BasicAgentAdapter,
+    BasicAgent,
     type ModelPort,
     PROMPT_LIBRARY,
     SystemPromptAdapter,
@@ -46,15 +46,13 @@ export class ReportClassificationAgentAdapter implements ReportClassificationAge
 
     public readonly name = 'ReportClassificationAgent';
 
-    private readonly agent: BasicAgentAdapter<
-        z.infer<typeof ReportClassificationAgentAdapter.SCHEMA>
-    >;
+    private readonly agent: BasicAgent<z.infer<typeof ReportClassificationAgentAdapter.SCHEMA>>;
 
     constructor(
         private readonly model: ModelPort,
         private readonly logger: LoggerPort,
     ) {
-        this.agent = new BasicAgentAdapter(this.name, {
+        this.agent = new BasicAgent(this.name, {
             logger: this.logger,
             model: this.model,
             schema: ReportClassificationAgentAdapter.SCHEMA,

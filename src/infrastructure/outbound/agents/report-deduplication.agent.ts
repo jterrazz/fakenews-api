@@ -1,5 +1,5 @@
 import {
-    BasicAgentAdapter,
+    BasicAgent,
     type ModelPort,
     SystemPromptAdapter,
     UserPromptAdapter,
@@ -71,15 +71,13 @@ export class ReportDeduplicationAgentAdapter implements ReportDeduplicationAgent
 
     public readonly name = 'ReportDeduplicationAgent';
 
-    private readonly agent: BasicAgentAdapter<
-        z.infer<typeof ReportDeduplicationAgentAdapter.SCHEMA>
-    >;
+    private readonly agent: BasicAgent<z.infer<typeof ReportDeduplicationAgentAdapter.SCHEMA>>;
 
     constructor(
         private readonly model: ModelPort,
         private readonly logger: LoggerPort,
     ) {
-        this.agent = new BasicAgentAdapter(this.name, {
+        this.agent = new BasicAgent(this.name, {
             logger: this.logger,
             model: this.model,
             schema: ReportDeduplicationAgentAdapter.SCHEMA,
