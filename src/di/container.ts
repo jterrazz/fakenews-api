@@ -128,21 +128,21 @@ const modelsFactory = Injectable(
     ['Provider'] as const,
     (provider: ProviderPort): ModelsPort => ({
         gemini25Flash: provider.getModel('google/gemini-2.5-flash', {
-            maxTokens: 128_000,
+            maxTokens: 256_000,
             reasoning: {
                 effort: 'high',
                 exclude: true,
             },
         }),
         gemini25FlashLite: provider.getModel('google/gemini-2.5-flash-lite', {
-            maxTokens: 128_000,
+            maxTokens: 256_000,
             reasoning: {
                 effort: 'high',
                 exclude: true,
             },
         }),
         grok4: provider.getModel('x-ai/grok-4', {
-            maxTokens: 64_000,
+            maxTokens: 128_000,
             reasoning: {
                 effort: 'high',
                 exclude: true,

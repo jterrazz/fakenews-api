@@ -195,11 +195,11 @@ export class GenerateArticlesFromReportsUseCase {
 
             const existingFakeCount = recentArticles.filter((a) => a.isFabricated()).length;
 
-            // Target ratio: ~20% of articles should be fake.
+            // Target ratio: ~10% of articles should be fake.
             // We base this on the count of **real** articles to avoid skew from existing fakes.
             const realArticleCount = recentArticles.length - existingFakeCount;
-            // To reach ~20% overall, we need roughly one fake for every four real articles (nReal / 4).
-            const desiredFakeTotal = Math.ceil(realArticleCount / 4); // nReal /4 ≈ 20% overall
+            // To reach ~10% overall, we need roughly one fake for every nine real articles (nReal / 9).
+            const desiredFakeTotal = Math.ceil(realArticleCount / 9); // nReal /9 ≈ 10% overall
             let generateCount = desiredFakeTotal - existingFakeCount;
 
             // Clamp between 0 and 3 to avoid large batches
