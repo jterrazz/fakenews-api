@@ -21,7 +21,7 @@ import { ClassifyReportsUseCase } from '../classify-reports.use-case.js';
 
 const createMockReport = (
     id: string,
-    tier: 'NICHE' | 'PENDING' | 'GENERAL' = 'PENDING',
+    tier: 'GENERAL' | 'NICHE' | 'PENDING' = 'PENDING',
 ): Report => {
     const reportId = id;
     return new Report({

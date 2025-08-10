@@ -59,7 +59,7 @@ export interface ReportRepositoryPort {
      */
     findReportsWithoutArticles(criteria?: {
         category?: string;
-        classification?: Array<'NICHE' | 'PENDING' | 'GENERAL'>;
+        classification?: Array<'GENERAL' | 'NICHE' | 'PENDING'>;
         country?: string;
         limit?: number;
     }): Promise<Report[]>;

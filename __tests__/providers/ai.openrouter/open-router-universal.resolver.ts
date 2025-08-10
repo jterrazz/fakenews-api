@@ -48,7 +48,7 @@ function handleIngestion(model: string) {
 }
 
 let classificationCounter = -1;
-const classificationCycle: Array<'OFF_TOPIC' | 'NICHE' | 'GENERAL'> = [
+const classificationCycle: Array<'GENERAL' | 'NICHE' | 'OFF_TOPIC'> = [
     'GENERAL',
     'NICHE',
     'OFF_TOPIC',

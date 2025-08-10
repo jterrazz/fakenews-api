@@ -54,7 +54,7 @@ export interface FindHeadlinesAndSummariesOptions {
 export interface FindManyOptions {
     categories?: Categories;
     category?: Category;
-    classification?: Array<'NICHE' | 'GENERAL'>;
+    classification?: Array<'GENERAL' | 'NICHE'>;
     country?: Country;
     cursor?: Date;
     /**

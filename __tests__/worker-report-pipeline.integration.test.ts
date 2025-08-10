@@ -76,7 +76,7 @@ describe('Worker – report-pipeline task (happy path) – integration', () => {
             include: { angles: true },
         });
         const articles = await integrationContext.prisma.article.findMany({
-            include: { frames: true, reports: true, articleCategories: true },
+            include: { articleCategories: true, frames: true, reports: true },
         });
 
         // Basic expectations
@@ -87,8 +87,10 @@ describe('Worker – report-pipeline task (happy path) – integration', () => {
         const articlesApiFormat = articles.map((article) => ({
             ...article,
             // Surface categories as an array for snapshot expectations
-            categories: (article as unknown as { articleCategories?: Array<{ category: string }> })
-                .articleCategories?.map((c) => c.category) ?? [],
+            categories:
+                (
+                    article as unknown as { articleCategories?: Array<{ category: string }> }
+                ).articleCategories?.map((c) => c.category) ?? [],
             // Remove the raw database reason field (keep fabricated boolean)
             fabricatedReason: undefined,
         }));
@@ -97,7 +99,7 @@ describe('Worker – report-pipeline task (happy path) – integration', () => {
 
         const snapshot = normaliseSnapshot(articlesApiFormat, [[SOURCE_RE, '<source>']]);
 
-        const authTemplate = (country: 'FR' | 'US', classification: 'NICHE' | 'GENERAL') => ({
+        const authTemplate = (country: 'FR' | 'US', classification: 'GENERAL' | 'NICHE') => ({
             authenticity: 'authentic',
             body: 'Neutral summary of the core, undisputed facts of the event.',
             category: 'TECHNOLOGY',

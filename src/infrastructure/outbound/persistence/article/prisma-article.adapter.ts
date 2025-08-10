@@ -129,6 +129,7 @@ export class PrismaArticleRepository implements ArticleRepositoryPort {
 
         const items = await this.prisma.getPrismaClient().article.findMany({
             include: {
+                articleCategories: true,
                 frames: true,
                 quizQuestions: true,
                 reports: {
@@ -138,7 +139,6 @@ export class PrismaArticleRepository implements ArticleRepositoryPort {
                     },
                     take: 1, // We only need the classification from one report
                 },
-                articleCategories: true,
             },
             orderBy: {
                 publishedAt: 'desc',
@@ -165,14 +165,12 @@ export class PrismaArticleRepository implements ArticleRepositoryPort {
                 await tx.article.update({
                     data: {
                         body: prismaData.body,
-                        categories: prismaData.categories,
                         country: prismaData.country,
                         fabricated: prismaData.fabricated,
                         fabricatedReason: prismaData.fabricatedReason,
                         headline: prismaData.headline,
                         language: prismaData.language,
                         publishedAt: prismaData.publishedAt,
-                        traits: prismaData.traits,
                     },
                     where: { id: article.id },
                 });

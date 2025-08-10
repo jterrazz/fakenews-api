@@ -80,7 +80,7 @@ export class ReportMapper {
                     : [],
             ),
             classification: new Classification(
-                prisma.classification as 'OFF_TOPIC' | 'NICHE' | 'PENDING' | 'GENERAL',
+                prisma.classification as 'GENERAL' | 'NICHE' | 'OFF_TOPIC' | 'PENDING',
             ),
             country: new Country(prisma.country),
             createdAt: prisma.createdAt,
@@ -99,18 +99,18 @@ export class ReportMapper {
 
     toPrisma(report: Report): Prisma.ReportCreateInput {
         return {
-            reportCategories: {
-                create: report.categories.toArray().map((c) => ({ category: c })),
-            },
             classification: report.classification.toString() as
-                | 'OFF_TOPIC'
+                | 'GENERAL'
                 | 'NICHE'
-                | 'PENDING'
-                | 'GENERAL',
+                | 'OFF_TOPIC'
+                | 'PENDING',
             country: this.mapCountryToPrisma(report.country),
             dateline: report.dateline,
             facts: report.facts,
             id: report.id,
+            reportCategories: {
+                create: report.categories.toArray().map((c) => ({ category: c })),
+            },
             sources: report.sourceReferences,
             // Removed JSON traits - using typed columns
             traitsSmart: report.traits?.smart ?? false,

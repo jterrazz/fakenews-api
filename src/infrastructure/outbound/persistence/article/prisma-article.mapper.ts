@@ -98,16 +98,18 @@ export class ArticleMapper {
                 (prisma as PrismaArticle & { fabricatedReason?: string }).fabricatedReason ?? null,
             ),
             body: new Body(prisma.body),
-            categories: new Categories(
-                Array.isArray((prisma as unknown as { articleCategories?: Array<{ category: string }> })
-                    .articleCategories)
-                    ? ((prisma as unknown as { articleCategories: Array<{ category: string }> })
-                          .articleCategories.map((c) => c.category) as string[])
-                    : [],
-            ),
+            categories: (() => {
+                const joinCats = (
+                    prisma as unknown as { articleCategories?: Array<{ category: string }> }
+                ).articleCategories;
+                const values = Array.isArray(joinCats)
+                    ? (joinCats.map((c) => c.category) as string[])
+                    : [];
+                return new Categories(values.length > 0 ? values : ['OTHER']);
+            })(),
             classification: prisma.reports?.[0]?.classification
                 ? new Classification(
-                      prisma.reports[0].classification as 'OFF_TOPIC' | 'NICHE' | 'GENERAL',
+                      prisma.reports[0].classification as 'GENERAL' | 'NICHE' | 'OFF_TOPIC',
                   )
                 : undefined,
             country: new Country(prisma.country),
@@ -128,10 +130,10 @@ export class ArticleMapper {
 
     toPrisma(domain: Article): Prisma.ArticleCreateInput {
         return {
-            body: domain.body.value,
             articleCategories: {
                 create: domain.categories.toArray().map((c) => ({ category: c })),
             },
+            body: domain.body.value,
             country: this.mapCountryToPrisma(domain.country),
             fabricated: domain.isFabricated(),
             fabricatedReason: domain.authenticity.clarification,
