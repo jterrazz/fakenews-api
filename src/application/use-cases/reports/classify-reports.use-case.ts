@@ -28,7 +28,7 @@ export class ClassifyReportsUseCase {
             // Fetch reports that need to be classified
             const reportsToReview = await this.reportRepository.findMany({
                 limit: 50,
-                where: { classification: 'PENDING_CLASSIFICATION' },
+                where: { classification: 'PENDING' },
             });
 
             if (reportsToReview.length === 0) {

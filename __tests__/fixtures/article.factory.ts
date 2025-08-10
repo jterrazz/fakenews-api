@@ -89,7 +89,7 @@ export class ArticleFactory {
         const report = await prisma.report.create({
             data: {
                 categories: article.categories.toArray(),
-                classification: 'STANDARD',
+                classification: 'GENERAL',
                 country: article.country.toString() as PrismaCountry,
                 dateline: article.publishedAt,
                 facts: `Facts for ${article.headline.value}`,

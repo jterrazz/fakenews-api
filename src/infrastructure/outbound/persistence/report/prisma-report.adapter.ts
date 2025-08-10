@@ -132,7 +132,7 @@ export class PrismaReportRepository implements ReportRepositoryPort {
         offset?: number;
         startDate?: Date;
         where?: {
-            classification?: 'PENDING_CLASSIFICATION';
+            classification?: 'PENDING';
         };
     }): Promise<Report[]> {
         const where: Record<string, unknown> = {};
@@ -206,7 +206,7 @@ export class PrismaReportRepository implements ReportRepositoryPort {
 
     async findReportsWithoutArticles(criteria?: {
         category?: string;
-        classification?: Array<'NICHE' | 'PENDING_CLASSIFICATION' | 'STANDARD'>;
+        classification?: Array<'GENERAL' | 'NICHE' | 'PENDING'>;
         country?: string;
         limit?: number;
     }): Promise<Report[]> {

@@ -34,7 +34,7 @@ type ArticleInsights = Array<{
 
 type ArticleMetadata = {
     categories: Category[];
-    classification?: 'ARCHIVED' | 'NICHE' | 'STANDARD';
+    classification?: 'OFF_TOPIC' | 'NICHE' | 'GENERAL';
     country: Country;
     fabricated: boolean;
     language: Language;
@@ -120,9 +120,9 @@ export class GetArticlesResponsePresenter {
             metadata: {
                 categories: article.categories.toArray() as Category[],
                 classification: article.classification?.toString() as
-                    | 'ARCHIVED'
+                    | 'OFF_TOPIC'
                     | 'NICHE'
-                    | 'STANDARD'
+                    | 'GENERAL'
                     | undefined,
                 country: article.country.toString() as Country,
                 fabricated: article.isFabricated(),

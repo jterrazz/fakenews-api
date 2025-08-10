@@ -96,7 +96,7 @@ describe('GenerateArticlesFromReportsUseCase', () => {
 
             // Then - it should find reports without articles
             expect(mockReportRepository.findReportsWithoutArticles).toHaveBeenCalledWith({
-                classification: ['STANDARD', 'NICHE'],
+                classification: ['GENERAL', 'NICHE'],
                 country: country.toString(),
                 limit: 20,
             });
@@ -196,7 +196,7 @@ describe('GenerateArticlesFromReportsUseCase', () => {
 
             // Then - it should pass correct parameters to report repository
             expect(mockReportRepository.findReportsWithoutArticles).toHaveBeenCalledWith({
-                classification: ['STANDARD', 'NICHE'],
+                classification: ['GENERAL', 'NICHE'],
                 country: country.toString(),
                 limit: 20,
             });

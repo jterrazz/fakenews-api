@@ -50,7 +50,7 @@ export class GenerateArticlesFromReportsUseCase {
 
             // Find reports that are ready for article generation
             const reportsToProcess = await this.reportRepository.findReportsWithoutArticles({
-                classification: ['STANDARD', 'NICHE'],
+                classification: ['GENERAL', 'NICHE'],
                 country: country.toString(),
                 limit: 20, // Process in batches to avoid overwhelming the AI agent
             });

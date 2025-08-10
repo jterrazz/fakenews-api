@@ -72,14 +72,14 @@ export class ReportClassificationAgentAdapter implements ReportClassificationAge
 
         return new UserPrompt(
             // Core Mission
-            'You are the Senior Editor of a global digital newsroom. Decide whether the following report belongs in the MAIN feed (STANDARD), in a specialised vertical (NICHE), or should be excluded (ARCHIVED). Your judgment balances audience breadth, relevance, and editorial quality.',
+            'You are the Senior Editor of a global digital newsroom. Decide whether the following report belongs in the MAIN feed (GENERAL), in a specialised vertical (NICHE), or should be excluded (OFF_TOPIC). Your judgment balances audience breadth, relevance, and editorial quality.',
             '',
 
             // Classification Guidelines
             'CLASSIFICATION GUIDELINES:',
-            '• STANDARD → National or international relevance with broad public interest; would appear on the front page of leading general-interest outlets (e.g., FIFA World Cup final, presidential election results, central-bank rate changes).',
+            '• GENERAL → National or international relevance with broad public interest; would appear on the front page of leading general-interest outlets (e.g., FIFA World Cup final, presidential election results, central-bank rate changes).',
             '• NICHE → Relevant primarily to a well-defined subgroup (region, industry, hobby, or demographic) with limited mainstream crossover (e.g., minor league transfers, specialised open-source framework update, niche hobby convention).',
-            '• ARCHIVED → Lacks real-world news value or is purely auxiliary content (e.g. game guides, listicles, promotions, opinion pieces without factual basis, horoscopes, astrology, pseudoscientific predictions, lifestyle advice without news basis).',
+            '• OFF_TOPIC → Lacks real-world news value or is purely auxiliary content (e.g. game guides, listicles, promotions, opinion pieces without factual basis, horoscopes, astrology, pseudoscientific predictions, lifestyle advice without news basis).',
             '',
 
             // Analysis Framework
@@ -91,7 +91,7 @@ export class ReportClassificationAgentAdapter implements ReportClassificationAge
 
             // Output Requirements
             'OUTPUT REQUIREMENTS:',
-            '• classification → One of: STANDARD | NICHE | ARCHIVED.',
+            '• classification → One of: GENERAL | NICHE | OFF_TOPIC.',
             '• reason → One concise sentence explaining the decision.',
             '• traits → Content characteristics (boolean flags):',
             '    • smart → true ONLY for content that helps understand world dynamics, geopolitics, economics, or systemic mechanisms - reserved for readers who genuinely want to comprehend how the world works (avoid superficial/clickbait)',
@@ -102,8 +102,8 @@ export class ReportClassificationAgentAdapter implements ReportClassificationAge
             'CRITICAL RULES:',
             '• You MUST choose exactly one classification.',
             '• You MUST provide a reason that is clear, brief, and references the audience or content nature.',
-            '• You MUST classify any horoscopes, astrology, pseudoscientific predictions, or lifestyle guidance as ARCHIVED.',
-            '• Content must be factual news reporting to qualify for STANDARD or NICHE classification.',
+            '• You MUST classify any horoscopes, astrology, pseudoscientific predictions, or lifestyle guidance as OFF_TOPIC.',
+            '• Content must be factual news reporting to qualify for GENERAL or NICHE classification.',
             '• Trait flags are boolean - set to true only when content genuinely meets the criteria.',
             '• smart flag should only be true for content that genuinely helps understand world dynamics, geopolitics, economics, or systemic mechanisms - not just general knowledge or surface-level insights.',
             '• uplifting flag should only be true for authentically positive content, not neutral or "less negative" stories.',

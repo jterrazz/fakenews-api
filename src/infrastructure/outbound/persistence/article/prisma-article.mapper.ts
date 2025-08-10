@@ -105,7 +105,7 @@ export class ArticleMapper {
             ),
             classification: prisma.reports?.[0]?.classification
                 ? new Classification(
-                      prisma.reports[0].classification as 'ARCHIVED' | 'NICHE' | 'STANDARD',
+                      prisma.reports[0].classification as 'OFF_TOPIC' | 'NICHE' | 'GENERAL',
                   )
                 : undefined,
             country: new Country(prisma.country),

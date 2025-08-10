@@ -21,7 +21,7 @@ import { ClassifyReportsUseCase } from '../classify-reports.use-case.js';
 
 const createMockReport = (
     id: string,
-    tier: 'NICHE' | 'PENDING_CLASSIFICATION' | 'STANDARD' = 'PENDING_CLASSIFICATION',
+    tier: 'NICHE' | 'PENDING' | 'GENERAL' = 'PENDING',
 ): Report => {
     const reportId = id;
     return new Report({
@@ -76,7 +76,7 @@ describe('ClassifyReportsUseCase', () => {
         test('should classify reports pending review and update their status', async () => {
             // Given
             const classificationResult: ReportClassificationResult = {
-                classification: new Classification('STANDARD'),
+                classification: new Classification('GENERAL'),
                 reason: 'A solid, well-written report with broad appeal.',
                 traits: new ArticleTraits({ smart: true, uplifting: false }),
             };
@@ -88,7 +88,7 @@ describe('ClassifyReportsUseCase', () => {
             // Then
             expect(mockReportRepository.findMany).toHaveBeenCalledWith({
                 limit: 50,
-                where: { classification: 'PENDING_CLASSIFICATION' },
+                where: { classification: 'PENDING' },
             });
             expect(mockReportClassificationAgent.run).toHaveBeenCalledWith({
                 report: reportToReview,

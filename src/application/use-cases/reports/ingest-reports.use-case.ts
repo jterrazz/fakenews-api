@@ -148,7 +148,7 @@ export class IngestReportsUseCase {
                     const report = new Report({
                         angles,
                         categories: ingestionResult.categories,
-                        classification: new Classification('PENDING_CLASSIFICATION'),
+                        classification: new Classification('PENDING'),
                         country,
                         createdAt: now,
                         dateline: newsReport.publishedAt,

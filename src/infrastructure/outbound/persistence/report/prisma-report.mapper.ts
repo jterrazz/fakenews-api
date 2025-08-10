@@ -79,11 +79,7 @@ export class ReportMapper {
                 Array.isArray(prisma.categories) ? (prisma.categories as string[]) : [],
             ),
             classification: new Classification(
-                prisma.classification as
-                    | 'ARCHIVED'
-                    | 'NICHE'
-                    | 'PENDING_CLASSIFICATION'
-                    | 'STANDARD',
+                prisma.classification as 'OFF_TOPIC' | 'NICHE' | 'PENDING' | 'GENERAL',
             ),
             country: new Country(prisma.country),
             createdAt: prisma.createdAt,
@@ -100,10 +96,10 @@ export class ReportMapper {
         return {
             categories: this.mapCategoriesToPrisma(report.categories),
             classification: report.classification.toString() as
-                | 'ARCHIVED'
+                | 'OFF_TOPIC'
                 | 'NICHE'
-                | 'PENDING_CLASSIFICATION'
-                | 'STANDARD',
+                | 'PENDING'
+                | 'GENERAL',
             country: this.mapCountryToPrisma(report.country),
             dateline: report.dateline,
             facts: report.facts,

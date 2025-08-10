@@ -50,7 +50,7 @@ describe('Server /articles route – integration', () => {
                     insights: [],
                     metadata: {
                         categories: ['TECHNOLOGY'],
-                        classification: 'STANDARD',
+                        classification: 'GENERAL',
                         country: 'US',
                         fabricated: true,
                         language: 'EN',
@@ -79,7 +79,7 @@ describe('Server /articles route – integration', () => {
                     insights: [],
                     metadata: {
                         categories: ['TECHNOLOGY'],
-                        classification: 'STANDARD',
+                        classification: 'GENERAL',
                         country: 'US',
                         fabricated: false,
                         language: 'EN',
@@ -108,7 +108,7 @@ describe('Server /articles route – integration', () => {
                     insights: [],
                     metadata: {
                         categories: ['TECHNOLOGY'],
-                        classification: 'STANDARD',
+                        classification: 'GENERAL',
                         country: 'US',
                         fabricated: false,
                         language: 'EN',

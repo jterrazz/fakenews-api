@@ -10,6 +10,7 @@ export class PrismaAdapter implements DatabasePort {
         private readonly logger: LoggerPort,
         databaseUrl: string,
     ) {
+        this.logger.info('Configuring Prisma adapter', { databaseUrl });
         this.client = new PrismaClient({
             datasources: {
                 db: {
@@ -54,6 +55,7 @@ export class PrismaAdapter implements DatabasePort {
     }
 
     async connect(): Promise<void> {
+        this.logger.info('Connecting to database via Prisma Client');
         await this.client.$connect();
     }
 

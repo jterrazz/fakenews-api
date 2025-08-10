@@ -94,7 +94,7 @@ describe('Worker – report-pipeline task (happy path) – integration', () => {
 
         const snapshot = normaliseSnapshot(articlesApiFormat, [[SOURCE_RE, '<source>']]);
 
-        const authTemplate = (country: 'FR' | 'US', classification: 'NICHE' | 'STANDARD') => ({
+        const authTemplate = (country: 'FR' | 'US', classification: 'NICHE' | 'GENERAL') => ({
             authenticity: 'authentic',
             body: 'Neutral summary of the core, undisputed facts of the event.',
             category: 'TECHNOLOGY',
@@ -132,9 +132,9 @@ describe('Worker – report-pipeline task (happy path) – integration', () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const _expectedSnapshot: any[] = [
             authTemplate('FR', 'NICHE'),
-            authTemplate('FR', 'STANDARD'),
+            authTemplate('FR', 'GENERAL'),
             authTemplate('US', 'NICHE'),
-            authTemplate('US', 'STANDARD'),
+            authTemplate('US', 'GENERAL'),
             {
                 authenticity: 'fabricated',
                 body: 'Satirical article body exaggerating the discovery of unicorn fossil fuels capable of infinite clean energy, clearly fictional.',

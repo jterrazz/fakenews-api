@@ -39,7 +39,7 @@ export interface ReportRepositoryPort {
         offset?: number;
         startDate?: Date;
         where?: {
-            classification?: 'PENDING_CLASSIFICATION';
+            classification?: 'PENDING';
         };
     }): Promise<Report[]>;
 
@@ -59,7 +59,7 @@ export interface ReportRepositoryPort {
      */
     findReportsWithoutArticles(criteria?: {
         category?: string;
-        classification?: Array<'NICHE' | 'PENDING_CLASSIFICATION' | 'STANDARD'>;
+        classification?: Array<'NICHE' | 'PENDING' | 'GENERAL'>;
         country?: string;
         limit?: number;
     }): Promise<Report[]>;

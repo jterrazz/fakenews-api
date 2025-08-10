@@ -97,7 +97,7 @@ export class PrismaArticleRepository implements ArticleRepositoryPort {
                 },
             }),
             ...(options.classification && {
-                // Explicit inclusion filter (STANDARD / NICHE)
+                // Explicit inclusion filter (GENERAL / NICHE)
                 reports: {
                     some: {
                         classification: {
@@ -108,7 +108,7 @@ export class PrismaArticleRepository implements ArticleRepositoryPort {
             }),
         };
 
-        // If excludeArchived is true (default), exclude articles that are ARCHIVED.
+        // If excludeArchived is true (default), exclude articles that are OFF_TOPIC.
         // This must allow articles with no reports (fake/unclassified) **or** reports with classification not ARCHIVED.
         if (!options.classification && options.excludeArchived !== false) {
             Object.assign(where, {
@@ -118,7 +118,7 @@ export class PrismaArticleRepository implements ArticleRepositoryPort {
                         reports: {
                             some: {
                                 classification: {
-                                    not: 'ARCHIVED',
+                                    not: 'OFF_TOPIC',
                                 },
                             },
                         },

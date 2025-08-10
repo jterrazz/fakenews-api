@@ -9,7 +9,7 @@
   "scripts": {
     "build": "prisma generate && ts-build",
     "start": ". scripts/env.sh && prisma migrate deploy && node --enable-source-maps -r newrelic dist/index.js",
-    "dev": ". scripts/env.sh && prisma migrate deploy && NODE_ENV=development ts-dev",
+    "dev": ". scripts/env.sh && prisma db push && NODE_ENV=development ts-dev",
     "test": "vitest --run",
     "lint": "quality",
     "lint:fix": "quality-fix"

@@ -54,11 +54,11 @@ export interface FindHeadlinesAndSummariesOptions {
 export interface FindManyOptions {
     categories?: Categories;
     category?: Category;
-    classification?: Array<'NICHE' | 'STANDARD'>;
+    classification?: Array<'NICHE' | 'GENERAL'>;
     country?: Country;
     cursor?: Date;
     /**
-     * Exclude articles whose associated report classification is ARCHIVED.
+     * Exclude articles whose associated report classification is OFF_TOPIC.
      * Defaults to true for most consumer-facing queries.
      */
     excludeArchived?: boolean;

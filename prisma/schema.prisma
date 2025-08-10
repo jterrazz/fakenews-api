@@ -32,10 +32,10 @@ enum Category {
 }
 
 enum Classification {
-  STANDARD
+  GENERAL
   NICHE
-  PENDING_CLASSIFICATION
-  ARCHIVED
+  PENDING
+  OFF_TOPIC
 }
 
 // Review status for duplicate lineage
@@ -50,7 +50,7 @@ model Report {
   facts          String
   categories     Json // Array of Category enum values
   traits         Json // Content traits: { smart: boolean, uplifting: boolean }
-  classification Classification @default(PENDING_CLASSIFICATION)
+  classification Classification @default(PENDING)
 
   // Geographic and temporal context
   country  Country

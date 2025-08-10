@@ -35,7 +35,7 @@ describe('IngestReportsUseCase', () => {
                 }),
             ],
             categories: new Categories(['TECHNOLOGY']),
-            classification: new Classification('PENDING_CLASSIFICATION'),
+            classification: new Classification('PENDING'),
             country: new Country('us'),
             createdAt: new Date(),
             dateline: new Date(),

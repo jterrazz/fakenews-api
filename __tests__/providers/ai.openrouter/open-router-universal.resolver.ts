@@ -48,10 +48,10 @@ function handleIngestion(model: string) {
 }
 
 let classificationCounter = -1;
-const classificationCycle: Array<'ARCHIVED' | 'NICHE' | 'STANDARD'> = [
-    'STANDARD',
+const classificationCycle: Array<'OFF_TOPIC' | 'NICHE' | 'GENERAL'> = [
+    'GENERAL',
     'NICHE',
-    'ARCHIVED',
+    'OFF_TOPIC',
 ];
 
 interface ChatMessage {
