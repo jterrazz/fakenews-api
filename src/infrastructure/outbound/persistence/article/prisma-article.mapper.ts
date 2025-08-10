@@ -26,32 +26,30 @@ import { Classification } from '../../../../domain/value-objects/report/classifi
 
 export class ArticleMapper {
     /**
-     * Creates a Prisma where condition for category filtering using JSON array operations
+     * Creates a Prisma where condition for category filtering using join table
      */
     createCategoryFilter(category?: Category, categories?: Categories): object | undefined {
-        if (categories) {
-            // Filter articles that contain ANY of the specified categories
+        if (categories && categories.toArray().length > 0) {
             return {
-                categories: {
-                    array_contains: categories.toArray(),
+                articleCategories: {
+                    some: {
+                        category: { in: categories.toArray() },
+                    },
                 },
             };
         }
 
         if (category) {
-            // Filter articles that contain the specific category
             return {
-                categories: {
-                    array_contains: [category.value],
+                articleCategories: {
+                    some: {
+                        category: category.value,
+                    },
                 },
             };
         }
 
         return undefined;
-    }
-
-    mapCategoriesToPrisma(categories: Categories): string[] {
-        return categories.toArray();
     }
 
     mapCountryToPrisma(country: Country): PrismaCountry {
@@ -101,7 +99,11 @@ export class ArticleMapper {
             ),
             body: new Body(prisma.body),
             categories: new Categories(
-                Array.isArray(prisma.categories) ? (prisma.categories as string[]) : [],
+                Array.isArray((prisma as unknown as { articleCategories?: Array<{ category: string }> })
+                    .articleCategories)
+                    ? ((prisma as unknown as { articleCategories: Array<{ category: string }> })
+                          .articleCategories.map((c) => c.category) as string[])
+                    : [],
             ),
             classification: prisma.reports?.[0]?.classification
                 ? new Classification(
@@ -116,14 +118,20 @@ export class ArticleMapper {
             publishedAt: prisma.publishedAt,
             quizQuestions,
             reportIds: prisma.reports?.map((report) => report.id),
-            traits: ArticleTraits.fromJSON(prisma.traits || {}),
+            traits: new ArticleTraits({
+                smart: (prisma as unknown as { traitsSmart?: boolean }).traitsSmart ?? false,
+                uplifting:
+                    (prisma as unknown as { traitsUplifting?: boolean }).traitsUplifting ?? false,
+            }),
         });
     }
 
     toPrisma(domain: Article): Prisma.ArticleCreateInput {
         return {
             body: domain.body.value,
-            categories: this.mapCategoriesToPrisma(domain.categories),
+            articleCategories: {
+                create: domain.categories.toArray().map((c) => ({ category: c })),
+            },
             country: this.mapCountryToPrisma(domain.country),
             fabricated: domain.isFabricated(),
             fabricatedReason: domain.authenticity.clarification,
@@ -154,7 +162,9 @@ export class ArticleMapper {
                       connect: domain.reportIds.map((id) => ({ id })),
                   }
                 : undefined,
-            traits: domain.traits.toJSON(),
+            // Removed JSON traits - using typed columns only
+            traitsSmart: domain.traits.smart,
+            traitsUplifting: domain.traits.uplifting,
         } as unknown as Prisma.ArticleCreateInput;
     }
 }

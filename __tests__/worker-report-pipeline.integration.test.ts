@@ -76,7 +76,7 @@ describe('Worker – report-pipeline task (happy path) – integration', () => {
             include: { angles: true },
         });
         const articles = await integrationContext.prisma.article.findMany({
-            include: { frames: true, reports: true },
+            include: { frames: true, reports: true, articleCategories: true },
         });
 
         // Basic expectations
@@ -86,6 +86,9 @@ describe('Worker – report-pipeline task (happy path) – integration', () => {
         // Transform database format to API format for consistent testing
         const articlesApiFormat = articles.map((article) => ({
             ...article,
+            // Surface categories as an array for snapshot expectations
+            categories: (article as unknown as { articleCategories?: Array<{ category: string }> })
+                .articleCategories?.map((c) => c.category) ?? [],
             // Remove the raw database reason field (keep fabricated boolean)
             fabricatedReason: undefined,
         }));

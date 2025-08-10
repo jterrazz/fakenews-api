@@ -138,6 +138,7 @@ export class PrismaArticleRepository implements ArticleRepositoryPort {
                     },
                     take: 1, // We only need the classification from one report
                 },
+                articleCategories: true,
             },
             orderBy: {
                 publishedAt: 'desc',

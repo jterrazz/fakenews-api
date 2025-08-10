@@ -88,20 +88,25 @@ export class ArticleFactory {
         // A minimal linked report is required by the API contract.
         const report = await prisma.report.create({
             data: {
-                categories: article.categories.toArray(),
                 classification: 'GENERAL',
                 country: article.country.toString() as PrismaCountry,
                 dateline: article.publishedAt,
                 facts: `Facts for ${article.headline.value}`,
+                reportCategories: {
+                    create: article.categories.toArray().map((c) => ({ category: c })),
+                },
                 sources: [],
-                traits: {},
+                traitsSmart: article.traits.smart,
+                traitsUplifting: article.traits.uplifting,
             },
         });
 
         await prisma.article.create({
             data: {
+                articleCategories: {
+                    create: article.categories.toArray().map((c) => ({ category: c })),
+                },
                 body: article.body.value,
-                categories: article.categories.toArray(),
                 country: article.country.toString() as PrismaCountry,
                 createdAt: article.publishedAt,
                 fabricated: article.isFabricated(),
@@ -113,7 +118,8 @@ export class ArticleFactory {
                 reports: {
                     connect: { id: report.id },
                 },
-                traits: {},
+                traitsSmart: article.traits.smart,
+                traitsUplifting: article.traits.uplifting,
             } as unknown as Prisma.ArticleCreateInput,
         });
 

@@ -168,6 +168,7 @@ export class PrismaReportRepository implements ReportRepositoryPort {
         const reports = await this.prisma.getPrismaClient().report.findMany({
             include: {
                 angles: true,
+                reportCategories: true,
             },
             orderBy: {
                 dateline: 'desc',
@@ -241,6 +242,7 @@ export class PrismaReportRepository implements ReportRepositoryPort {
         const reports = await this.prisma.getPrismaClient().report.findMany({
             include: {
                 angles: true,
+                reportCategories: true,
             },
             orderBy: {
                 dateline: 'desc',

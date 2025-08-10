@@ -25,32 +25,30 @@ export class ReportMapper {
     }
 
     /**
-     * Creates a Prisma where condition for category filtering using JSON array operations
+     * Creates a Prisma where condition for category filtering using join table
      */
     createCategoryFilter(category?: string, categories?: string[]): object | undefined {
-        if (categories) {
-            // Filter reports that contain ANY of the specified categories
+        if (categories && categories.length > 0) {
             return {
-                categories: {
-                    array_contains: categories,
+                reportCategories: {
+                    some: {
+                        category: { in: categories },
+                    },
                 },
             };
         }
 
         if (category) {
-            // Filter reports that contain the specific category
             return {
-                categories: {
-                    array_contains: [category],
+                reportCategories: {
+                    some: {
+                        category,
+                    },
                 },
             };
         }
 
         return undefined;
-    }
-
-    mapCategoriesToPrisma(categories: Categories): string[] {
-        return categories.toArray();
     }
 
     mapCountryFromPrisma(country: PrismaCountry): Country {
@@ -64,6 +62,7 @@ export class ReportMapper {
     toDomain(
         prisma: PrismaReport & {
             angles: PrismaReportAngle[];
+            reportCategories?: Array<{ category: string }>;
         },
     ): Report {
         const angles = prisma.angles.map(
@@ -76,7 +75,9 @@ export class ReportMapper {
         return new Report({
             angles,
             categories: new Categories(
-                Array.isArray(prisma.categories) ? (prisma.categories as string[]) : [],
+                Array.isArray(prisma.reportCategories)
+                    ? (prisma.reportCategories.map((c) => c.category) as string[])
+                    : [],
             ),
             classification: new Classification(
                 prisma.classification as 'OFF_TOPIC' | 'NICHE' | 'PENDING' | 'GENERAL',
@@ -87,14 +88,20 @@ export class ReportMapper {
             facts: prisma.facts,
             id: prisma.id,
             sourceReferences: Array.isArray(prisma.sources) ? (prisma.sources as string[]) : [],
-            traits: ArticleTraits.fromJSON(prisma.traits || {}),
+            traits: new ArticleTraits({
+                smart: (prisma as unknown as { traitsSmart?: boolean }).traitsSmart ?? false,
+                uplifting:
+                    (prisma as unknown as { traitsUplifting?: boolean }).traitsUplifting ?? false,
+            }),
             updatedAt: prisma.updatedAt,
         });
     }
 
     toPrisma(report: Report): Prisma.ReportCreateInput {
         return {
-            categories: this.mapCategoriesToPrisma(report.categories),
+            reportCategories: {
+                create: report.categories.toArray().map((c) => ({ category: c })),
+            },
             classification: report.classification.toString() as
                 | 'OFF_TOPIC'
                 | 'NICHE'
@@ -105,7 +112,9 @@ export class ReportMapper {
             facts: report.facts,
             id: report.id,
             sources: report.sourceReferences,
-            traits: report.traits?.toJSON() || { smart: false, uplifting: false },
+            // Removed JSON traits - using typed columns
+            traitsSmart: report.traits?.smart ?? false,
+            traitsUplifting: report.traits?.uplifting ?? false,
         };
     }
 }
