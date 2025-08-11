@@ -4,7 +4,7 @@ import { z } from 'zod/v4';
  * Zod schema for the Classification. It validates that the classification
  * is one of the allowed string literals.
  */
-export const classificationSchema = z.enum(['GENERAL', 'NICHE', 'PENDING', 'OFF_TOPIC']);
+export const classificationSchema = z.enum(['GENERAL', 'NICHE', 'OFF_TOPIC']);
 
 export type ClassificationType = z.infer<typeof classificationSchema>;
 

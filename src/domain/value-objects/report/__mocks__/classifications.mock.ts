@@ -1,6 +1,6 @@
 import { Classification } from '../classification.vo.js';
 
-const CLASS_VALUES: Classification['value'][] = ['GENERAL', 'NICHE', 'PENDING', 'OFF_TOPIC'];
+const CLASS_VALUES: Classification['value'][] = ['GENERAL', 'NICHE', 'OFF_TOPIC'];
 
 export const CLASSIFICATION_FIXTURES: Classification[] = CLASS_VALUES.map(
     (v) => new Classification(v),

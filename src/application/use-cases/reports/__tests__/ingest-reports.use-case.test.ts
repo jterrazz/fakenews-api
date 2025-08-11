@@ -7,7 +7,8 @@ import { ArticleTraits } from '../../../../domain/value-objects/article-traits.v
 import { Categories } from '../../../../domain/value-objects/categories.vo.js';
 import { Country } from '../../../../domain/value-objects/country.vo.js';
 import { Language } from '../../../../domain/value-objects/language.vo.js';
-import { Classification } from '../../../../domain/value-objects/report/classification.vo.js';
+import { ClassificationState } from '../../../../domain/value-objects/report/classification-state.vo.js';
+import { DeduplicationState } from '../../../../domain/value-objects/report/deduplication-state.vo.js';
 import { AngleCorpus } from '../../../../domain/value-objects/report-angle/angle-corpus.vo.js';
 import { ReportAngle } from '../../../../domain/value-objects/report-angle/report-angle.vo.js';
 
@@ -25,7 +26,7 @@ import {
 import { IngestReportsUseCase } from '../ingest-reports.use-case.js';
 
 describe('IngestReportsUseCase', () => {
-    const createEmptyReport = (id: string): Report =>
+    const createEmptyReport = (_id: string): Report =>
         new Report({
             angles: [
                 new ReportAngle({
@@ -35,10 +36,12 @@ describe('IngestReportsUseCase', () => {
                 }),
             ],
             categories: new Categories(['TECHNOLOGY']),
-            classification: new Classification('PENDING'),
+            classification: undefined,
+            classificationState: new ClassificationState('PENDING'),
             country: new Country('us'),
             createdAt: new Date(),
             dateline: new Date(),
+            deduplicationState: new DeduplicationState('PENDING'),
             facts: 'These are valid report facts that are definitely long enough for testing purposes. They detail the event and provide context that should be sufficient for any validation checks that might be in place, ensuring that this mock object is robust.',
             id: '11111111-1111-4111-8111-111111111111',
             sourceReferences: [],

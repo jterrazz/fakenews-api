@@ -4,7 +4,8 @@ import { randomUUID } from 'crypto';
 import { Report } from '../../../domain/entities/report.entity.js';
 import { type Country } from '../../../domain/value-objects/country.vo.js';
 import { type Language } from '../../../domain/value-objects/language.vo.js';
-import { Classification } from '../../../domain/value-objects/report/classification.vo.js';
+import { ClassificationState } from '../../../domain/value-objects/report/classification-state.vo.js';
+import { DeduplicationState } from '../../../domain/value-objects/report/deduplication-state.vo.js';
 import { AngleCorpus } from '../../../domain/value-objects/report-angle/angle-corpus.vo.js';
 import { ReportAngle } from '../../../domain/value-objects/report-angle/report-angle.vo.js';
 
@@ -148,10 +149,12 @@ export class IngestReportsUseCase {
                     const report = new Report({
                         angles,
                         categories: ingestionResult.categories,
-                        classification: new Classification('PENDING'),
+                        classification: undefined,
+                        classificationState: new ClassificationState('PENDING'), // Will be set during classification
                         country,
                         createdAt: now,
                         dateline: newsReport.publishedAt,
+                        deduplicationState: new DeduplicationState('PENDING'),
                         facts: ingestionResult.facts,
                         id: reportId,
                         sourceReferences: newsReport.articles.map((a) => a.id),

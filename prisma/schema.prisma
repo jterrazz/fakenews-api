@@ -161,11 +161,20 @@ enum Category {
   OTHER
 }
 
+enum ClassificationState {
+  PENDING
+  COMPLETE
+}
+
 enum Classification {
   GENERAL
   NICHE
-  PENDING
   OFF_TOPIC
+}
+
+enum DeduplicationState {
+  PENDING
+  COMPLETE
 }
 
 // Review status for duplicate lineage
@@ -181,7 +190,10 @@ model Report {
   reportCategories ReportCategory[]
   traitsSmart      Boolean          @default(false)
   traitsUplifting  Boolean          @default(false)
-  classification   Classification   @default(PENDING)
+
+  // Step 1: Classification
+  classificationState ClassificationState @default(PENDING)
+  classification      Classification? // Only set when classificationState = COMPLETE
 
   // Geographic and temporal context
   country  Country
@@ -190,11 +202,12 @@ model Report {
   // Sources
   sources Json
 
-  // Deduplication lineage & review
-  duplicateOfId   String?
-  duplicateOf     Report?                @relation("ReportDuplicateOf", fields: [duplicateOfId], references: [id])
-  duplicates      Report[]               @relation("ReportDuplicateOf")
-  duplicateReview DuplicateReviewStatus?
+  // Step 2: Deduplication
+  deduplicationState DeduplicationState     @default(PENDING)
+  duplicateOfId      String?
+  duplicateOf        Report?                @relation("ReportDuplicateOf", fields: [duplicateOfId], references: [id])
+  duplicates         Report[]               @relation("ReportDuplicateOf")
+  duplicateReview    DuplicateReviewStatus?
 
   // Relations
   angles   ReportAngle[]
@@ -204,6 +217,8 @@ model Report {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([classificationState])
+  @@index([deduplicationState])
   @@index([duplicateOfId])
   @@index([duplicateReview])
   @@index([country])

@@ -137,7 +137,7 @@ export class PrismaReportRepository implements ReportRepositoryPort {
         offset?: number;
         startDate?: Date;
         where?: {
-            classification?: 'PENDING';
+            classificationState?: 'PENDING';
         };
     }): Promise<Report[]> {
         const where: Record<string, unknown> = {};
@@ -163,9 +163,9 @@ export class PrismaReportRepository implements ReportRepositoryPort {
             };
         }
 
-        // Classification filter
-        if (criteria.where?.classification) {
-            where.classification = criteria.where.classification;
+        // Classification state filter
+        if (criteria.where?.classificationState) {
+            where.classificationState = criteria.where.classificationState;
             // Note: duplicate filtering (duplicateOfId = null) intentionally omitted to maintain
             // compatibility with older generated Prisma clients during tests.
         }
@@ -212,7 +212,8 @@ export class PrismaReportRepository implements ReportRepositoryPort {
 
     async findReportsWithoutArticles(criteria?: {
         category?: string;
-        classification?: Array<'GENERAL' | 'NICHE' | 'PENDING'>;
+        classification?: Array<'GENERAL' | 'NICHE' | 'OFF_TOPIC'>;
+        classificationState?: 'COMPLETE' | 'PENDING';
         country?: string;
         limit?: number;
     }): Promise<Report[]> {
@@ -238,6 +239,11 @@ export class PrismaReportRepository implements ReportRepositoryPort {
         // Exclude suspected/confirmed duplicates – generate articles only from canonicals
         // Note: duplicate filtering (duplicateOfId = null) intentionally omitted to maintain
         // compatibility with older generated Prisma clients during tests.
+
+        // Classification state filter
+        if (criteria?.classificationState) {
+            where.classificationState = criteria.classificationState;
+        }
 
         // Classification filter
         if (criteria?.classification && criteria.classification.length > 0) {
@@ -287,8 +293,16 @@ export class PrismaReportRepository implements ReportRepositoryPort {
     async update(id: string, data: Partial<Report>): Promise<Report> {
         const updateData: Record<string, unknown> = {};
 
+        if (data.classificationState) {
+            updateData.classificationState = data.classificationState.toString();
+        }
+
         if (data.classification) {
             updateData.classification = data.classification.toString();
+        }
+
+        if (data.deduplicationState) {
+            updateData.deduplicationState = data.deduplicationState.toString();
         }
 
         if (data.traits) {

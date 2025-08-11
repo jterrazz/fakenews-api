@@ -8,6 +8,8 @@ import { ArticleTraits } from '../../../../domain/value-objects/article-traits.v
 import { Categories } from '../../../../domain/value-objects/categories.vo.js';
 import { Country } from '../../../../domain/value-objects/country.vo.js';
 import { Classification } from '../../../../domain/value-objects/report/classification.vo.js';
+import { ClassificationState } from '../../../../domain/value-objects/report/classification-state.vo.js';
+import { DeduplicationState } from '../../../../domain/value-objects/report/deduplication-state.vo.js';
 import { AngleCorpus } from '../../../../domain/value-objects/report-angle/angle-corpus.vo.js';
 import { ReportAngle } from '../../../../domain/value-objects/report-angle/report-angle.vo.js';
 
@@ -21,7 +23,8 @@ import { ClassifyReportsUseCase } from '../classify-reports.use-case.js';
 
 const createMockReport = (
     id: string,
-    tier: 'GENERAL' | 'NICHE' | 'PENDING' = 'PENDING',
+    classificationState: 'COMPLETE' | 'PENDING' = 'PENDING',
+    classification?: 'GENERAL' | 'NICHE' | 'OFF_TOPIC',
 ): Report => {
     const reportId = id;
     return new Report({
@@ -33,10 +36,12 @@ const createMockReport = (
             }),
         ],
         categories: new Categories(['TECHNOLOGY']),
-        classification: new Classification(tier),
+        classification: classification ? new Classification(classification) : undefined,
+        classificationState: new ClassificationState(classificationState),
         country: new Country('us'),
         createdAt: new Date(),
         dateline: new Date(),
+        deduplicationState: new DeduplicationState('PENDING'),
         facts: 'These are valid report facts that are definitely long enough for testing purposes. They detail the event and provide context that should be sufficient for any validation checks that might be in place, ensuring that this mock object is robust.',
         id: reportId,
         sourceReferences: ['source-1'],
@@ -88,13 +93,14 @@ describe('ClassifyReportsUseCase', () => {
             // Then
             expect(mockReportRepository.findMany).toHaveBeenCalledWith({
                 limit: 50,
-                where: { classification: 'PENDING' },
+                where: { classificationState: 'PENDING' },
             });
             expect(mockReportClassificationAgent.run).toHaveBeenCalledWith({
                 report: reportToReview,
             });
             expect(mockReportRepository.update).toHaveBeenCalledWith(reportToReview.id, {
                 classification: expect.any(Object),
+                classificationState: expect.any(Object),
                 traits: expect.any(Object),
             });
             expect(mockLogger.info).toHaveBeenCalledWith('Report classified', {
@@ -144,6 +150,7 @@ describe('ClassifyReportsUseCase', () => {
             expect(mockReportClassificationAgent.run).toHaveBeenCalledTimes(2);
             expect(mockReportRepository.update).toHaveBeenCalledWith(report1.id, {
                 classification: expect.any(Object),
+                classificationState: expect.any(Object),
                 traits: expect.any(Object),
             });
             expect(mockReportRepository.update).not.toHaveBeenCalledWith(

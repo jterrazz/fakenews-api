@@ -1,5 +1,7 @@
 import { type LoggerPort } from '@jterrazz/logger';
 
+import { ClassificationState } from '../../../domain/value-objects/report/classification-state.vo.js';
+
 import { type ReportClassificationAgentPort } from '../../ports/outbound/agents/report-classification.agent.js';
 import { type ReportRepositoryPort } from '../../ports/outbound/persistence/report-repository.port.js';
 
@@ -28,7 +30,7 @@ export class ClassifyReportsUseCase {
             // Fetch reports that need to be classified
             const reportsToReview = await this.reportRepository.findMany({
                 limit: 50,
-                where: { classification: 'PENDING' },
+                where: { classificationState: 'PENDING' },
             });
 
             if (reportsToReview.length === 0) {
@@ -46,6 +48,7 @@ export class ClassifyReportsUseCase {
                     if (result) {
                         await this.reportRepository.update(report.id, {
                             classification: result.classification,
+                            classificationState: new ClassificationState('COMPLETE'),
                             traits: result.traits,
                         });
 

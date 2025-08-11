@@ -4,6 +4,8 @@ import { ArticleTraits } from '../value-objects/article-traits.vo.js';
 import { Categories } from '../value-objects/categories.vo.js';
 import { Country } from '../value-objects/country.vo.js';
 import { Classification } from '../value-objects/report/classification.vo.js';
+import { ClassificationState } from '../value-objects/report/classification-state.vo.js';
+import { DeduplicationState } from '../value-objects/report/deduplication-state.vo.js';
 import { ReportAngle } from '../value-objects/report-angle/report-angle.vo.js';
 
 export const factsSchema = z.string();
@@ -12,9 +14,18 @@ export const categoriesSchema = z
     .instanceof(Categories)
     .describe('The category classifications of the report.');
 
+export const classificationStateSchema = z
+    .instanceof(ClassificationState)
+    .describe('The state of the classification process.');
+
 export const classificationSchema = z
     .instanceof(Classification)
+    .optional()
     .describe('The editorial classification assigned to the report.');
+
+export const deduplicationStateSchema = z
+    .instanceof(DeduplicationState)
+    .describe('The state of the deduplication process.');
 
 export const countrySchema = z
     .instanceof(Country)
@@ -49,9 +60,11 @@ export const reportSchema = z.object({
     angles: anglesSchema,
     categories: categoriesSchema,
     classification: classificationSchema,
+    classificationState: classificationStateSchema,
     country: countrySchema,
     createdAt: createdAtSchema,
     dateline: datelineSchema,
+    deduplicationState: deduplicationStateSchema,
     facts: factsSchema,
     id: idSchema,
     sourceReferences: sourceReferencesSchema,
@@ -67,10 +80,12 @@ export type ReportProps = z.input<typeof reportSchema>;
 export class Report {
     public readonly angles: ReportAngle[];
     public readonly categories: Categories;
-    public readonly classification: Classification;
+    public readonly classification?: Classification;
+    public readonly classificationState: ClassificationState;
     public readonly country: Country;
     public readonly createdAt: Date;
     public readonly dateline: Date;
+    public readonly deduplicationState: DeduplicationState;
     public readonly facts: string;
     public readonly id: string;
     public readonly sourceReferences: string[];
@@ -95,6 +110,8 @@ export class Report {
         this.createdAt = validatedData.createdAt;
         this.updatedAt = validatedData.updatedAt;
         this.country = validatedData.country;
+        this.classificationState = validatedData.classificationState;
         this.classification = validatedData.classification;
+        this.deduplicationState = validatedData.deduplicationState;
     }
 }

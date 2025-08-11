@@ -64,7 +64,7 @@ export class ArticleMapper {
         prisma: PrismaArticle & {
             frames?: PrismaArticleFrame[];
             quizQuestions?: PrismaArticleQuiz[];
-            reports?: { classification: string; id: string }[];
+            reports?: { classification: null | string; id: string }[];
         },
     ): Article {
         const frames = prisma.frames?.map(

@@ -5,6 +5,8 @@ import { getCountry } from '../../value-objects/__mocks__/countries.mock.js';
 import { ArticleTraits } from '../../value-objects/article-traits.vo.js';
 import { Categories } from '../../value-objects/categories.vo.js';
 import { getClassification } from '../../value-objects/report/__mocks__/classifications.mock.js';
+import { ClassificationState } from '../../value-objects/report/classification-state.vo.js';
+import { DeduplicationState } from '../../value-objects/report/deduplication-state.vo.js';
 import { mockReportAngles } from '../../value-objects/report-angle/__mocks__/report-angles.mock.js';
 import { type ReportAngle } from '../../value-objects/report-angle/report-angle.vo.js';
 import { Report } from '../report.entity.js';
@@ -31,11 +33,13 @@ export function getMockReport(options?: {
         classification:
             options?.classificationIndex !== undefined
                 ? getClassification(options.classificationIndex)
-                : getClassification(2),
+                : getClassification(0),
+        classificationState: new ClassificationState('COMPLETE'),
         country:
             options?.countryIndex !== undefined ? getCountry(options.countryIndex) : getCountry(0),
         createdAt: new Date(),
         dateline: new Date(),
+        deduplicationState: new DeduplicationState('COMPLETE'),
         facts: 'Mock Report Facts: A comprehensive list of key political developments across multiple regions, outlining actors, timelines, and data points that shape the public discourse on this evolving situation.',
         id: reportId,
         sourceReferences: ['worldnewsapi:mock-article-1', 'worldnewsapi:mock-article-2'],
@@ -59,9 +63,11 @@ function createMockReport(index: number): Report {
         angles: mockReportAngles(2),
         categories: new Categories([category.value]),
         classification,
+        classificationState: new ClassificationState('COMPLETE'),
         country: getCountry(index + 1),
         createdAt: new Date(),
         dateline: new Date(),
+        deduplicationState: new DeduplicationState('COMPLETE'),
         facts: `These are key facts for report ${index}. Topic: ${category.toString()}. It lists all major events, actors, and evidence in a concise factual format long enough to satisfy validation requirements.`,
         id: reportId,
         sourceReferences: [`source-ref-${index}`],

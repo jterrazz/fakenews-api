@@ -10,6 +10,8 @@ import { ArticleTraits } from '../../../../domain/value-objects/article-traits.v
 import { Categories } from '../../../../domain/value-objects/categories.vo.js';
 import { Country } from '../../../../domain/value-objects/country.vo.js';
 import { Classification } from '../../../../domain/value-objects/report/classification.vo.js';
+import { ClassificationState } from '../../../../domain/value-objects/report/classification-state.vo.js';
+import { DeduplicationState } from '../../../../domain/value-objects/report/deduplication-state.vo.js';
 import { AngleCorpus } from '../../../../domain/value-objects/report-angle/angle-corpus.vo.js';
 import { ReportAngle } from '../../../../domain/value-objects/report-angle/report-angle.vo.js';
 
@@ -79,12 +81,18 @@ export class ReportMapper {
                     ? (prisma.reportCategories.map((c) => c.category) as string[])
                     : [],
             ),
-            classification: new Classification(
-                prisma.classification as 'GENERAL' | 'NICHE' | 'OFF_TOPIC' | 'PENDING',
+            classification: prisma.classification
+                ? new Classification(prisma.classification as 'GENERAL' | 'NICHE' | 'OFF_TOPIC')
+                : undefined,
+            classificationState: new ClassificationState(
+                prisma.classificationState as 'COMPLETE' | 'PENDING',
             ),
             country: new Country(prisma.country),
             createdAt: prisma.createdAt,
             dateline: prisma.dateline,
+            deduplicationState: new DeduplicationState(
+                prisma.deduplicationState as 'COMPLETE' | 'PENDING',
+            ),
             facts: prisma.facts,
             id: prisma.id,
             sourceReferences: Array.isArray(prisma.sources) ? (prisma.sources as string[]) : [],
@@ -99,13 +107,15 @@ export class ReportMapper {
 
     toPrisma(report: Report): Prisma.ReportCreateInput {
         return {
-            classification: report.classification.toString() as
+            classification: report.classification?.toString() as
                 | 'GENERAL'
                 | 'NICHE'
                 | 'OFF_TOPIC'
-                | 'PENDING',
+                | null,
+            classificationState: report.classificationState.toString() as 'COMPLETE' | 'PENDING',
             country: this.mapCountryToPrisma(report.country),
             dateline: report.dateline,
+            deduplicationState: report.deduplicationState.toString() as 'COMPLETE' | 'PENDING',
             facts: report.facts,
             id: report.id,
             reportCategories: {
