@@ -154,7 +154,8 @@ export class IngestReportsUseCase {
                         country,
                         createdAt: now,
                         dateline: newsReport.publishedAt,
-                        deduplicationState: new DeduplicationState('PENDING'),
+                        // Deduplication has been evaluated for this report at this point
+                        deduplicationState: new DeduplicationState('COMPLETE'),
                         facts: ingestionResult.facts,
                         id: reportId,
                         sourceReferences: newsReport.articles.map((a) => a.id),

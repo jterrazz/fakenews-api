@@ -304,4 +304,33 @@ describe('IngestReportsUseCase', () => {
             mockReportIngestionAgent.run.mock.calls[0][0].newsReport.articles.length;
         expect(processedArticleCount).toBe(6);
     });
+
+    test('it sets deduplicationState to COMPLETE for created reports', async () => {
+        // When
+        const reports = await useCase.execute(DEFAULT_LANGUAGE, DEFAULT_COUNTRY);
+
+        // Then
+        expect(reports.length).toBeGreaterThan(0);
+        for (const report of reports) {
+            expect(report.deduplicationState.isComplete()).toBe(true);
+        }
+    });
+
+    test('it sets deduplicationState to COMPLETE for duplicates as well', async () => {
+        // Given – make the second report a duplicate of the first processed one
+        const existingReportId = 'existing-report-id';
+        mockReportDeduplicationAgent.run.mockReset();
+        mockReportDeduplicationAgent.run
+            .mockResolvedValueOnce({ duplicateOfReportId: null }) // First report canonical
+            .mockResolvedValueOnce({ duplicateOfReportId: existingReportId }); // Second is duplicate
+
+        // When
+        const reports = await useCase.execute(DEFAULT_LANGUAGE, DEFAULT_COUNTRY);
+
+        // Then – both returned reports should have deduplication completed
+        expect(reports.length).toBeGreaterThanOrEqual(2);
+        for (const report of reports) {
+            expect(report.deduplicationState.isComplete()).toBe(true);
+        }
+    });
 });
