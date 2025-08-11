@@ -60,10 +60,11 @@ export class PrismaReportRepository implements ReportRepositoryPort {
                 });
             }
 
-            // Return the created report with angles
+            // Return the created report with angles and categories
             return await tx.report.findUnique({
                 include: {
                     angles: true,
+                    reportCategories: true,
                 },
                 where: { id: createdReport.id },
             });
@@ -101,7 +102,10 @@ export class PrismaReportRepository implements ReportRepositoryPort {
             }
 
             return await tx.report.findUnique({
-                include: { angles: true },
+                include: {
+                    angles: true,
+                    reportCategories: true,
+                },
                 where: { id: createdReport.id },
             });
         });
@@ -117,6 +121,7 @@ export class PrismaReportRepository implements ReportRepositoryPort {
         const prismaReport = await this.prisma.getPrismaClient().report.findUnique({
             include: {
                 angles: true,
+                reportCategories: true,
             },
             where: { id },
         });

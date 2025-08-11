@@ -3,8 +3,11 @@ import { type ModelPort, OpenRouterProvider, type ProviderPort } from '@jterrazz
 export interface ModelsPort {
     gemini25Flash: ModelPort;
     gemini25FlashLite: ModelPort;
+    glm45: ModelPort;
+    gptOSS: ModelPort;
     grok4: ModelPort;
 }
+
 import { type LoggerPort, PinoLoggerAdapter } from '@jterrazz/logger';
 import {
     type MonitoringPort,
@@ -115,11 +118,11 @@ const providerFactory = Injectable(
 const selectModelByBudget = (
     models: ModelsPort,
     budget: 'high' | 'low' | 'medium',
-    preferredModel: 'gemini25Flash' | 'gemini25FlashLite' | 'grok4',
+    preferredModel: 'gemini25Flash' | 'gemini25FlashLite' | 'glm45' | 'gptOSS' | 'grok4',
 ): ModelPort => {
-    if (budget === 'low') {
-        return models.gemini25FlashLite;
-    }
+    // if (budget === 'low') {
+    //     return models.gemini25FlashLite;
+    // }
     return models[preferredModel];
 };
 
@@ -136,6 +139,20 @@ const modelsFactory = Injectable(
         }),
         gemini25FlashLite: provider.getModel('google/gemini-2.5-flash-lite', {
             maxTokens: 256_000,
+            reasoning: {
+                effort: 'high',
+                exclude: true,
+            },
+        }),
+        glm45: provider.getModel('z-ai/glm-4.5', {
+            maxTokens: 80_000,
+            reasoning: {
+                effort: 'high',
+                exclude: true,
+            },
+        }),
+        gptOSS: provider.getModel('openai/gpt-oss-120b', {
+            maxTokens: 128_000,
             reasoning: {
                 effort: 'high',
                 exclude: true,
@@ -159,7 +176,7 @@ const reportIngestionAgentFactory = Injectable(
             selectModelByBudget(
                 models,
                 config.getOutboundConfiguration().openRouter.budget,
-                'gemini25Flash',
+                'gptOSS',
             ),
             logger,
         ),

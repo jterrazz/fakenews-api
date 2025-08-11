@@ -6,11 +6,7 @@ import { Country } from '../value-objects/country.vo.js';
 import { Classification } from '../value-objects/report/classification.vo.js';
 import { ReportAngle } from '../value-objects/report-angle/report-angle.vo.js';
 
-export const factsSchema = z
-    .string()
-    .describe(
-        'Facts are a concise, information-dense collection of essential data points, key actors, and the core narrative in ~50 words. Example: "Tesla CEO Musk acquires Twitter ($44B, Oct 2022), fires executives, adds $8 verification fee, restores suspended accounts, triggers advertiser exodus (GM, Pfizer), 75 % staff cuts, sparks free-speech vs. safety debate."',
-    );
+export const factsSchema = z.string();
 
 export const categoriesSchema = z
     .instanceof(Categories)

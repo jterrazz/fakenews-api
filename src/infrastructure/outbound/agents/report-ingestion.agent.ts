@@ -20,28 +20,16 @@ import { angleCorpusSchema } from '../../../domain/value-objects/report-angle/an
 
 export class ReportIngestionAgentAdapter implements ReportIngestionAgentPort {
     static readonly SCHEMA = z.object({
-        angles: z
-            .array(
-                z.object({
-                    corpus: angleCorpusSchema.describe(
-                        'A complete compilation of all information for this viewpoint, NOT a summary. It must be focused on the news event itself and include every argument, fact, and piece of evidence presented for this side. It MUST NOT contain information about the news source.',
-                    ),
-                }),
-            )
-            .max(3, 'No more than three angles should be created.'),
+        angles: z.array(
+            z.object({
+                corpus: angleCorpusSchema,
+            }),
+        ),
         categories: categoriesSchema,
         facts: factsSchema,
     });
 
-    static readonly SYSTEM_PROMPT = new SystemPrompt(
-        'You are a senior investigative journalist and media analyst for a global newsroom. Your mission is to distil multiple news articles about the same event into a structured intelligence brief that surfaces the undisputed facts and the genuinely distinct viewpoints at play.',
-        'Your analysis must remain strictly grounded in the provided text—no external knowledge or opinions. Identify and categorise only those viewpoints that are truly different or opposing, ignoring superficial wording variations, so that readers can quickly grasp the real landscape of the public debate.',
-        'CRITICAL: Output MUST be in English.',
-        PROMPTS.LANGUAGES.ENGLISH_NATIVE,
-        PROMPTS.FOUNDATIONS.CONTEXTUAL_ONLY,
-        PROMPTS.TONES.NEUTRAL,
-        PROMPTS.VERBOSITY.DETAILED,
-    );
+    static readonly SYSTEM_PROMPT = new SystemPrompt();
 
     public readonly name = 'ReportIngestionAgent';
 
@@ -61,38 +49,73 @@ export class ReportIngestionAgentAdapter implements ReportIngestionAgentPort {
 
     static readonly USER_PROMPT = (newsReport: NewsReport) =>
         new UserPrompt(
-            // Core Mission
-            'Your mission is to transform the following news articles, all covering the SAME subject, into a structured intelligence brief composed of VERIFIED FACTS and up to TWO genuinely DISTINCT ANGLES (viewpoints).',
+            // Role & Mission
+            'You are a senior news analyst creating structured intelligence reports. Your task: transform multiple news articles covering the SAME event into a precise data extraction with verified facts and distinct viewpoints.',
+            '',
+            'Extract ONLY information present in the provided articles—no external knowledge, speculation, or interpretation. Exclude meta-information about sources, journalists, or publications',
+            '',
+            'NOTE: Articles are parsed from online sources and may occasionally contain web page metadata or parsing artifacts. Focus solely on the actual news content and ignore any irrelevant web page elements.',
             '',
 
-            // Output Requirements
-            'OUTPUT REQUIREMENTS:',
-            '• facts → A neutral, exhaustive statement of who did what, where, and when. No speculation, opinion, or editorialising.',
-            '• categories → An array of at least one topic category: POLITICS, BUSINESS, TECHNOLOGY, SCIENCE, HEALTH, ENVIRONMENT, SOCIETY, ENTERTAINMENT, SPORTS, OTHER',
-            '• angles → An array with **1-2** items. For each angle include:',
-            '    • corpus → NOT a summary. Compile EVERY argument, fact, and piece of evidence supporting that viewpoint, focused solely on the subject. Exclude information about the publication or author.',
-
+            // Language & Style Requirements
+            PROMPTS.LANGUAGES.ENGLISH_NATIVE,
+            PROMPTS.FOUNDATIONS.CONTEXTUAL_ONLY,
+            PROMPTS.TONES.NEUTRAL,
+            PROMPTS.VERBOSITY.DETAILED,
             '',
 
-            // Analysis Framework
-            'ANALYSIS FRAMEWORK:',
-            '1. Extract the undisputed facts common to all.',
-            '2. Identify every viewpoint expressed across articles and MERGE any that share the same core argument.',
-            '3. Select the 0-3 most dominant, clearly DIFFERENT angles.',
-            '4. For each selected angle, compile the full corpus',
-
+            // Output Structure (What to Extract)
+            '=== OUTPUT REQUIREMENTS ===',
+            '',
+            '1. **facts** → Comprehensive statement of verified events',
+            '   - Include ALL undisputed information confirmed across sources',
+            '   - Provide complete context necessary to understand the full situation',
+            '   - Information-dense but thorough coverage of all details',
+            '',
+            '2. **categories** → Array of relevant topic classifications',
+            '   - Select applicable categories from available options',
+            '',
+            '3. **angles** → Array of distinct viewpoints',
+            '   - Each angle represents a genuinely different perspective on the event',
+            '   - For each angle provide:',
+            '     • **corpus** → Complete compilation of ALL arguments, evidence, and details for this viewpoint',
+            '       - NOT a summary—include every supporting detail mentioned',
+            '       - Focus exclusively on the news event itself',
             '',
 
-            // Critical Rules
-            'CRITICAL RULES:',
-            '• Focus ONLY on the news subject; do NOT create angles about the publication or journalists.',
-            '• Use ONLY the provided text—no external information.',
-            '• Never produce more than 2 angles; merge redundant ones.',
-            '• ALWAYS include at least one topic category in the categories array.',
+            // Analysis Process (How to Extract)
+            '=== ANALYSIS PROCESS ===',
+            '',
+            '**Step 1: Extract Core Facts**',
+            '- Identify information confirmed by multiple sources',
+            '- Include specific numbers, dates, names, and outcomes',
+            '- Exclude opinions, speculation, or single-source claims',
+            '',
+            '**Step 2: Identify Genuine Angles**',
+            '- Look for perspectives that fundamentally disagree OR emphasize different aspects',
+            '- Merge viewpoints that share the same core position (ignore superficial wording differences)',
+            '- Select only the most substantial, clearly differentiated angles',
+            '- If articles are largely identical, return 0 angles',
+            '',
+            '**Step 3: Compile Angle Corpus**',
+            '- For each selected angle, gather ALL supporting evidence from across articles',
+            '- Include quotes, specific claims, reasoning, and context',
+            "- Maintain the angle's authentic voice and argumentation",
             '',
 
-            // Data input
-            'NEWS ARTICLES TO ANALYSE:',
+            // Quality Standards & Edge Cases
+            '=== CRITICAL STANDARDS ===',
+            '',
+            '• **Source Fidelity**: Use only information explicitly stated in provided articles',
+            '• **Angle Threshold**: Only create angles for genuinely distinct viewpoints—if unsure, err toward fewer angles',
+            '• **Corpus Completeness**: Each corpus must be comprehensive, not selective—include every relevant detail',
+            '• **Subject Focus**: Analyze the news event itself, never the media coverage or journalism',
+            '• **Quality Over Quantity**: Better to have 0-1 well-defined angles than 2 weak or similar ones',
+            '',
+
+            // Data Input
+            '=== SOURCE ARTICLES ===',
+            '',
             JSON.stringify(
                 newsReport.articles.map((article) => ({
                     body: article.body,
