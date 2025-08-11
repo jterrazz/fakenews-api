@@ -90,4 +90,27 @@ export class Article {
         // 20% chance: modulo 5 equals 0 (1 in 5 articles)
         return numericValue % 5 === 0;
     }
+
+    /**
+     * Returns a plain, structured representation of the full article content.
+     * Format: Headline, Body, then optional Subheadline/Subbody pairs for frames.
+     */
+    public toFullArticleContent(): string {
+        const lines: string[] = [];
+        lines.push(`Headline: ${this.headline.toString()}`);
+        lines.push('');
+        lines.push('Body:');
+        lines.push(this.body.toString());
+
+        if (this.frames && this.frames.length > 0) {
+            for (const frame of this.frames) {
+                lines.push('');
+                lines.push(`Subheadline: ${frame.headline.toString()}`);
+                lines.push('Subbody:');
+                lines.push(frame.body.toString());
+            }
+        }
+
+        return lines.join('\n');
+    }
 }

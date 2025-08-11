@@ -43,13 +43,6 @@ export class ArticleQuizGenerationAgent implements ArticleQuizGenerationAgentPor
     }
 
     static readonly USER_PROMPT = (input: ArticleQuizGenerationInput) => {
-        const framesContent =
-            input.frames && input.frames.length > 0
-                ? input.frames
-                      .map((frame) => `\n\n${frame.headline.toString()}\n${frame.body.toString()}`)
-                      .join('')
-                : '';
-
         return new UserPrompt(
             // Role & Mission
             'You are an expert quiz generator creating engaging, educational questions based on news articles. Your goal: help readers test their comprehension and engagement with content.',
@@ -118,15 +111,10 @@ export class ArticleQuizGenerationAgent implements ArticleQuizGenerationAgentPor
             '• **Language Consistency**: All content in specified target language',
             '',
 
-            // Article Content
+            // Article Content (preformatted)
             '=== ARTICLE CONTENT ===',
             '',
-            `**Headline**: ${input.articleHeadline}`,
-            '',
-            `**Main Article**:`,
-            input.articleBody,
-            '',
-            ...(framesContent ? ['**Alternative Frames/Perspectives**:', framesContent, ''] : []),
+            input.articleContent,
         );
     };
 

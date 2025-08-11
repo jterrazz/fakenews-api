@@ -14,9 +14,7 @@ export interface ArticleQuizGenerationAgentPort {
  * Input data required for quiz question generation
  */
 export interface ArticleQuizGenerationInput {
-    articleBody: string;
-    articleHeadline: string;
-    frames?: ArticleFrame[];
+    articleContent: string; // Preformatted article content for quiz generation
     targetLanguage: Language;
 }
 

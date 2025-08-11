@@ -70,9 +70,7 @@ export class GenerateArticleChallengesUseCase {
                     });
 
                     const quizInput = {
-                        articleBody: article.body.toString(),
-                        articleHeadline: article.headline.toString(),
-                        frames: article.frames,
+                        articleContent: article.toFullArticleContent(),
                         targetLanguage: language,
                     };
 
