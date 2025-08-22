@@ -74,6 +74,7 @@ export class GenerateArticleChallengesUseCase {
                     const quizInput = {
                         articleContent: article.toFullArticleContent(),
                         targetLanguage: language,
+                        traits: article.traits,
                     };
 
                     const quizResult = await this.articleQuizGenerationAgent.run(quizInput);

@@ -100,6 +100,7 @@ export class ArticleFabricationAgent implements ArticleFabricationAgentPort {
             '',
             '**Continuity Rules**:',
             '- Match headline length and body word count to recent articles',
+            '- Never start body with datelines (e.g., "January 15 -", "PARIS, Jan 15 -") - dates are displayed separately as metadata',
             '',
             '**Category Selection**: Choose most appropriate category',
             '',

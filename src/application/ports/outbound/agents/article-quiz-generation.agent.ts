@@ -1,4 +1,5 @@
 // Domain
+import { type ArticleTraits } from '../../../../domain/value-objects/article-traits.vo.js';
 import { type Language } from '../../../../domain/value-objects/language.vo.js';
 
 /**
@@ -16,6 +17,7 @@ export interface ArticleQuizGenerationAgentPort {
 export interface ArticleQuizGenerationInput {
     articleContent: string; // Preformatted article content for quiz generation
     targetLanguage: Language;
+    traits: ArticleTraits; // Article traits to guide question prioritization
 }
 
 /**

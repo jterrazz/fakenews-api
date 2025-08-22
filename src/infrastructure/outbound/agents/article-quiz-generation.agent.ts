@@ -1,10 +1,4 @@
-import {
-    ChatAgent,
-    type ModelPort,
-    PROMPTS,
-    SystemPrompt,
-    UserPrompt,
-} from '@jterrazz/intelligence';
+import { ChatAgent, type ModelPort, SystemPrompt, UserPrompt } from '@jterrazz/intelligence';
 import { type LoggerPort } from '@jterrazz/logger';
 import { z } from 'zod/v4';
 
@@ -45,76 +39,51 @@ export class ArticleQuizGenerationAgent implements ArticleQuizGenerationAgentPor
 
     static readonly USER_PROMPT = (input: ArticleQuizGenerationInput) => {
         return new UserPrompt(
-            // Role & Mission
-            'You are an expert quiz generator creating engaging, educational questions based on news articles. Your goal: help readers test their comprehension and engagement with content.',
+            // Core Mission
+            'Create engaging quiz questions that make readers think and learn from this news article.',
             '',
-            'Create 2-4 multiple choice questions that test understanding of key facts, implications, and context. Must be 100% certain of correct answers—never guess or hallucinate.',
+            `Generate 2-4 multiple choice questions in ${input.targetLanguage.toString().toUpperCase()}. Focus on the most INTERESTING and thought-provoking aspects—if the content lacks compelling elements, create fewer questions (even just 1-2) rather than forcing boring ones.`,
             '',
-            `CRITICAL: All questions and answers MUST be written in ${input.targetLanguage.toString().toUpperCase()}.`,
+            ...(input.traits.essential
+                ? [
+                      '**ESSENTIAL CONTENT ALERT**: This article is marked as "essential" - it reveals important patterns, systems, or implications that readers must understand. Your questions MUST capture the key insights that make this content essential, regardless of category.',
+                      '',
+                  ]
+                : []),
+
+            // Key Rules
+            '=== ESSENTIAL RULES ===',
+            '',
+            '• **Be 100% certain** of correct answers—never guess or hallucinate',
+            '• **Prioritize interest** over quantity—better few great questions than many dull ones',
+            '• **Test comprehension** of key facts, implications, and context',
+            '• **Use established knowledge** only when absolutely certain (major historical events, basic science, geography)',
+            '• **Respect sensitive topics** - avoid trivializing deaths, tragedies, disasters, or personal suffering. Focus on broader implications, policy responses, or factual context rather than making games of human tragedy',
+            '• **Essential content priority** - for articles marked as "essential", ALWAYS create questions that capture the core insights that make the content essential, regardless of category. These articles reveal important patterns, systems, or implications that readers must understand',
             '',
 
-            // Language & Style Requirements
-            PROMPTS.FOUNDATIONS.CONTEXTUAL_ONLY,
+            // Question Focus
+            '=== WHAT MAKES QUESTIONS INTERESTING ===',
             '',
-            '**Enhanced Context Usage**: You may incorporate well-established historical facts, widely-known events, basic geographic/scientific knowledge, or common contextual information to create more educational questions—BUT ONLY when you are absolutely certain of the accuracy. Examples: historical dates of major events, basic scientific principles, well-documented political processes, established economic concepts. Never guess or approximate.',
-            '',
-
-            // Question Strategy
-            '=== QUESTION STRATEGY ===',
-            '',
-            '**Content Focus**: Test understanding from main article and any frames/perspectives',
-            '- Include mix of factual recall and analytical thinking',
-            '- Compare or contrast different frames when multiple perspectives provided',
-            '- Focus on key information and implications',
-            '',
-            '**Question Types**:',
-            '- Key facts and details mentioned in article',
-            '- Main themes or implications discussed',
-            '- Cause and effect relationships',
-            '- Comparisons or contrasts mentioned',
-            '- Differences between alternative frames/perspectives',
-            '- Historical context relevant to the topic (only well-established facts)',
-            '- Basic scientific, geographic, or economic principles that enhance understanding',
-            '- Widely-documented events or processes that provide context',
+            '• Key turning points or surprising facts in the story',
+            '• Cause-and-effect relationships that matter',
+            '• Contrasts between different perspectives/frames',
+            '• Implications or consequences mentioned',
+            '• Essential context that enhances understanding',
+            '• Connections to well-known historical/scientific concepts',
             '',
 
-            // Answer Design
-            '=== ANSWER DESIGN ===',
+            // Answer Format
+            '=== ANSWER FORMAT ===',
             '',
-            '**Answer Options**: Exactly 4 short, concise options per question',
-            '- Maximum 2-5 words each (for small UI elements)',
-            '- ALWAYS place the correct answer as the FIRST option (index 0)',
-            '- Make remaining 3 incorrect answers plausible but clearly wrong to careful readers',
-            '- Ensure correct answer is unambiguous',
-            '- DO NOT include numbers (1, 2, 3, 4) or letters (A, B, C, D) - provide ONLY the answer text',
-            '',
-            '**Certainty Requirement**: Only include questions with absolute answer certainty',
-            '- No guessing, speculation, or hallucination',
-            '- External knowledge allowed ONLY for well-established, widely-documented facts',
-            '- Historical events, basic science, geography: use only if universally accepted',
-            '- If ANY doubt exists about accuracy, exclude the question',
+            '• Exactly 4 options per question (2-5 words each)',
+            '• Correct answer ALWAYS first (index 0)',
+            '• Wrong answers plausible but clearly incorrect to careful readers',
+            '• No numbering (1,2,3,4) or letters (A,B,C,D)—just plain text',
             '',
 
-            // Output Requirements
-            '=== OUTPUT REQUIREMENTS ===',
-            '',
-            '• **questions** → Array of 2-4 quiz questions',
-            '    • Each question contains:',
-            '      • question: The question text',
-            '      • answers: Array of exactly 4 plain text answer options (correct answer ALWAYS first, no numbering)',
-            '',
-
-            // Critical Standards
-            '=== CRITICAL STANDARDS ===',
-            '',
-            '• **Answer Certainty**: 100% certain of correct answer or exclude question',
-            '• **Appropriate Content**: Suitable for general audience',
-            '• **UI Constraints**: Keep answer options short and concise',
-            '• **Language Consistency**: All content in specified target language',
-            '',
-
-            // Article Content (preformatted)
-            '=== ARTICLE CONTENT ===',
+            // Content to Process
+            '=== ARTICLE TO ANALYZE ===',
             '',
             input.articleContent,
         );

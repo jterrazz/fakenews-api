@@ -93,6 +93,7 @@ export class ArticleCompositionAgent implements ArticleCompositionAgentPort {
             '- Frames = interpretation and perspective',
             '- Zero repetition between main article and frames',
             '- Each frame focuses on its specific angle',
+            '- Never start body with datelines (e.g., "January 15 -", "PARIS, Jan 15 -") - dates are displayed separately as metadata',
             '',
 
             // Formatting Standards
