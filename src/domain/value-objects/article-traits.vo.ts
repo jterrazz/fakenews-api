@@ -5,22 +5,22 @@ export const articleTraitsSchema = z.object({
         .boolean()
         .default(false)
         .describe('Content that improves understanding and intellectual growth'),
-    uplifting: z
+    positive: z
         .boolean()
         .default(false)
-        .describe('Content that promotes positive emotions and hope'),
+        .describe('Content showcasing genuine progress and constructive developments'),
 });
 
 export type ArticleTraitsProps = z.infer<typeof articleTraitsSchema>;
 
 export class ArticleTraits {
     public readonly smart: boolean;
-    public readonly uplifting: boolean;
+    public readonly positive: boolean;
 
     constructor(data: Partial<ArticleTraitsProps> = {}) {
         const validatedData = articleTraitsSchema.parse(data);
         this.smart = validatedData.smart;
-        this.uplifting = validatedData.uplifting;
+        this.positive = validatedData.positive;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -31,18 +31,18 @@ export class ArticleTraits {
 
         return new ArticleTraits({
             smart: Boolean(json.smart),
-            uplifting: Boolean(json.uplifting),
+            positive: Boolean(json.positive),
         });
     }
 
     public hasAnyTrait(): boolean {
-        return this.smart || this.uplifting;
+        return this.smart || this.positive;
     }
 
     public toJSON(): ArticleTraitsProps {
         return {
             smart: this.smart,
-            uplifting: this.uplifting,
+            positive: this.positive,
         };
     }
 }

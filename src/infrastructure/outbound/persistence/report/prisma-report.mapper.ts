@@ -102,8 +102,8 @@ export class ReportMapper {
             sourceReferences: Array.isArray(prisma.sources) ? (prisma.sources as string[]) : [],
             traits: new ArticleTraits({
                 smart: (prisma as unknown as { traitsSmart?: boolean }).traitsSmart ?? false,
-                uplifting:
-                    (prisma as unknown as { traitsUplifting?: boolean }).traitsUplifting ?? false,
+                positive:
+                    (prisma as unknown as { traitsPositive?: boolean }).traitsPositive ?? false,
             }),
             updatedAt: prisma.updatedAt,
         });
@@ -125,7 +125,7 @@ export class ReportMapper {
             sources: report.sourceReferences,
             // Removed JSON traits - using typed columns
             traitsSmart: report.traits?.smart ?? false,
-            traitsUplifting: report.traits?.uplifting ?? false,
+            traitsPositive: report.traits?.positive ?? false,
         };
     }
 }

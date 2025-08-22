@@ -15,11 +15,11 @@ inbound:
 
 outbound:
   agents:
-    reportIngestion: 'openai/gpt-oss-120b'
+    reportIngestion: 'anthropic/claude-3.5-sonnet'
     reportDeduplication: 'deepseek/deepseek-chat-v3-0324'
-    reportClassification: 'deepseek/deepseek-chat-v3-0324'
-    articleComposition: 'google/gemini-2.5-flash'
-    articleFabrication: 'google/gemini-2.5-flash'
+    reportClassification: 'openai/gpt-4o-mini'
+    articleComposition: 'anthropic/claude-3.5-haiku'
+    articleFabrication: 'openai/gpt-4o'
     articleQuizGeneration: 'google/gemini-2.5-flash'
 
   worldNews:

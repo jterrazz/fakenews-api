@@ -44,7 +44,7 @@ function handleIngestion(model: string) {
             core: 'The main story being reported - the primary development, subject, or narrative that this report is fundamentally about.',
             traits: {
                 smart: true,
-                uplifting: false,
+                positive: false,
             },
         }),
     );
@@ -77,7 +77,7 @@ function handleClassification(model: string) {
             reason: `Reason for ${classification.toLowerCase()} classification`,
             traits: {
                 smart: false,
-                uplifting: false,
+                positive: false,
             },
         }),
     );

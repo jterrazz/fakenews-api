@@ -86,6 +86,7 @@ export class ArticleQuizGenerationAgent implements ArticleQuizGenerationAgentPor
             '- ALWAYS place the correct answer as the FIRST option (index 0)',
             '- Make remaining 3 incorrect answers plausible but clearly wrong to careful readers',
             '- Ensure correct answer is unambiguous',
+            '- DO NOT include numbers (1, 2, 3, 4) or letters (A, B, C, D) - provide ONLY the answer text',
             '',
             '**Certainty Requirement**: Only include questions with absolute answer certainty',
             '- No guessing, speculation, or hallucination',
@@ -100,7 +101,7 @@ export class ArticleQuizGenerationAgent implements ArticleQuizGenerationAgentPor
             '• **questions** → Array of 2-4 quiz questions',
             '    • Each question contains:',
             '      • question: The question text',
-            '      • answers: Array of exactly 4 answer options (correct answer ALWAYS first)',
+            '      • answers: Array of exactly 4 plain text answer options (correct answer ALWAYS first, no numbering)',
             '',
 
             // Critical Standards

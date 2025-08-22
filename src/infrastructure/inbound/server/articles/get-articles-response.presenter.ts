@@ -42,7 +42,7 @@ type ArticleMetadata = {
     tier?: 'GENERAL' | 'NICHE' | 'OFF_TOPIC';
     traits: {
         smart: boolean;
-        uplifting: boolean;
+        positive: boolean;
     };
 };
 
@@ -127,7 +127,7 @@ export class GetArticlesResponsePresenter {
                 tier: article.tier?.toString() as 'GENERAL' | 'NICHE' | 'OFF_TOPIC' | undefined,
                 traits: {
                     smart: article.traits.smart,
-                    uplifting: article.traits.uplifting,
+                    positive: article.traits.positive,
                 },
             },
             publishedAt: article.publishedAt.toISOString(),

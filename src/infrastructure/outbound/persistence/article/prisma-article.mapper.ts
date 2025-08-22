@@ -120,8 +120,8 @@ export class ArticleMapper {
             reportIds: prisma.reports?.map((report) => report.id),
             traits: new ArticleTraits({
                 smart: (prisma as unknown as { traitsSmart?: boolean }).traitsSmart ?? false,
-                uplifting:
-                    (prisma as unknown as { traitsUplifting?: boolean }).traitsUplifting ?? false,
+                positive:
+                    (prisma as unknown as { traitsPositive?: boolean }).traitsPositive ?? false,
             }),
         });
     }
@@ -164,7 +164,7 @@ export class ArticleMapper {
                 : undefined,
             // Removed JSON traits - using typed columns only
             traitsSmart: domain.traits.smart,
-            traitsUplifting: domain.traits.uplifting,
+            traitsPositive: domain.traits.positive,
         } as unknown as Prisma.ArticleCreateInput;
     }
 }

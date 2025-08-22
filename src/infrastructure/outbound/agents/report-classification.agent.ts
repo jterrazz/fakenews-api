@@ -26,7 +26,7 @@ export class ReportClassificationAgent implements ReportClassificationAgentPort 
         reason: z.string(),
         traits: z.object({
             smart: z.boolean().default(false),
-            uplifting: z.boolean().default(false),
+            positive: z.boolean().default(false),
         }),
     });
 
@@ -106,8 +106,8 @@ export class ReportClassificationAgent implements ReportClassificationAgentPort 
             '- Balance editorial quality with audience interest',
             '',
             '**Step 4: Trait Evaluation**',
-            '- **smart**: Ask yourself: "Does this story REALLY brings a SMART value?". Set it to FALSE almost every time. ONLY make it TRUE when the story REALLY brings something new and interesting.',
-            '- **uplifting**: Content that combats news negativity bias—genuinely positive developments, solutions, progress, hope. Helps users who want to avoid the constant stream of negative news.',
+            "- **smart**: Content that reveals underlying power structures, macro-economic forces, or deep political mechanisms that most people don't expect to encounter. NOT typical media noise, reactions, or diversions. Think: central banking policy shifts, geopolitical power realignments, institutional capture, regulatory capture, systemic financial risks. Set to FALSE for surface-level news, celebrity reactions, trending topics, or obvious mainstream narratives.",
+            "- **positive**: Content showcasing genuine progress, breakthrough solutions, or constructive developments that demonstrate tangible improvement in the world. NOT superficial feel-good stories or forced optimism. Think: scientific breakthroughs, successful policy implementations, community solutions that work, technological advances solving real problems, social progress with measurable impact. Counters the media's negativity bias with substantive positive reality.",
             '',
 
             // Output Requirements
@@ -115,7 +115,7 @@ export class ReportClassificationAgent implements ReportClassificationAgentPort 
             '',
             '• **classification** → Exactly one of: GENERAL | NICHE | OFF_TOPIC',
             '• **reason** → One clear, concise sentence explaining the decision',
-            '• **traits** → Boolean flags for app filtering modes (smart, uplifting)',
+            '• **traits** → Boolean flags for app filtering modes (smart, positive)',
             '',
 
             // Quality Standards

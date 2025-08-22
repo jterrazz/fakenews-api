@@ -210,7 +210,7 @@ model Report {
   classificationState ClassificationState @default(PENDING)
   tier                Classification?
   traitsSmart         Boolean             @default(false)
-  traitsUplifting     Boolean             @default(false)
+  traitsPositive      Boolean             @default(false)
 
   // Workflow — Deduplication
   deduplicationState DeduplicationState @default(PENDING)
@@ -270,7 +270,7 @@ model Article {
   // Classification
   categories      ArticleCategory[]
   traitsSmart     Boolean           @default(false)
-  traitsUplifting Boolean           @default(false)
+  traitsPositive  Boolean           @default(false)
 
   // Fabrication
   fabricated       Boolean @default(false)
