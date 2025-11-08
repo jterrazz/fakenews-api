@@ -332,7 +332,11 @@ const newRelicFactory = Injectable(
  * Inbound adapters
  */
 const configurationFactory = (overrides?: ContainerOverrides) =>
-    Injectable('Configuration', () => new NodeConfig(nodeConfiguration, overrides));
+    Injectable(
+        'Configuration',
+        ['Logger'] as const,
+        (logger: LoggerPort) => new NodeConfig(logger, nodeConfiguration, overrides),
+    );
 
 const serverFactory = Injectable(
     'Server',

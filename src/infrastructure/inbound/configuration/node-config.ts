@@ -1,4 +1,4 @@
-import { LoggerLevelSchema } from '@jterrazz/logger';
+import { LoggerLevelSchema, type LoggerPort } from '@jterrazz/logger';
 import { z } from 'zod/v4';
 
 // Configuration
@@ -69,9 +69,22 @@ type Configuration = z.infer<typeof configurationSchema>;
 export class NodeConfig implements ConfigurationPort {
     private readonly configuration: Configuration;
 
-    constructor(configurationInput: unknown, overrides?: { databaseUrl?: string }) {
+    constructor(
+        private readonly logger: LoggerPort,
+        configurationInput: unknown,
+        overrides?: { databaseUrl?: string },
+    ) {
         // Parse and validate first
         const parsed = configurationSchema.parse(configurationInput);
+
+        // Log loaded configuration
+        this.logger.info('Configuration loaded', {
+            environment: parsed.inbound.env,
+            reportPipelineTasks: parsed.inbound.tasks.reportPipeline.map((task) => ({
+                country: task.country,
+                language: task.language,
+            })),
+        });
 
         // Apply override after parsing
         if (overrides?.databaseUrl) {
