@@ -100,8 +100,7 @@ const providerFactory = Injectable(
         new OpenRouterProvider({
             apiKey: config.getOutboundConfiguration().openRouter.apiKey,
             metadata: {
-                application: 'jterrazz-agents',
-                website: 'https://jterrazz.com',
+                application: 'news-ai',
             },
         }),
 );

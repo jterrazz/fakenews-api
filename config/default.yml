@@ -15,12 +15,12 @@ inbound:
 
 outbound:
   agents:
-    reportIngestion: 'deepseek/deepseek-chat-v3.1'
-    reportDeduplication: 'deepseek/deepseek-chat-v3.1'
-    reportClassification: 'deepseek/deepseek-chat-v3.1'
-    articleComposition: 'deepseek/deepseek-chat-v3.1'
-    articleFabrication: 'deepseek/deepseek-chat-v3.1'
-    articleQuizGeneration: 'deepseek/deepseek-chat-v3.1'
+    reportIngestion: 'x-ai/grok-4-fast'
+    reportDeduplication: 'x-ai/grok-4-fast'
+    reportClassification: 'x-ai/grok-4-fast'
+    articleComposition: 'google/gemini-2.5-flash'
+    articleFabrication: 'google/gemini-2.5-flash'
+    articleQuizGeneration: 'google/gemini-2.5-flash'
 
   worldNews:
     useCache: false
