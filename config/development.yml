@@ -1,6 +1,4 @@
 inbound:
-  http:
-    port: 3000
   logger:
     level: debug
     prettyPrint: true
@@ -10,13 +8,5 @@ inbound:
         language: FR
 
 outbound:
-  # agents:
-  #   reportIngestion: 'openai/gpt-4o-mini'
-  #   reportDeduplication: 'openai/gpt-4o-mini'
-  #   reportClassification: 'openai/gpt-4o-mini'
-  #   articleComposition: 'google/gemini-2.5-flash'
-  #   articleFabrication: 'google/gemini-2.5-flash'
-  #   articleQuizGeneration: 'google/gemini-2.5-flash'
-
   worldNews:
     useCache: true
