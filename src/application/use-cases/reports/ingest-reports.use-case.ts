@@ -63,7 +63,7 @@ export class IngestReportsUseCase {
 
             // Step 3: Filter out reports with no articles
             const articleFilteredReports = newsStories.filter(
-                (report) => report.articles.length > 0,
+                (report) => report.articles.length > 5,
             );
 
             if (articleFilteredReports.length === 0) {
