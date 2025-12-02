@@ -21,6 +21,8 @@ import { type NewsProviderPort } from '../../ports/outbound/providers/news.port.
  * Use case for digesting reports from news sources
  */
 export class IngestReportsUseCase {
+    private static readonly DAILY_TARGET = 14;
+
     constructor(
         private readonly reportIngestionAgent: ReportIngestionAgentPort,
         private readonly logger: LoggerPort,
@@ -38,15 +40,29 @@ export class IngestReportsUseCase {
                 language: language.toString(),
             });
 
-            // Step 1: Get existing source IDs for deduplication
+            // Step 1: Get today's report count for dynamic thresholds
+            const todayStart = new Date();
+            todayStart.setHours(0, 0, 0, 0);
+
+            const todayReportCount = await this.reportRepository.countByDateRange(
+                country,
+                todayStart,
+                new Date(),
+            );
+
+            const { minArticles, maxReportsPerRun } = this.getDynamicThresholds(todayReportCount);
+
+            this.logger.info('Dynamic thresholds calculated', {
+                maxReportsPerRun,
+                minArticles,
+                todayReportCount,
+            });
+
+            // Step 2: Get existing source IDs for deduplication
             const existingSourceReferences =
                 await this.reportRepository.getAllSourceReferences(country);
 
-            this.logger.info('Repository statistics', {
-                sourceReferences: existingSourceReferences.length,
-            });
-
-            // Step 2: Fetch news from external providers
+            // Step 3: Fetch news from external providers
             const newsStories = await this.newsProvider.fetchNews({
                 country,
                 language,
@@ -61,21 +77,24 @@ export class IngestReportsUseCase {
             }
             this.logger.info('Fetched news reports', { count: newsStories.length });
 
-            // Step 3: Filter out reports with no articles
+            // Step 4: Filter by dynamic article threshold
             const articleFilteredReports = newsStories.filter(
-                (report) => report.articles.length > 5,
+                (report) => report.articles.length >= minArticles,
             );
 
             if (articleFilteredReports.length === 0) {
-                this.logger.warn('No valid reports after article-count filtering');
+                this.logger.warn('No valid reports after article-count filtering', {
+                    minArticles,
+                });
                 return [];
             }
 
             this.logger.info('Valid reports after article-count filtering', {
                 count: articleFilteredReports.length,
+                minArticles,
             });
 
-            // Step 4: Filter out reports that have already been processed by source ID
+            // Step 5: Filter out reports that have already been processed by source ID
             const newNewsReports = articleFilteredReports.filter(
                 (report) =>
                     !report.articles.some((article) =>
@@ -92,15 +111,22 @@ export class IngestReportsUseCase {
                 count: newNewsReports.length,
             });
 
-            // Rename for clarity in the following processing steps
-            const validNewsReports = newNewsReports;
+            // Step 6: Prioritize by article count and limit to max per run
+            const prioritizedReports = newNewsReports
+                .sort((a, b) => b.articles.length - a.articles.length)
+                .slice(0, maxReportsPerRun);
 
-            // Step 5: Process each valid news report
+            this.logger.info('Reports selected for ingestion', {
+                available: newNewsReports.length,
+                selected: prioritizedReports.length,
+            });
+
+            // Step 7: Process each selected news report
             const digestedReports: Report[] = [];
 
-            for (const newsReport of validNewsReports) {
+            for (const newsReport of prioritizedReports) {
                 try {
-                    // Step 5.1: Ingest the report
+                    // Step 7.1: Ingest the report
                     const ingestionResult = await this.reportIngestionAgent.run({ newsReport });
                     if (!ingestionResult) {
                         this.logger.warn('Ingestion agent returned no result', {
@@ -136,7 +162,7 @@ export class IngestReportsUseCase {
                         updatedAt: now,
                     });
 
-                    // Step 5.2: Persist the report
+                    // Step 7.2: Persist the report
                     const savedReport = await this.reportRepository.create(report);
                     digestedReports.push(savedReport);
                     this.logger.info('Report ingested successfully', {
@@ -154,5 +180,35 @@ export class IngestReportsUseCase {
             this.logger.error('Report ingestion encountered an error', { error });
             throw error;
         }
+    }
+
+    /**
+     * Calculate dynamic thresholds based on how many reports exist today.
+     * Morning: lenient → Evening: strict → At quota: only blockbusters.
+     */
+    private getDynamicThresholds(todayReportCount: number): {
+        maxReportsPerRun: number;
+        minArticles: number;
+    } {
+        const remaining = IngestReportsUseCase.DAILY_TARGET - todayReportCount;
+
+        // Daily quota reached - only exceptional breaking news
+        if (remaining <= 0) {
+            return { maxReportsPerRun: 1, minArticles: 30 };
+        }
+        // Almost full - very strict
+        if (remaining <= 2) {
+            return { maxReportsPerRun: 1, minArticles: 22 };
+        }
+        // Afternoon/evening
+        if (remaining <= 5) {
+            return { maxReportsPerRun: 1, minArticles: 16 };
+        }
+        // Mid-day
+        if (remaining <= 9) {
+            return { maxReportsPerRun: 2, minArticles: 12 };
+        }
+        // Morning - build coverage
+        return { maxReportsPerRun: 3, minArticles: 8 };
     }
 }

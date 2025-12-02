@@ -230,6 +230,15 @@ export class PrismaReportRepository implements ReportRepositoryPort {
         return allSourceReferences;
     }
 
+    async countByDateRange(country: Country, from: Date, to: Date): Promise<number> {
+        return await this.prisma.getPrismaClient().report.count({
+            where: {
+                country: this.mapper.mapCountryToPrisma(country),
+                createdAt: { gte: from, lte: to },
+            },
+        });
+    }
+
     async markAsDuplicate(reportId: string, options: { duplicateOfId: string }): Promise<Report> {
         const updatedReport = await this.prisma.getPrismaClient().report.update({
             data: {

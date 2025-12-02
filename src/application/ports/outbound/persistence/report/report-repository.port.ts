@@ -91,6 +91,11 @@ export interface ReportRepositoryPort {
     getAllSourceReferences(country?: Country): Promise<string[]>;
 
     /**
+     * Count reports created within a date range for a specific country
+     */
+    countByDateRange(country: Country, from: Date, to: Date): Promise<number>;
+
+    /**
      * Mark a report as a duplicate of another report
      */
     markAsDuplicate(reportId: string, options: { duplicateOfId: string }): Promise<Report>;
