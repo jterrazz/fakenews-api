@@ -18,9 +18,9 @@ outbound:
     reportIngestion: 'deepseek/deepseek-v3.2'
     reportDeduplication: 'deepseek/deepseek-v3.2'
     reportClassification: 'deepseek/deepseek-v3.2'
-    articleComposition: 'deepseek/deepseek-v3.2'
-    articleFabrication: 'deepseek/deepseek-v3.2'
-    articleQuizGeneration: 'deepseek/deepseek-v3.2'
+    articleComposition: 'google/gemini-3-pro-preview'
+    articleFabrication: 'x-ai/grok-4-fast'
+    articleQuizGeneration: 'x-ai/grok-4-fast'
 
   worldNews:
     useCache: false
