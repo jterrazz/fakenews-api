@@ -13,5 +13,3 @@ outbound:
     apiKey: OPEN_ROUTER_API_KEY
   worldNews:
     apiKey: WORLD_NEWS_API_KEY
-  newRelic:
-    licenseKey: NEW_RELIC_LICENSE_KEY

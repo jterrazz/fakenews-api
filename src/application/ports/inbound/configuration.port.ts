@@ -49,9 +49,8 @@ export interface OutboundConfigurationPort {
         articleFabrication: string;
         articleQuizGeneration: string;
     };
-    newRelic: {
+    telemetry: {
         enabled: boolean;
-        licenseKey?: string;
     };
     openRouter: {
         apiKey: string;

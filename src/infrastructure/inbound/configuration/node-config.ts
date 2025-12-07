@@ -44,9 +44,8 @@ const configurationSchema = z.object({
             articleFabrication: z.string().min(1),
             articleQuizGeneration: z.string().min(1),
         }),
-        newRelic: z.object({
+        telemetry: z.object({
             enabled: z.boolean(),
-            licenseKey: z.string().optional(),
         }),
         openRouter: z.object({
             apiKey: z.string().min(1),

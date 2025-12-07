@@ -1,10 +1,5 @@
 import { OpenRouterProvider, type ProviderPort } from '@jterrazz/intelligence';
 import { type LoggerPort, PinoLoggerAdapter } from '@jterrazz/logger';
-import {
-    type MonitoringPort,
-    NewRelicMonitoringAdapter,
-    NoopMonitoringAdapter,
-} from '@jterrazz/monitoring';
 import { Container, Injectable } from '@snap/ts-inject';
 import { default as nodeConfiguration } from 'config';
 
@@ -46,6 +41,13 @@ import {
     type WorldNewsConfiguration,
 } from '../infrastructure/outbound/providers/world-news.provider.js';
 
+// Shared
+import {
+    NoopTelemetryAdapter,
+    OpenTelemetryAdapter,
+    type TelemetryPort,
+} from '../shared/telemetry/index.js';
+
 /**
  * Outbound adapters
  */
@@ -68,15 +70,15 @@ const loggerFactory = Injectable(
 
 const newsFactory = Injectable(
     'News',
-    ['Configuration', 'Logger', 'NewRelic'] as const,
-    (config: ConfigurationPort, logger: LoggerPort, monitoring: MonitoringPort) => {
+    ['Configuration', 'Logger', 'Telemetry'] as const,
+    (config: ConfigurationPort, logger: LoggerPort, telemetry: TelemetryPort) => {
         logger.info('Initializing WorldNews provider', { provider: 'WorldNews' });
         const newsAdapter = new WorldNews(
             {
                 apiKey: config.getOutboundConfiguration().worldNews.apiKey,
             } as WorldNewsConfiguration,
             logger,
-            monitoring,
+            telemetry,
         );
         const useCache = config.getOutboundConfiguration().worldNews.useCache;
 
@@ -307,24 +309,21 @@ const tasksFactory = Injectable(
 );
 
 /**
- * Monitoring adapters
+ * Telemetry adapters
  */
-const newRelicFactory = Injectable(
-    'NewRelic',
+const telemetryFactory = Injectable(
+    'Telemetry',
     ['Configuration', 'Logger'] as const,
-    (config: ConfigurationPort, logger: LoggerPort): MonitoringPort => {
-        const outboundConfig = config.getOutboundConfiguration();
+    (config: ConfigurationPort, logger: LoggerPort): TelemetryPort => {
+        const telemetryEnabled = config.getOutboundConfiguration().telemetry.enabled;
 
-        if (!outboundConfig.newRelic.enabled) {
-            return new NoopMonitoringAdapter(logger);
+        if (!telemetryEnabled) {
+            logger.info('Telemetry disabled, using noop adapter');
+            return new NoopTelemetryAdapter();
         }
 
-        logger.info('Initializing NewRelic monitoring', { provider: 'NewRelic' });
-        return new NewRelicMonitoringAdapter({
-            environment: config.getInboundConfiguration().env,
-            licenseKey: outboundConfig.newRelic.licenseKey,
-            logger,
-        });
+        logger.info('Initializing OpenTelemetry', { provider: 'OpenTelemetry' });
+        return new OpenTelemetryAdapter('n00-api');
     },
 );
 
@@ -366,7 +365,7 @@ export const createContainer = (overrides?: ContainerOverrides) =>
         // Outbound adapters
         .provides(configurationFactory(overrides))
         .provides(loggerFactory)
-        .provides(newRelicFactory)
+        .provides(telemetryFactory)
         .provides(databaseFactory)
         .provides(newsFactory)
         .provides(providerFactory)

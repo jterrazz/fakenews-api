@@ -4,7 +4,6 @@ const start = async () => {
     const container = createContainer();
     const logger = container.get('Logger');
     const config = container.get('Configuration');
-    const newRelic = container.get('NewRelic');
     const server = container.get('Server');
     const worker = container.get('Worker');
 
@@ -13,7 +12,6 @@ const start = async () => {
 
         const { host, port } = config.getInboundConfiguration().http;
 
-        await newRelic.initialize();
         await worker.initialize();
         await server.start({
             host,

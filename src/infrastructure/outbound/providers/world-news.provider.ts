@@ -1,5 +1,4 @@
 import { type LoggerPort } from '@jterrazz/logger';
-import { type MonitoringPort } from '@jterrazz/monitoring';
 import { z } from 'zod/v4';
 
 // Application
@@ -14,10 +13,12 @@ import {
 import { Country } from '../../../domain/value-objects/country.vo.js';
 import { Language } from '../../../domain/value-objects/language.vo.js';
 
+// Shared
 import {
     createCurrentTZDateForCountry,
     formatTZDateForCountry,
 } from '../../../shared/date/timezone.js';
+import { type TelemetryPort } from '../../../shared/telemetry/index.js';
 
 // Constants
 const RATE_LIMIT_DELAY = 1200; // 1.2 seconds between requests for safety margin
@@ -59,7 +60,7 @@ export class WorldNews implements NewsProviderPort {
     constructor(
         private readonly configuration: WorldNewsConfiguration,
         private readonly logger: LoggerPort,
-        private readonly monitoring: MonitoringPort,
+        private readonly telemetry: TelemetryPort,
     ) {}
 
     public async fetchNews(options?: NewsOptions): Promise<NewsReport[]> {
@@ -68,34 +69,38 @@ export class WorldNews implements NewsProviderPort {
             language = new Language(DEFAULT_LANGUAGE),
         } = options || {};
 
-        return this.monitoring.monitorSegment('Api/WorldNews/FetchNews', async () => {
-            try {
-                this.logger.debug('Fetching news from WorldNews API', {
-                    country: country.toString(),
-                    language: language.toString(),
-                });
-                await this.enforceRateLimit();
+        return this.telemetry.span(
+            'Api/WorldNews/FetchNews',
+            async () => {
+                try {
+                    this.logger.debug('Fetching news from WorldNews API', {
+                        country: country.toString(),
+                        language: language.toString(),
+                    });
+                    await this.enforceRateLimit();
 
-                const url = this.buildApiUrl(country, language);
-                const response = await this.makeApiRequest(url);
-                const stories = await this.processApiResponse(response);
+                    const url = this.buildApiUrl(country, language);
+                    const response = await this.makeApiRequest(url);
+                    const stories = await this.processApiResponse(response);
 
-                this.logger.info('Successfully fetched news from WorldNews API', {
-                    country: country.toString(),
-                    language: language.toString(),
-                    reportCount: stories.length,
-                });
-                return stories;
-            } catch (error) {
-                this.monitoring.recordCount('WorldNews', 'Errors');
-                this.logger.error('Failed to fetch news from WorldNews API', {
-                    country: country.toString(),
-                    error,
-                    language: language.toString(),
-                });
-                return [];
-            }
-        });
+                    this.logger.info('Successfully fetched news from WorldNews API', {
+                        country: country.toString(),
+                        language: language.toString(),
+                        reportCount: stories.length,
+                    });
+                    return stories;
+                } catch (error) {
+                    this.telemetry.counter('worldnews.errors');
+                    this.logger.error('Failed to fetch news from WorldNews API', {
+                        country: country.toString(),
+                        error,
+                        language: language.toString(),
+                    });
+                    return [];
+                }
+            },
+            { country: country.toString(), language: language.toString() },
+        );
     }
 
     private buildApiUrl(country: Country, language: Language): URL {
@@ -122,7 +127,7 @@ export class WorldNews implements NewsProviderPort {
 
         if (timeSinceLastRequest < RATE_LIMIT_DELAY) {
             const waitTime = RATE_LIMIT_DELAY - timeSinceLastRequest;
-            this.monitoring.recordMeasurement('WorldNews/RateLimit', 'WaitTime', waitTime);
+            this.telemetry.histogram('worldnews.ratelimit.wait_ms', waitTime);
             await new Promise((resolve) => setTimeout(resolve, waitTime));
         }
 
@@ -133,7 +138,7 @@ export class WorldNews implements NewsProviderPort {
         const response = await fetch(url.toString());
 
         if (!response.ok) {
-            this.monitoring.recordCount('WorldNews', 'Errors');
+            this.telemetry.counter('worldnews.errors', 1, { status: response.status });
             this.logger.error('WorldNews API returned an error response', {
                 status: response.status,
                 statusText: response.statusText,

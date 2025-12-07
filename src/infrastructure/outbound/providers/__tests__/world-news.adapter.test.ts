@@ -1,5 +1,4 @@
 import { type LoggerPort } from '@jterrazz/logger';
-import { type MonitoringPort } from '@jterrazz/monitoring';
 import {
     afterAll,
     afterEach,
@@ -19,7 +18,10 @@ import { ZodError } from 'zod/v4';
 // Domain
 import { Country } from '../../../../domain/value-objects/country.vo.js';
 
+// Shared
 import { createTZDateForCountry } from '../../../../shared/date/timezone.js';
+import { type TelemetryPort } from '../../../../shared/telemetry/index.js';
+
 import { WorldNews, type WorldNewsConfiguration } from '../world-news.provider.js';
 
 const mockConfiguration: WorldNewsConfiguration = {
@@ -92,9 +94,9 @@ beforeAll(() => {
     vitest.useFakeTimers();
 });
 beforeEach(() => {
-    const newRelic = mockOf<MonitoringPort>();
-    newRelic.monitorSegment.mockImplementation(async (_name, cb) => cb());
-    provider = new WorldNews(mockConfiguration as WorldNewsConfiguration, mockLogger, newRelic);
+    const telemetry = mockOf<TelemetryPort>();
+    telemetry.span.mockImplementation(async (_name, cb) => cb());
+    provider = new WorldNews(mockConfiguration as WorldNewsConfiguration, mockLogger, telemetry);
     requestedDates = {};
 });
 afterEach(() => {
@@ -252,7 +254,7 @@ describe('WorldNews.transformResponse', () => {
         const provider = new WorldNews(
             { apiKey: 'irrelevant' },
             mockLogger,
-            mockOf<MonitoringPort>(),
+            mockOf<TelemetryPort>(),
         );
         const response = {
             country: 'us',
@@ -316,7 +318,7 @@ describe('WorldNews.transformResponse', () => {
         const provider = new WorldNews(
             { apiKey: 'irrelevant' },
             mockLogger,
-            mockOf<MonitoringPort>(),
+            mockOf<TelemetryPort>(),
         );
         const response = {
             country: 'us',

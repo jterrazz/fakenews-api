@@ -37,7 +37,7 @@ describe('Node Config', () => {
                 articleFabrication: 'google/gemini-2.5-flash-lite',
                 articleQuizGeneration: 'google/gemini-2.5-flash-lite',
             },
-            newRelic: {
+            telemetry: {
                 enabled: false,
             },
             openRouter: {

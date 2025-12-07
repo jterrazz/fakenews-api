@@ -15,5 +15,5 @@ outbound:
     budget: low
   worldNews:
     apiKey: test-world-news-key
-  newRelic:
+  telemetry:
     enabled: false
