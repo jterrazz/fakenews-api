@@ -1,10 +1,10 @@
-import { type Category, type Country, type Language } from '../../../../generated/prisma/client.js';
-
 // Application
 import { type GetArticlesResult } from '../../../../application/use-cases/articles/get-articles.use-case.js';
 
 // Domain
 import { type Article } from '../../../../domain/entities/article.entity.js';
+
+import { type Category, type Country, type Language } from '../../../../generated/prisma/client.js';
 
 type ArticleChallenges = {
     authenticity: {

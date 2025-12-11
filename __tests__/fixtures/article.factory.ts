@@ -1,9 +1,3 @@
-import {
-    type Prisma,
-    type PrismaClient,
-    type Country as PrismaCountry,
-    type Language as PrismaLanguage,
-} from '../../src/generated/prisma/client.js';
 import { addDays, subDays } from 'date-fns';
 
 // Domain
@@ -18,6 +12,13 @@ import { Headline } from '../../src/domain/value-objects/article/headline.vo.js'
 import { Categories } from '../../src/domain/value-objects/categories.vo.js';
 import { Country } from '../../src/domain/value-objects/country.vo.js';
 import { Language } from '../../src/domain/value-objects/language.vo.js';
+
+import {
+    type Prisma,
+    type PrismaClient,
+    type Country as PrismaCountry,
+    type Language as PrismaLanguage,
+} from '../../src/generated/prisma/client.js';
 
 /**
  * Article test data builder using the Factory pattern

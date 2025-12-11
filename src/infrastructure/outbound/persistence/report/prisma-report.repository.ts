@@ -1,5 +1,4 @@
 import { type LoggerPort } from '@jterrazz/logger';
-import { type Prisma } from '../../../../generated/prisma/client.js';
 
 // Application
 import { type ReportRepositoryPort } from '../../../../application/ports/outbound/persistence/report/report-repository.port.js';
@@ -9,6 +8,7 @@ import { type Report } from '../../../../domain/entities/report.entity.js';
 import { Country } from '../../../../domain/value-objects/country.vo.js';
 import { type Language } from '../../../../domain/value-objects/language.vo.js';
 
+import { type Prisma } from '../../../../generated/prisma/client.js';
 import { type PrismaDatabase } from '../prisma.database.js';
 
 import { ReportMapper } from './prisma-report.mapper.js';

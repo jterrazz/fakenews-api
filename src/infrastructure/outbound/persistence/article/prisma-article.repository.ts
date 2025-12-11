@@ -1,5 +1,3 @@
-import { type Prisma } from '../../../../generated/prisma/client.js';
-
 // Application
 import type {
     ArticleRepositoryPort,
@@ -11,6 +9,7 @@ import type {
 // Domain
 import type { Article } from '../../../../domain/entities/article.entity.js';
 
+import { type Prisma } from '../../../../generated/prisma/client.js';
 import type { PrismaDatabase } from '../prisma.database.js';
 
 import { ArticleMapper } from './prisma-article.mapper.js';

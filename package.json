@@ -12,8 +12,8 @@
     "dev": "prisma db push && NODE_ENV=development ts-dev",
     "studio": "prisma studio",
     "test": "vitest --run",
-    "lint": "quality",
-    "lint:fix": "quality-fix"
+    "lint": "ts-check",
+    "lint:fix": "ts-fix"
   },
   "devDependencies": {
     "@jterrazz/quality": "5.0.1",

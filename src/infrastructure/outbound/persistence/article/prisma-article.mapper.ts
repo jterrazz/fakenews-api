@@ -1,12 +1,3 @@
-import {
-    type Prisma,
-    type Article as PrismaArticle,
-    type ArticleFrame as PrismaArticleFrame,
-    type ArticleQuiz as PrismaArticleQuiz,
-    type Country as PrismaCountry,
-    type Language as PrismaLanguage,
-} from '../../../../generated/prisma/client.js';
-
 // Domain
 import { Article } from '../../../../domain/entities/article.entity.js';
 import { ArticleFrame } from '../../../../domain/value-objects/article-frame/article-frame.vo.js';
@@ -24,6 +15,15 @@ import { type Category } from '../../../../domain/value-objects/category.vo.js';
 import { Country } from '../../../../domain/value-objects/country.vo.js';
 import { Language } from '../../../../domain/value-objects/language.vo.js';
 import { Classification } from '../../../../domain/value-objects/report/tier.vo.js';
+
+import {
+    type Prisma,
+    type Article as PrismaArticle,
+    type ArticleFrame as PrismaArticleFrame,
+    type ArticleQuiz as PrismaArticleQuiz,
+    type Country as PrismaCountry,
+    type Language as PrismaLanguage,
+} from '../../../../generated/prisma/client.js';
 
 export class ArticleMapper {
     /**

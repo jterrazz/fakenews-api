@@ -1,7 +1,7 @@
 /**
  * Attributes that can be attached to spans, metrics, and events
  */
-export type TelemetryAttributes = Record<string, string | number | boolean | undefined>;
+export type TelemetryAttributes = Record<string, boolean | number | string | undefined>;
 
 /**
  * Telemetry port providing unified observability capabilities
@@ -45,6 +45,5 @@ export interface TelemetryPort {
      * @param key - Attribute key
      * @param value - Attribute value
      */
-    setAttribute(key: string, value: string | number | boolean): void;
+    setAttribute(key: string, value: boolean | number | string): void;
 }
-

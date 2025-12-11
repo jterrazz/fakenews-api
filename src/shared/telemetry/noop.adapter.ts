@@ -5,19 +5,7 @@ import type { TelemetryAttributes, TelemetryPort } from './telemetry.port.js';
  * @description All methods are no-ops, useful for unit tests or when telemetry is disabled
  */
 export class NoopTelemetryAdapter implements TelemetryPort {
-    async span<T>(
-        _name: string,
-        fn: () => Promise<T>,
-        _attributes?: TelemetryAttributes,
-    ): Promise<T> {
-        return fn();
-    }
-
     counter(_name: string, _value?: number, _attributes?: TelemetryAttributes): void {
-        // No-op
-    }
-
-    histogram(_name: string, _value: number, _attributes?: TelemetryAttributes): void {
         // No-op
     }
 
@@ -25,8 +13,19 @@ export class NoopTelemetryAdapter implements TelemetryPort {
         // No-op
     }
 
-    setAttribute(_key: string, _value: string | number | boolean): void {
+    histogram(_name: string, _value: number, _attributes?: TelemetryAttributes): void {
         // No-op
     }
-}
 
+    setAttribute(_key: string, _value: boolean | number | string): void {
+        // No-op
+    }
+
+    async span<T>(
+        _name: string,
+        fn: () => Promise<T>,
+        _attributes?: TelemetryAttributes,
+    ): Promise<T> {
+        return fn();
+    }
+}

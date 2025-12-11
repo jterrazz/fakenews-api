@@ -1,10 +1,3 @@
-import {
-    type Prisma,
-    type Country as PrismaCountry,
-    type Report as PrismaReport,
-    type ReportAngle as PrismaReportAngle,
-} from '../../../../generated/prisma/client.js';
-
 // Domain
 import { Report } from '../../../../domain/entities/report.entity.js';
 import { ArticleTraits } from '../../../../domain/value-objects/article-traits.vo.js';
@@ -17,6 +10,13 @@ import { Core } from '../../../../domain/value-objects/report/core.vo.js';
 import { DeduplicationState } from '../../../../domain/value-objects/report/deduplication-state.vo.js';
 import { ClassificationState } from '../../../../domain/value-objects/report/tier-state.vo.js';
 import { Classification } from '../../../../domain/value-objects/report/tier.vo.js';
+
+import {
+    type Prisma,
+    type Country as PrismaCountry,
+    type Report as PrismaReport,
+    type ReportAngle as PrismaReportAngle,
+} from '../../../../generated/prisma/client.js';
 
 export class ReportMapper {
     angleToPrisma(
