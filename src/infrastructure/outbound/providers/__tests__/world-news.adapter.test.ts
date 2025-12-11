@@ -21,7 +21,6 @@ import { Country } from '../../../../domain/value-objects/country.vo.js';
 // Shared
 import { createTZDateForCountry } from '../../../../shared/date/timezone.js';
 import { type TelemetryPort } from '../../../../shared/telemetry/index.js';
-
 import { WorldNews, type WorldNewsConfiguration } from '../world-news.provider.js';
 
 const mockConfiguration: WorldNewsConfiguration = {

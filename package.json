@@ -1,10 +1,10 @@
 {
-  "name": "fakenews-api",
+  "name": "n00-api",
   "version": "1.0.0",
   "author": "Jean-Baptiste Terrazzoni <contact@jterrazz.com>",
   "type": "module",
   "engines": {
-    "node": "22.x.x"
+    "node": "24.x.x"
   },
   "scripts": {
     "build": "prisma generate && ts-build",
@@ -16,28 +16,27 @@
     "lint:fix": "quality-fix"
   },
   "devDependencies": {
-    "@jterrazz/quality": "4.0.4",
-    "@jterrazz/test": "3.0.0",
-    "@jterrazz/typescript": "3.0.0",
-    "@types/config": "^3.3.5",
-    "@types/node": "^22.15.30"
+    "@jterrazz/quality": "5.0.1",
+    "@jterrazz/test": "3.1.0",
+    "@jterrazz/typescript": "3.1.0",
+    "@types/node": "^25.0.0"
   },
   "dependencies": {
     "@date-fns/tz": "^1.4.1",
-    "@hono/node-server": "^1.19.6",
+    "@hono/node-server": "^1.19.7",
     "@jterrazz/intelligence": "^2.0.0",
     "@jterrazz/logger": "^1.5.0",
     "@jterrazz/monitoring": "^1.0.0",
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/auto-instrumentations-node": "^0.67.2",
     "@opentelemetry/sdk-metrics": "^2.2.0",
-    "@prisma/client": "^6.16.0",
+    "@prisma/client": "^7.1.0",
     "@snap/ts-inject": "^0.3.2",
-    "config": "^3.3.12",
+    "config": "^4.1.1",
     "date-fns": "^4.1.0",
-    "hono": "^4.10.7",
+    "hono": "^4.10.8",
     "node-cron": "^4.2.1",
-    "prisma": "^6.16.0",
-    "zod": "^3.25.67"
+    "prisma": "^7.1.0",
+    "zod": "^4.1.13"
   }
 }
