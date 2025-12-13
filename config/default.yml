@@ -28,4 +28,9 @@ outbound:
   worldNews:
     useCache: false
   telemetry:
-    enabled: true
+    enabled: false
+    serviceName: n00-api
+    resourceDetectors:
+      - env
+      - host
+      - os

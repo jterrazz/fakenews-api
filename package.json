@@ -7,8 +7,8 @@
     "node": "24.x.x"
   },
   "scripts": {
-    "build": "prisma generate && ts-build",
-    "start": "NODE_ENV=production OTEL_TRACES_EXPORTER=otlp OTEL_EXPORTER_OTLP_ENDPOINT=https://signoz-http.jterrazz.com OTEL_SERVICE_NAME=n00-api OTEL_NODE_RESOURCE_DETECTORS=env,host,os prisma migrate deploy && node --enable-source-maps --require @opentelemetry/auto-instrumentations-node/register dist/index.js",
+    "build": "prisma generate && ts-build --app",
+    "start": "NODE_ENV=production prisma migrate deploy && node --enable-source-maps --import ./dist/instrumentation.js dist/index.js",
     "dev": "prisma db push && NODE_ENV=development ts-dev",
     "studio": "prisma studio",
     "test": "vitest --run",
@@ -18,7 +18,8 @@
   "devDependencies": {
     "@jterrazz/quality": "5.0.1",
     "@jterrazz/test": "3.1.0",
-    "@jterrazz/typescript": "4.0.2",
+    "@jterrazz/typescript": "4.2.0",
+    "@types/config": "^3.3.5",
     "@types/node": "^25.0.0"
   },
   "dependencies": {

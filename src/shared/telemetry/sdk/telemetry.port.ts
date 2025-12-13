@@ -47,3 +47,4 @@ export interface TelemetryPort {
      */
     setAttribute(key: string, value: boolean | number | string): void;
 }
+

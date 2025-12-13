@@ -1,3 +1,9 @@
 inbound:
   http:
     host: 0.0.0.0
+
+outbound:
+  telemetry:
+    enabled: true
+    serviceName: n00-api
+    endpoint: https://signoz-http.jterrazz.com

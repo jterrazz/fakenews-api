@@ -1,12 +1,21 @@
 // =============================================================================
-// TELEMETRY PORT
+// SETUP (Configuration & Initialization)
 // =============================================================================
 
-export type { TelemetryAttributes, TelemetryPort } from './telemetry.port.js';
+export {
+    initializeTelemetry,
+    type InitializeTelemetryOptions,
+    type TelemetryConfig,
+    telemetryConfigSchema,
+} from './setup/index.js';
 
 // =============================================================================
-// ADAPTERS
+// SDK (Port & Adapters)
 // =============================================================================
 
-export { NoopTelemetryAdapter } from './noop.adapter.js';
-export { OpenTelemetryAdapter } from './opentelemetry.adapter.js';
+export {
+    NoopTelemetryAdapter,
+    OpenTelemetryAdapter,
+    type TelemetryAttributes,
+    type TelemetryPort,
+} from './sdk/index.js';

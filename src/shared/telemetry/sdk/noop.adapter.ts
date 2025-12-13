@@ -29,3 +29,4 @@ export class NoopTelemetryAdapter implements TelemetryPort {
         return fn();
     }
 }
+
